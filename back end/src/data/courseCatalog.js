@@ -1,0 +1,141 @@
+export const POINTS_PER_LEVEL = 250;
+
+export const courses = [
+  {
+    id: 'html',
+    title: 'HTML',
+    description: 'Learn the building blocks of web pages. Master HTML tags, structure, and semantic elements.',
+    totalLessons: 20,
+    icon: 'html',
+    color: 'bg-gradient-to-br from-orange-500 to-red-600'
+  },
+  {
+    id: 'css',
+    title: 'CSS',
+    description: 'Style your websites beautifully. Learn selectors, layouts, animations, and responsive design.',
+    totalLessons: 25,
+    icon: 'css',
+    color: 'bg-gradient-to-br from-blue-500 to-indigo-600'
+  },
+  {
+    id: 'javascript',
+    title: 'JavaScript',
+    description: 'Bring your websites to life. Learn variables, functions, DOM manipulation, and modern ES6+ features.',
+    totalLessons: 27,
+    icon: 'javascript',
+    color: 'bg-gradient-to-br from-yellow-400 to-yellow-600'
+  },
+  {
+    id: 'react',
+    title: 'React',
+    description: 'Build powerful user interfaces with components. Learn hooks, state management, and modern React patterns.',
+    totalLessons: 28,
+    icon: 'html',
+    color: 'bg-gradient-to-br from-cyan-400 to-blue-500'
+  },
+  {
+    id: 'typescript',
+    title: 'TypeScript',
+    description: 'Add type safety to JavaScript. Master interfaces, types, generics, and build scalable applications.',
+    totalLessons: 22,
+    icon: 'css',
+    color: 'bg-gradient-to-br from-blue-600 to-indigo-700'
+  }
+];
+
+export const courseSections = {
+  javascript: [
+    {
+      id: 'js-basics',
+      number: 1,
+      title: 'JavaScript Basics',
+      icon: '📝',
+      lessons: [
+        { id: 'js-1', number: 1, title: 'Creating Variables', type: 'learn', xpReward: 50 },
+        { id: 'js-2', number: 2, title: 'Using Variables', type: 'learn', xpReward: 50 },
+        { id: 'js-3', number: 3, title: 'Using True and False', type: 'learn', xpReward: 50 },
+        { id: 'js-4', number: 4, title: 'Checking Number Equality', type: 'learn', xpReward: 50 },
+        { id: 'js-5', number: 5, title: 'JavaScript Basics', type: 'practice', xpReward: 75 }
+      ]
+    },
+    {
+      id: 'types',
+      number: 2,
+      title: 'Types and Comparisons',
+      icon: '🔢',
+      lessons: [
+        { id: 'js-6', number: 1, title: 'Understanding Data Types', type: 'learn', xpReward: 50 },
+        { id: 'js-7', number: 2, title: 'Type Conversion', type: 'learn', xpReward: 50 },
+        { id: 'js-8', number: 3, title: 'Comparison Operators', type: 'learn', xpReward: 50 },
+        { id: 'js-9', number: 4, title: 'Logical Operators', type: 'learn', xpReward: 50 },
+        { id: 'js-10', number: 5, title: 'Strict vs Loose Equality', type: 'learn', xpReward: 50 },
+        { id: 'js-11', number: 6, title: 'Types Challenge', type: 'practice', xpReward: 75 }
+      ]
+    },
+    {
+      id: 'conditionals',
+      number: 3,
+      title: 'Conditionals',
+      icon: '🔀',
+      lessons: [
+        { id: 'js-12', number: 1, title: 'If Statements', type: 'learn', xpReward: 50 },
+        { id: 'js-13', number: 2, title: 'Else Statements', type: 'learn', xpReward: 50 },
+        { id: 'js-14', number: 3, title: 'Else If', type: 'learn', xpReward: 50 },
+        { id: 'js-15', number: 4, title: 'Switch Statements', type: 'learn', xpReward: 50 },
+        { id: 'js-16', number: 5, title: 'Conditionals Practice', type: 'practice', xpReward: 75 }
+      ]
+    },
+    {
+      id: 'loops',
+      number: 4,
+      title: 'Loops',
+      icon: '🔄',
+      lessons: [
+        { id: 'js-17', number: 1, title: 'While Loops', type: 'learn', xpReward: 50 },
+        { id: 'js-18', number: 2, title: 'For Loops', type: 'learn', xpReward: 50 },
+        { id: 'js-19', number: 3, title: 'Loop Control', type: 'learn', xpReward: 50 },
+        { id: 'js-20', number: 4, title: 'Nested Loops', type: 'learn', xpReward: 50 },
+        { id: 'js-21', number: 5, title: 'Loops Challenge', type: 'practice', xpReward: 75 }
+      ]
+    },
+    {
+      id: 'functions',
+      number: 5,
+      title: 'Functions',
+      icon: '⚙️',
+      lessons: [
+        { id: 'js-22', number: 1, title: 'Creating Functions', type: 'learn', xpReward: 50 },
+        { id: 'js-23', number: 2, title: 'Function Parameters', type: 'learn', xpReward: 50 },
+        { id: 'js-24', number: 3, title: 'Return Values', type: 'learn', xpReward: 50 },
+        { id: 'js-25', number: 4, title: 'Arrow Functions', type: 'learn', xpReward: 50 },
+        { id: 'js-26', number: 5, title: 'Callback Functions', type: 'learn', xpReward: 50 },
+        { id: 'js-27', number: 6, title: 'Functions Practice', type: 'practice', xpReward: 75 }
+      ]
+    }
+  ]
+};
+
+export function getCourseCatalog() {
+  return courses;
+}
+
+export function getCourseById(courseId) {
+  return courses.find((course) => course.id === courseId) ?? null;
+}
+
+export function getSectionsByCourseId(courseId) {
+  return courseSections[courseId] ?? [];
+}
+
+export function findLesson(lessonId) {
+  for (const [courseId, sections] of Object.entries(courseSections)) {
+    for (const section of sections) {
+      const lesson = section.lessons.find((entry) => entry.id === lessonId);
+      if (lesson) {
+        return { courseId, sectionId: section.id, lesson };
+      }
+    }
+  }
+
+  return null;
+}
