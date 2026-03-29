@@ -1,12 +1,20 @@
+# CodeQuest
 
-  # Gamified E-Learning Prototype
+CodeQuest is a gamified web learning system for programming education.
 
-  
-  ## Running the code
+## Project Structure
 
-  Run `npm i` to install the dependencies.
+- `frontend/` - React and Vite frontend application
+- `back end/` - Node.js and Express backend application
 
-  Run `npm run dev` to start the development server.
+## Running the Frontend
 
-# CODEQUEST---AI-Supported-Gamified-Web-Learning-System-
-  
+Run `npm i` inside `frontend/` to install dependencies.
+
+Run `npm run dev` inside `frontend/` to start the development server.
+
+## Running the Backend
+
+Run `npm i` inside `back end/` to install dependencies.
+
+Run `npm run start` inside `back end/` to start the backend server.

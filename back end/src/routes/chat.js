@@ -99,7 +99,9 @@ router.post('/', async (req, res) => {
       'Ground your answer in the provided lesson and course context when available.',
       'If helpful, suggest one short next practice step.',
       'If the student asks for code, explain it in a beginner-friendly way.',
-      'If the student is confused, ask one short clarifying question before going deeper.'
+      'If the student is confused, ask one short clarifying question before going deeper.',
+      'Return plain text only.',
+      'Do not use markdown, bold markers, headings, bullets, or code fences.'
     ].join(' ');
 
     const userPrompt = context

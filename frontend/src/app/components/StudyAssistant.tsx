@@ -6,6 +6,16 @@ type ChatMessage = {
   text: string;
 };
 
+function normalizeAssistantText(text: string) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/`([^`]*)`/g, '$1')
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 interface StudyAssistantProps {
   authToken: string;
   apiBaseUrl: string;
@@ -54,7 +64,12 @@ export function StudyAssistant({ authToken, apiBaseUrl, context, threadKey, quic
           throw new Error(payload.error || 'Failed to load chat history');
         }
         if (payload.messages?.length) {
-          setMessages(payload.messages);
+          setMessages(
+            payload.messages.map((message: ChatMessage) => ({
+              ...message,
+              text: message.role === 'assistant' ? normalizeAssistantText(message.text) : message.text
+            }))
+          );
         }
       } catch {
         // Keep the default intro message if history fails.
@@ -114,7 +129,20 @@ export function StudyAssistant({ authToken, apiBaseUrl, context, threadKey, quic
         throw new Error(payload.error || 'Failed to get assistant reply');
       }
 
-      setMessages(payload.messages?.length ? payload.messages : [...nextMessages, { role: 'assistant', text: payload.reply }]);
+      setMessages(
+        payload.messages?.length
+          ? payload.messages.map((message: ChatMessage) => ({
+              ...message,
+              text: message.role === 'assistant' ? normalizeAssistantText(message.text) : message.text
+            }))
+          : [
+              ...nextMessages,
+              {
+                role: 'assistant',
+                text: normalizeAssistantText(payload.reply)
+              }
+            ]
+      );
     } catch (error) {
       setMessages([
         ...nextMessages,
