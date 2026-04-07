@@ -39,21 +39,6 @@ export function CourseSelection({
     setSelectedTab(initialTab);
   }, [initialTab]);
 
-  const getIcon = (iconType: string) => {
-    switch (iconType) {
-      case 'html':
-        return <Code className="w-12 h-12" />;
-      case 'css':
-        return <Palette className="w-12 h-12" />;
-      case 'javascript':
-        return <Zap className="w-12 h-12" />;
-      case 'backend':
-        return <Code className="w-12 h-12" />;
-      default:
-        return <Code className="w-12 h-12" />;
-    }
-  };
-
   const frontendCourseIds = new Set(['html', 'css', 'javascript', 'react', 'typescript']);
   const backendCourseIds = new Set(['nodejs', 'python', 'sql', 'apis']);
 
@@ -67,251 +52,287 @@ export function CourseSelection({
     return true;
   });
 
+  const progressCourses = courses.filter((course) => course.progress > 0);
+
+  const getIcon = (iconType: string) => {
+    switch (iconType) {
+      case 'html':
+        return <Code className="h-12 w-12" />;
+      case 'css':
+        return <Palette className="h-12 w-12" />;
+      case 'javascript':
+        return <Zap className="h-12 w-12" />;
+      default:
+        return <Code className="h-12 w-12" />;
+    }
+  };
+
+  const getCourseLetter = (courseId: string) => {
+    switch (courseId) {
+      case 'html':
+        return 'H';
+      case 'css':
+        return 'C';
+      case 'javascript':
+        return 'JS';
+      case 'react':
+        return 'R';
+      case 'typescript':
+        return 'TS';
+      case 'nodejs':
+        return 'N';
+      case 'python':
+        return 'PY';
+      case 'sql':
+        return 'SQL';
+      default:
+        return 'API';
+    }
+  };
+
   return (
-    <div className="max-w-7xl mx-auto">
-      <div className="mb-8">
+    <div className="mx-auto max-w-[1600px] space-y-16">
+      <section>
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            className="flex items-center gap-2 text-slate-400 hover:text-cyan-400 mb-6 transition-colors"
+            className="mb-6 flex items-center gap-2 text-[#a8abb3] transition-colors hover:text-[#f1f3fc]"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="h-4 w-4" />
             Back to Learn
           </button>
         )}
-        <h2 className="text-3xl text-white mb-2">{heading}</h2>
-        <p className="text-slate-400">{subheading}</p>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        {courses.filter(c => c.progress > 0).map((course) => (
-          <div
-            key={course.id}
-            className="bg-slate-900 border border-cyan-500/30 rounded-xl p-6 hover:border-cyan-500/50 transition-all cursor-pointer group"
-            onClick={() => onSelectCourse(course.id)}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <p className="text-xs text-slate-400 uppercase mb-1">Course</p>
-                <h3 className="text-xl text-white mb-2">{course.title}</h3>
-                <p className="text-sm text-slate-400 mb-3">{course.completedLessons}/{course.totalLessons} lessons completed</p>
+        <h2 className="font-['Space_Grotesk'] text-4xl font-black uppercase tracking-tighter text-[#f1f3fc]">{heading}</h2>
+        <p className="mt-2 text-[#a8abb3]">{subheading}</p>
+
+        <div className="mt-8 grid grid-cols-1 gap-8">
+          {progressCourses.slice(0, 1).map((course) => (
+            <div
+              key={course.id}
+              onClick={() => onSelectCourse(course.id)}
+              className="group relative max-w-md cursor-pointer overflow-hidden rounded-[2rem] border border-blue-500/20 bg-[#0f141a] p-8 transition-all hover:border-blue-500/40"
+            >
+              <div className="mb-6 flex items-start justify-between">
+                <div>
+                  <div className="mb-1 text-[10px] font-bold uppercase tracking-widest text-blue-400">Course</div>
+                  <div className="font-['Space_Grotesk'] text-2xl font-black text-[#f1f3fc]">{course.title}</div>
+                  <div className="mt-1 text-xs text-[#a8abb3]">
+                    {course.completedLessons}/{course.totalLessons} lessons completed
+                  </div>
+                </div>
+                <div className={`flex h-14 w-14 items-center justify-center rounded-xl ${course.color}`}>
+                  {getIcon(course.icon)}
+                </div>
               </div>
-              <div className={`${course.color} p-3 rounded-lg shadow-lg`}>
-                {getIcon(course.icon)}
+
+              <div className="mb-6">
+                <div className="mb-2 flex justify-between text-[10px] font-bold uppercase tracking-widest">
+                  <span className="text-[#a8abb3]">Progress</span>
+                  <span className="text-[#5cfd80]">{course.progress}%</span>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#20262f]">
+                  <div
+                    className="h-full bg-[#5cfd80] shadow-[0_0_10px_rgba(92,253,128,0.5)]"
+                    style={{ width: `${course.progress}%` }}
+                  />
+                </div>
               </div>
+
+              <button className="w-full rounded-xl border border-blue-500/30 bg-blue-500/10 py-4 text-xs font-black uppercase tracking-widest text-blue-400 transition-all hover:bg-blue-500/20">
+                Continue Learning
+              </button>
             </div>
-            
-            {/* Progress Bar */}
-            <div className="mb-3">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-slate-400">Progress</span>
-                <span className="text-sm text-green-400 font-semibold">{course.progress}%</span>
-              </div>
-              <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                <div 
-                  className="bg-green-500 h-full rounded-full transition-all duration-500 shadow-lg shadow-green-500/50"
-                  style={{ width: `${course.progress}%` }}
-                />
-              </div>
-            </div>
-            
-            <button className="w-full mt-2 px-4 py-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg group-hover:bg-cyan-500/30 transition-all">
-              Continue Learning
-            </button>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </section>
 
       {showCareerPaths && (
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-3xl text-white">Career Paths</h2>
-          <span className="text-sm text-cyan-400">🎯 Earn a professional certificate</span>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Front-End Developer Path */}
-          <button
-            type="button"
-            onClick={() => {
-              if (onOpenFrontendPath) {
-                onOpenFrontendPath();
-                return;
-              }
-              setSelectedTab('frontend');
-            }}
-            className={`text-left bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border rounded-xl p-6 transition-all ${
-              selectedTab === 'frontend'
-                ? 'border-cyan-400 shadow-lg shadow-cyan-500/20'
-                : 'border-cyan-500/30 hover:border-cyan-500/50'
-            }`}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-cyan-500/20 p-3 rounded-lg shadow-lg shadow-cyan-500/20">
-                <Code className="w-8 h-8 text-cyan-400" />
-              </div>
-              <div>
-                <h3 className="text-xl text-white">Front-End Developer</h3>
-                <p className="text-xs text-slate-400">5 courses</p>
-              </div>
+        <section>
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <h2 className="font-['Space_Grotesk'] text-4xl font-black uppercase tracking-tighter text-[#f1f3fc]">
+                Career Paths
+              </h2>
             </div>
-            <p className="text-sm text-slate-400 mb-4">Master HTML, CSS, JavaScript, React, and TypeScript to build modern websites</p>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2 py-1 bg-orange-500/20 text-orange-400 rounded border border-orange-500/30">HTML</span>
-              <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded border border-blue-500/30">CSS</span>
-              <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">JS</span>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-400">
+              <span>🎯</span>
+              Earn a professional certificate
             </div>
-            <p className="text-cyan-400 text-sm mt-4">Click to view these courses</p>
-          </button>
+          </div>
 
-          {/* Back-End Developer Path */}
-          <button
-            type="button"
-            onClick={() => setSelectedTab('backend')}
-            className={`text-left bg-gradient-to-br from-green-500/10 to-emerald-500/10 border rounded-xl p-6 transition-all ${
-              selectedTab === 'backend'
-                ? 'border-green-400 shadow-lg shadow-green-500/20'
-                : 'border-green-500/30 hover:border-green-500/50'
-            }`}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-green-500/20 p-3 rounded-lg shadow-lg shadow-green-500/20">
-                <Code className="w-8 h-8 text-green-400" />
-              </div>
-              <div>
-                <h3 className="text-xl text-white">Back-End Developer</h3>
-                <p className="text-xs text-slate-400">6 courses</p>
-              </div>
-            </div>
-            <p className="text-sm text-slate-400 mb-4">Learn Node.js, Python, databases, APIs, and server-side programming</p>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded border border-green-500/30">Node.js</span>
-              <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded border border-blue-500/30">Python</span>
-              <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded border border-purple-500/30">SQL</span>
-            </div>
-            <p className="text-green-400 text-sm mt-4">Click to view these courses</p>
-          </button>
-
-          {/* Full Stack Developer Path */}
-          <button
-            type="button"
-            onClick={() => setSelectedTab('all')}
-            className={`text-left bg-gradient-to-br from-purple-500/10 to-pink-500/10 border rounded-xl p-6 transition-all ${
-              selectedTab === 'all'
-                ? 'border-purple-400 shadow-lg shadow-purple-500/20'
-                : 'border-purple-500/30 hover:border-purple-500/50'
-            }`}
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="bg-purple-500/20 p-3 rounded-lg shadow-lg shadow-purple-500/20">
-                <Code className="w-8 h-8 text-purple-400" />
-              </div>
-              <div>
-                <h3 className="text-xl text-white">Full Stack Developer</h3>
-                <p className="text-xs text-slate-400">10 courses</p>
-              </div>
-            </div>
-            <p className="text-sm text-slate-400 mb-4">Complete front-end and back-end development mastery for full applications</p>
-            <div className="flex items-center gap-2 text-xs">
-              <span className="px-2 py-1 bg-cyan-500/20 text-cyan-400 rounded border border-cyan-500/30">React</span>
-              <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded border border-green-500/30">Node</span>
-              <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded border border-purple-500/30">DB</span>
-            </div>
-            <p className="text-purple-400 text-sm mt-4">Click to view all courses</p>
-          </button>
-        </div>
-      </div>
-      )}
-
-      <div className="mb-6">
-        <div className="flex flex-col gap-4 mb-6">
-          <h2 className="text-3xl text-white">All Courses</h2>
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <button
               type="button"
-              onClick={() => setSelectedTab('all')}
-              className={`px-4 py-2 rounded-lg border transition-all ${
-                selectedTab === 'all'
-                  ? 'border-cyan-400 bg-cyan-500/15 text-cyan-300'
-                  : 'border-slate-700 text-slate-300 hover:border-cyan-500/40'
-              }`}
+              onClick={() => {
+                if (onOpenFrontendPath) {
+                  onOpenFrontendPath();
+                  return;
+                }
+                setSelectedTab('frontend');
+              }}
+              className="group flex flex-col rounded-[2rem] border border-blue-500/20 bg-[#0f141a] p-6 text-left transition-all hover:border-blue-500/40"
             >
-              All
+              <div className="mb-4 flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 text-blue-400">
+                  <Code className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-['Space_Grotesk'] text-xl font-black uppercase text-[#f1f3fc]">Front-End Developer</h3>
+                  <div className="text-[10px] uppercase tracking-widest text-[#a8abb3]">5 courses</div>
+                </div>
+              </div>
+              <p className="mb-6 text-sm leading-relaxed text-[#a8abb3]">
+                Master HTML, CSS, JavaScript, React, and TypeScript to build modern websites
+              </p>
+              <div className="mb-7 flex flex-wrap gap-2">
+                <span className="rounded border border-orange-500/20 bg-orange-900/30 px-2 py-1 text-[10px] font-bold text-orange-500">HTML</span>
+                <span className="rounded border border-blue-500/20 bg-blue-900/30 px-2 py-1 text-[10px] font-bold text-blue-500">CSS</span>
+                <span className="rounded border border-yellow-500/20 bg-yellow-900/30 px-2 py-1 text-[10px] font-bold text-yellow-500">JS</span>
+              </div>
+              <span className="mt-auto text-xs font-bold uppercase tracking-widest text-blue-400 transition-colors group-hover:text-blue-300">
+                Click to view these courses
+              </span>
             </button>
-            <button
-              type="button"
-              onClick={() => setSelectedTab('frontend')}
-              className={`px-4 py-2 rounded-lg border transition-all ${
-                selectedTab === 'frontend'
-                  ? 'border-cyan-400 bg-cyan-500/15 text-cyan-300'
-                  : 'border-slate-700 text-slate-300 hover:border-cyan-500/40'
-              }`}
-            >
-              Frontend
-            </button>
+
             <button
               type="button"
               onClick={() => setSelectedTab('backend')}
-              className={`px-4 py-2 rounded-lg border transition-all ${
-                selectedTab === 'backend'
-                  ? 'border-cyan-400 bg-cyan-500/15 text-cyan-300'
-                  : 'border-slate-700 text-slate-300 hover:border-cyan-500/40'
-              }`}
+              className="group flex flex-col rounded-[2rem] border border-green-500/20 bg-[#0f141a] p-7 text-left transition-all hover:border-green-500/40"
             >
-              Backend
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayedCourses.map((course) => (
-          <div
-            key={course.id}
-            onClick={() => onSelectCourse(course.id)}
-            className="bg-slate-900 border border-cyan-500/20 rounded-xl overflow-hidden hover:border-cyan-500/40 transition-all cursor-pointer group"
-          >
-            <div className={`h-48 ${course.color} flex items-center justify-center relative overflow-hidden`}>
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent opacity-60"></div>
-              <div className="relative z-10 text-white">
-                {getIcon(course.icon)}
-              </div>
-            </div>
-            
-            <div className="p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xs text-cyan-400 uppercase">Course</span>
-                <div className={`${course.color} w-8 h-8 rounded flex items-center justify-center`}>
-                  <span className="text-white text-xs">
-                    {course.id === 'html'
-                      ? 'H'
-                      : course.id === 'css'
-                      ? 'C'
-                      : course.id === 'javascript'
-                      ? 'JS'
-                      : course.id === 'react'
-                      ? 'R'
-                      : course.id === 'typescript'
-                      ? 'TS'
-                      : course.id === 'nodejs'
-                      ? 'N'
-                      : course.id === 'python'
-                      ? 'PY'
-                      : course.id === 'sql'
-                      ? 'SQL'
-                      : 'API'}
-                  </span>
+              <div className="mb-5 flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-green-500/20 bg-green-500/10 text-green-400">
+                  <Code className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-['Space_Grotesk'] text-xl font-black uppercase text-[#f1f3fc]">Back-End Developer</h3>
+                  <div className="text-[10px] uppercase tracking-widest text-[#a8abb3]">6 courses</div>
                 </div>
               </div>
-              
-              <h3 className="text-xl text-white mb-2">{course.title}</h3>
-              <p className="text-slate-400 text-sm mb-5">{course.description}</p>
-              <div className="text-sm text-cyan-400">Open course</div>
-            </div>
+              <p className="mb-6 text-sm leading-relaxed text-[#a8abb3]">
+                Learn Node.js, Python, databases, APIs, and server-side programming
+              </p>
+              <div className="mb-7 flex flex-wrap gap-2">
+                <span className="rounded border border-green-500/20 bg-green-900/30 px-2 py-1 text-[10px] font-bold text-green-500">Node.js</span>
+                <span className="rounded border border-blue-500/20 bg-blue-900/30 px-2 py-1 text-[10px] font-bold text-blue-500">Python</span>
+                <span className="rounded border border-purple-500/20 bg-purple-900/30 px-2 py-1 text-[10px] font-bold text-purple-500">SQL</span>
+              </div>
+              <span className="mt-auto text-xs font-bold uppercase tracking-widest text-green-400 transition-colors group-hover:text-green-300">
+                Click to view these courses
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedTab('all')}
+              className="group flex flex-col rounded-[2rem] border border-purple-500/30 bg-[#1a1521] p-7 text-left shadow-[0_0_30px_rgba(168,85,247,0.05)] transition-all hover:border-purple-500/60"
+            >
+              <div className="mb-5 flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-purple-500/30 bg-purple-500/20 text-purple-400">
+                  <Code className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-['Space_Grotesk'] text-xl font-black uppercase text-[#f1f3fc]">Full Stack Developer</h3>
+                  <div className="text-[10px] uppercase tracking-widest text-[#a8abb3]">10 courses</div>
+                </div>
+              </div>
+              <p className="mb-6 text-sm leading-relaxed text-[#a8abb3]">
+                Complete front-end and back-end development mastery for full applications
+              </p>
+              <div className="mb-7 flex flex-wrap gap-2">
+                <span className="rounded border border-blue-400/20 bg-blue-900/30 px-2 py-1 text-[10px] font-bold text-blue-400">React</span>
+                <span className="rounded border border-green-400/20 bg-green-900/30 px-2 py-1 text-[10px] font-bold text-green-400">Node</span>
+                <span className="rounded border border-purple-400/20 bg-purple-900/30 px-2 py-1 text-[10px] font-bold text-purple-400">DB</span>
+              </div>
+              <span className="mt-auto text-xs font-bold uppercase tracking-widest text-purple-400 transition-colors group-hover:text-purple-300">
+                Click to view all courses
+              </span>
+            </button>
           </div>
-        ))}
-      </div>
+        </section>
+      )}
+
+      <section>
+        <div className="mb-8">
+          <h2 className="font-['Space_Grotesk'] text-4xl font-black uppercase tracking-tighter text-[#f1f3fc]">
+            Course Library
+          </h2>
+        </div>
+
+        <div className="mb-6 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={() => setSelectedTab('all')}
+            className={`rounded-full border px-5 py-2.5 text-xs font-black uppercase tracking-[0.28em] transition-all ${
+              selectedTab === 'all'
+                ? 'border-cyan-300/60 bg-cyan-400/15 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.22)]'
+                : 'border-[#44484f]/40 bg-[#20262f] text-[#f1f3fc] hover:border-cyan-400/30 hover:text-cyan-200'
+            }`}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedTab('frontend')}
+            className={`rounded-full border px-5 py-2.5 text-xs font-black uppercase tracking-[0.28em] transition-all ${
+              selectedTab === 'frontend'
+                ? 'border-cyan-300/60 bg-cyan-400/15 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.22)]'
+                : 'border-[#44484f]/40 bg-[#20262f] text-[#f1f3fc] hover:border-cyan-400/30 hover:text-cyan-200'
+            }`}
+          >
+            Frontend
+          </button>
+          <button
+            type="button"
+            onClick={() => setSelectedTab('backend')}
+            className={`rounded-full border px-5 py-2.5 text-xs font-black uppercase tracking-[0.28em] transition-all ${
+              selectedTab === 'backend'
+                ? 'border-cyan-300/60 bg-cyan-400/15 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.22)]'
+                : 'border-[#44484f]/40 bg-[#20262f] text-[#f1f3fc] hover:border-cyan-400/30 hover:text-cyan-200'
+            }`}
+          >
+            Backend
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+          {displayedCourses.map((course) => (
+            <button
+              key={course.id}
+              type="button"
+              onClick={() => onSelectCourse(course.id)}
+              className="group flex min-h-[20rem] flex-col rounded-[2rem] border border-[#2a3240] bg-[#20262f] p-7 text-left transition-all duration-300 hover:border-[#94aaff]/30"
+            >
+              <div className="mb-8 flex items-start justify-between gap-6">
+                <div>
+                  <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.28em] text-[#a8abb3]">Course</p>
+                  <span className="block font-['Space_Grotesk'] text-[2rem] font-black leading-none text-[#f1f3fc]">
+                    {course.title}
+                  </span>
+                  <span className="mt-4 block text-[10px] uppercase tracking-[0.28em] text-[#a8abb3]">
+                    {frontendCourseIds.has(course.id) ? 'Frontend' : backendCourseIds.has(course.id) ? 'Backend' : 'Track'}
+                  </span>
+                </div>
+                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${course.color} text-black/80`}>
+                  {getIcon(course.icon)}
+                </div>
+              </div>
+
+              <div className="flex-1">
+                <p className="text-sm leading-9 text-[#a8abb3]">{course.description}</p>
+              </div>
+
+              <div className="mt-8 flex items-end justify-between text-sm font-bold">
+                <span className="text-[#a8abb3]">
+                  {course.completedLessons}/{course.totalLessons} lessons
+                </span>
+                <span className="text-[#94aaff]">{course.progress}%</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

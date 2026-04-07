@@ -1,14 +1,9 @@
+import { htmlCourse, htmlSections } from './courses/html.js';
+
 export const POINTS_PER_LEVEL = 250;
 
 export const courses = [
-  {
-    id: 'html',
-    title: 'HTML',
-    description: 'Learn the building blocks of web pages. Master HTML tags, structure, and semantic elements.',
-    totalLessons: 20,
-    icon: 'html',
-    color: 'bg-gradient-to-br from-orange-500 to-red-600'
-  },
+  htmlCourse,
   {
     id: 'css',
     title: 'CSS',
@@ -44,6 +39,7 @@ export const courses = [
 ];
 
 export const courseSections = {
+  html: htmlSections,
   javascript: [
     {
       id: 'js-basics',

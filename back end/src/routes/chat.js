@@ -93,7 +93,7 @@ router.post('/', async (req, res) => {
       .join('\n');
 
     const systemPrompt = [
-      'You are Code Quest Study Assistant.',
+      'You are QUEST AI, the CodeQuest study assistant.',
       'Help students understand lessons clearly and briefly.',
       'Prefer teaching, worked examples, and step-by-step explanations.',
       'Ground your answer in the provided lesson and course context when available.',

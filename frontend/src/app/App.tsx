@@ -5,12 +5,30 @@ import { Leaderboard } from './components/Leaderboard';
 import { CourseSelection } from './components/CourseSelection';
 import { CourseView } from './components/CourseView';
 import { LessonPlayer } from './components/LessonPlayer';
+import { LessonsOverview } from './components/LessonsOverview';
 import { AuthScreen } from './components/AuthScreen';
 import { UserSettings } from './components/UserSettings';
 import { StudyAssistant } from './components/StudyAssistant';
-import { GraduationCap, Code2, Palette, Zap } from 'lucide-react';
+import { Performance } from './components/Performance';
+import { htmlCourseDetail, htmlLessonContent } from './courses/html';
+import type { LessonDefinition } from './lessonTypes';
+import {
+  Award,
+  BarChart3,
+  BookOpen,
+  Bot,
+  Code2,
+  GraduationCap,
+  Grid2x2,
+  LibraryBig,
+  LogOut,
+  Palette,
+  Settings,
+  Trophy,
+  Zap
+} from 'lucide-react';
 
-type View = 'home' | 'learn' | 'frontend-path' | 'course-view' | 'lesson' | 'achievements' | 'leaderboard' | 'settings';
+type View = 'home' | 'learn' | 'lessons' | 'frontend-path' | 'course-view' | 'lesson' | 'achievements' | 'leaderboard' | 'performance' | 'settings';
 
 type UserStats = {
   name: string;
@@ -276,6 +294,8 @@ const seededJavascriptDetail: CourseDetail = {
   }
 };
 
+const seededHtmlDetail: CourseDetail = htmlCourseDetail;
+
 function shouldUseSeededCourses(liveCourses: CourseSummary[]) {
   return liveCourses.length === 0 || !liveCourses.some((course) => course.progress > 0 || course.completedLessons > 0);
 }
@@ -294,6 +314,10 @@ function mergeCourses(liveCourses: CourseSummary[]) {
 }
 
 function getFallbackCourseDetail(courseId: string): CourseDetail | null {
+  if (courseId === 'html') {
+    return seededHtmlDetail;
+  }
+
   if (courseId === 'javascript') {
     return seededJavascriptDetail;
   }
@@ -376,6 +400,8 @@ export default function App() {
   const [currentView, setCurrentView] = useState<View>('home');
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
   const [selectedLesson, setSelectedLesson] = useState<string | null>(null);
+  const [assistantOpenSignal, setAssistantOpenSignal] = useState(0);
+  const [assistantPromptSignal, setAssistantPromptSignal] = useState<{ id: number; prompt: string } | null>(null);
   const [userStats, setUserStats] = useState<UserStats>(defaultUserStats);
   const [courses, setCourses] = useState<CourseSummary[]>(seededCourses);
   const [courseDetail, setCourseDetail] = useState<CourseDetail | null>(null);
@@ -393,25 +419,25 @@ export default function App() {
     backend: Code2
   };
 
-  const sampleLesson = {
+  const sampleLesson: LessonDefinition = {
     id: 'js-1',
     title: 'Creating Variables',
     content: [
       {
-        type: 'text' as const,
+        type: 'text',
         data: 'In JavaScript, variables are containers for storing data values. We use variables to give names to values so we can use them later in our code.'
       },
       {
-        type: 'code' as const,
+        type: 'code',
         data: 'Here\'s how to create a variable in JavaScript:',
         code: 'let message = "Hello, Code Quest!";\nlet age = 25;\nlet isLearning = true;'
       },
       {
-        type: 'text' as const,
+        type: 'text',
         data: 'The "let" keyword declares a variable that can be changed later. The "=" sign assigns a value to the variable.'
       },
       {
-        type: 'quiz' as const,
+        type: 'quiz',
         data: 'Which keyword is used to declare a variable in JavaScript?',
         options: ['var', 'let', 'const', 'All of the above'],
         correctAnswer: 3
@@ -419,6 +445,17 @@ export default function App() {
     ],
     xpReward: 50
   };
+
+  function getLessonContent(courseId: string | null, lessonId: string | null): LessonDefinition {
+    if (courseId === 'html' && lessonId && lessonId in htmlLessonContent) {
+      return htmlLessonContent[lessonId as keyof typeof htmlLessonContent];
+    }
+
+    return {
+      ...sampleLesson,
+      id: lessonId ?? sampleLesson.id
+    };
+  }
 
   async function apiFetch<T>(path: string, token: string, init?: RequestInit): Promise<T> {
     const response = await fetch(`${apiBaseUrl}${path}`, {
@@ -478,11 +515,13 @@ export default function App() {
     .flatMap((section) => section.lessons)
     .find((lesson) => lesson.id === selectedLesson);
 
-  const activeLesson = {
-    ...sampleLesson,
+  const activeLessonBase = getLessonContent(selectedCourse, selectedLessonMeta?.id ?? null);
+
+  const activeLesson: LessonDefinition = {
+    ...activeLessonBase,
     id: selectedLessonMeta?.id ?? sampleLesson.id,
-    title: selectedLessonMeta?.title ?? sampleLesson.title,
-    xpReward: selectedLessonMeta?.xpReward ?? sampleLesson.xpReward
+    title: selectedLessonMeta?.title ?? activeLessonBase.title,
+    xpReward: selectedLessonMeta?.xpReward ?? activeLessonBase.xpReward
   };
 
   const assistantContext = [
@@ -516,6 +555,8 @@ export default function App() {
     'Summarize the topic simply',
     ...(!latestQuizInsight || latestQuizInsight.isCorrect ? [] : ['Explain my last quiz mistake'])
   ];
+  const useCourseLayout = currentView === 'course-view' || currentView === 'lesson';
+  const useLessonLayout = currentView === 'lesson';
 
   useEffect(() => {
     if (!authToken) {
@@ -654,97 +695,168 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      <nav className="bg-slate-900 border-b border-cyan-500/20 shadow-lg shadow-cyan-500/10 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between min-h-16 py-3 gap-6">
-            <div className="flex items-center gap-8 min-w-0">
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="w-10 h-10 shrink-0 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center shadow-md shadow-cyan-500/20">
-                  <GraduationCap className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xl leading-none whitespace-nowrap bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-bold">
-                  Code Quest
-                </span>
-              </div>
+    <div className="min-h-screen bg-[#0a0e14] text-[#f1f3fc]">
+      {!useLessonLayout && (
+      <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-[#0f141a] py-8 shadow-2xl shadow-black/40">
+        <div className="mb-10 flex items-center space-x-3 px-6">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#809bff]">
+            <GraduationCap className="h-5 w-5 text-[#001b61]" />
+          </div>
+          <div>
+            <h2 className="font-['Space_Grotesk'] text-sm font-black uppercase tracking-wide text-blue-500">Code Quest</h2>
+            <p className="font-['Inter'] text-[10px] uppercase tracking-[0.28em] text-[#a8abb3]">
+              Level {userStats.level} Learner
+            </p>
+          </div>
+        </div>
 
-              <div className="flex items-center gap-1 flex-wrap">
-                <button
-                  onClick={() => setCurrentView('home')}
-                  className={`px-6 py-2 rounded-lg transition-all ${
-                    currentView === 'home'
-                      ? 'bg-slate-800 text-cyan-400'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  Home
-                </button>
-                <button
-                  onClick={() => setCurrentView('learn')}
-                  className={`px-6 py-2 rounded-lg transition-all ${
-                    currentView === 'learn' || currentView === 'frontend-path' || currentView === 'course-view' || currentView === 'lesson'
-                      ? 'bg-slate-800 text-cyan-400'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  Learn
-                </button>
-                <button
-                  onClick={() => setCurrentView('achievements')}
-                  className={`px-6 py-2 rounded-lg transition-all ${
-                    currentView === 'achievements'
-                      ? 'bg-slate-800 text-cyan-400'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  Achievement
-                </button>
-                <button
-                  onClick={() => setCurrentView('leaderboard')}
-                  className={`px-6 py-2 rounded-lg transition-all ${
-                    currentView === 'leaderboard'
-                      ? 'bg-slate-800 text-cyan-400'
-                      : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
-                  }`}
-                >
-                  Live Leaderboard
-                </button>
-              </div>
+        <nav className="flex-1 space-y-2 px-4">
+          <button
+            type="button"
+            onClick={() => setCurrentView('home')}
+            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+              currentView === 'home'
+                ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
+                : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
+            }`}
+          >
+            <Grid2x2 className="mr-3 h-4 w-4" />
+            Dashboard
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView('learn')}
+            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+              currentView === 'learn' || currentView === 'frontend-path'
+                ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
+                : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
+            }`}
+          >
+            <LibraryBig className="mr-3 h-4 w-4" />
+            Lessons
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView('lessons')}
+            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+              currentView === 'lessons' || currentView === 'course-view' || currentView === 'lesson'
+                ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
+                : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
+            }`}
+          >
+            <Code2 className="mr-3 h-4 w-4" />
+            Library
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView('achievements')}
+            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+              currentView === 'achievements'
+                ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
+                : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
+            }`}
+          >
+            <Award className="mr-3 h-4 w-4" />
+            Badges
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView('leaderboard')}
+            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+              currentView === 'leaderboard'
+                ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
+                : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
+            }`}
+          >
+            <Trophy className="mr-3 h-4 w-4" />
+            Rankings
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView('performance')}
+            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+              currentView === 'performance'
+                ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
+                : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
+            }`}
+          >
+            <BarChart3 className="mr-3 h-4 w-4" />
+            Performance
+          </button>
+        </nav>
+
+        <div className="mb-6 px-4">
+          <button
+            type="button"
+            className="flex w-full items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-[#94aaff] to-[#3367ff] py-4 text-xs font-black uppercase tracking-[0.18em] text-[#000000] transition-transform hover:scale-[1.02]"
+          >
+            <Bot className="h-4 w-4" />
+            <span>Ask AI Assistant</span>
+          </button>
+        </div>
+
+        <div className="space-y-1 border-t border-[#44484f]/20 px-4 pt-6">
+          <button
+            type="button"
+            onClick={() => setCurrentView('settings')}
+            className="flex w-full items-center px-4 py-2 font-['Space_Grotesk'] text-xs uppercase text-[#f1f3fc]/60 transition-colors hover:text-[#f1f3fc]"
+          >
+            <Settings className="mr-3 h-4 w-4" />
+            Settings
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              window.localStorage.removeItem('auth_token');
+              window.sessionStorage.removeItem('auth_token');
+              setAuthToken(null);
+            }}
+            className="flex w-full items-center px-4 py-2 font-['Space_Grotesk'] text-xs uppercase text-[#ff6e84] transition-colors hover:text-[#d73357]"
+          >
+            <LogOut className="mr-3 h-4 w-4" />
+            Logout
+          </button>
+        </div>
+      </aside>
+      )}
+
+      <main className={useLessonLayout ? 'min-h-screen overflow-hidden' : 'ml-64 min-h-screen overflow-y-auto'}>
+        {!useCourseLayout && (
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between bg-[#0a0e14] px-8">
+          <h1 className="font-['Space_Grotesk'] text-xl font-black uppercase tracking-tight text-blue-400">Code Quest</h1>
+          <div className="flex items-center space-x-6">
+            <div className="flex items-center rounded-full bg-black px-4 py-1.5 ring-1 ring-[#44484f]/20">
+              <Zap className="mr-2 h-4 w-4 text-[#ffbd5c]" />
+              <span className="font-['Space_Grotesk'] text-sm font-bold text-[#f1f3fc]">{userStats.streak} Day Streak</span>
             </div>
-
-            <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center space-x-4">
+              <button
+                type="button"
+                onClick={() => setCurrentView('achievements')}
+                className="text-[#f1f3fc]/60 transition-colors hover:text-blue-400"
+              >
+                <Trophy className="h-5 w-5" />
+              </button>
+              <div className="h-8 w-px bg-[#44484f]/20" />
               <button
                 type="button"
                 onClick={() => setCurrentView('settings')}
-                className="hidden md:flex items-center gap-2 bg-slate-800 px-3 py-2 rounded-lg text-slate-200 text-sm max-w-[220px] hover:bg-slate-700 transition-all"
+                className="flex items-center space-x-3"
               >
-                  <span className="text-cyan-400">👤</span>
-                  <span className="truncate">{userStats.name}</span>
-              </button>
-              <div className="flex items-center gap-2 bg-slate-800 px-3 py-2 rounded-lg">
-                <span className="text-yellow-400">⭐</span>
-                <span className="text-white">{userStats.totalPoints}</span>
-              </div>
-              <div className="flex items-center gap-2 bg-slate-800 px-3 py-2 rounded-lg min-w-[104px] justify-center">
-                <span className="text-orange-400">🔥</span>
-                <span className="text-white leading-none whitespace-nowrap">{userStats.streak} day</span>
-              </div>
-              <button
-                onClick={() => {
-                  window.localStorage.removeItem('auth_token');
-                  window.sessionStorage.removeItem('auth_token');
-                  setAuthToken(null);
-                }}
-                className="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800/50 transition-all"
-              >
-                Logout
+                <div className="text-right">
+                  <p className="text-xs font-bold text-[#f1f3fc]">{userStats.name}</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#a8abb3]">Lvl {userStats.level} Learner</p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-full ring-2 ring-[#94aaff]/30 bg-slate-800 text-cyan-300">
+                  <span className="text-sm font-semibold">{userStats.name.charAt(0).toUpperCase()}</span>
+                </div>
               </button>
             </div>
           </div>
-        </div>
-      </nav>
+        </header>
+        )}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className={currentView === 'lesson' ? '' : useCourseLayout ? '' : 'mx-auto max-w-7xl px-8 py-8'}>
         {dataError && (
           <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
             {dataError}
@@ -777,15 +889,21 @@ export default function App() {
           />
         )}
 
+        {currentView === 'lessons' && (
+          <LessonsOverview courses={courses} onSelectCourse={handleStartCourse} />
+        )}
+
         {currentView === 'course-view' && selectedCourse && courseDetail && (
           <CourseView
             courseTitle={courseDetail.course.title}
             sections={courseDetail.sections}
             onBack={() => setCurrentView('learn')}
             onStartLesson={handleStartLesson}
+            userStats={userStats}
             certificate={{
               progress: courseDetail.certificate.progress,
-              total: courseDetail.certificate.total
+              total: courseDetail.certificate.total,
+              completedLessons: courseDetail.certificate.completedLessons
             }}
           />
         )}
@@ -795,50 +913,28 @@ export default function App() {
             lesson={activeLesson}
             onComplete={handleLessonComplete}
             onBack={() => setCurrentView('course-view')}
+            onExplainRequest={(prompt) => {
+              setAssistantOpenSignal((value) => value + 1);
+              setAssistantPromptSignal({ id: Date.now(), prompt });
+            }}
             onQuizEvaluated={setLatestQuizInsight}
           />
         )}
 
         {currentView === 'home' && (
-          <div className="space-y-8">
-            <Dashboard userStats={userStats} />
-            <div>
-              <h2 className="text-2xl text-white mb-6">Quick Access</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {courses.map((course) => {
-                  const Icon = courseIconMap[course.icon];
-
-                  return (
-                    <div
-                      key={course.id}
-                      onClick={() => handleStartCourse(course.id)}
-                      className="bg-slate-900 border border-cyan-500/20 rounded-xl p-6 cursor-pointer hover:border-cyan-500/40 transition-all"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-slate-500">Course</p>
-                          <h3 className="text-xl text-white mt-2">{course.title}</h3>
-                        </div>
-                        <div className={`w-12 h-12 rounded-xl ${course.color} flex items-center justify-center shadow-lg`}>
-                          <Icon className="w-6 h-6 text-black/80" />
-                        </div>
-                      </div>
-                      <p className="text-slate-400 text-sm mb-4">{course.description}</p>
-                      <p className="text-cyan-400 text-sm">{course.completedLessons}/{course.totalLessons} lessons completed</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          <Dashboard userStats={userStats} courses={courses} onSelectCourse={handleStartCourse} />
         )}
 
         {currentView === 'achievements' && (
-          <Achievements achievements={achievements} />
+          <Achievements achievements={achievements} userStats={userStats} courses={courses} />
         )}
 
         {currentView === 'leaderboard' && (
           <Leaderboard entries={leaderboardData} currentUser={userStats.name} />
+        )}
+
+        {currentView === 'performance' && (
+          <Performance userStats={userStats} courses={courses} />
         )}
 
         {currentView === 'settings' && profile && (
@@ -861,15 +957,22 @@ export default function App() {
             Saving your lesson progress...
           </div>
         )}
+        </div>
       </main>
 
-      <StudyAssistant
-        authToken={authToken}
-        apiBaseUrl={apiBaseUrl}
-        context={assistantContext}
-        threadKey={assistantThreadKey}
-        quickPrompts={assistantQuickPrompts}
-      />
+      {currentView === 'lesson' && (
+        <StudyAssistant
+          authToken={authToken}
+          apiBaseUrl={apiBaseUrl}
+          context={assistantContext}
+          threadKey={assistantThreadKey}
+          quickPrompts={assistantQuickPrompts}
+          openSignal={assistantOpenSignal}
+          promptSignal={assistantPromptSignal}
+          placement="left"
+          variant="lesson"
+        />
+      )}
     </div>
   );
 }
