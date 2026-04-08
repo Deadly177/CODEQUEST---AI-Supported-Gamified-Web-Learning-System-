@@ -1,11 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Bot, CheckCircle2, ChevronLeft, ChevronRight, RotateCcw, Sparkles, X, Zap } from 'lucide-react';
+import { ArrowLeft, Bot, CheckCircle2, ChevronLeft, ChevronRight, RotateCcw, Sparkles, Trophy, X, Zap } from 'lucide-react';
 import type { LessonDefinition, LessonStep } from '../lessonTypes';
 
 interface LessonPlayerProps {
   lesson: LessonDefinition;
   onComplete: (xpEarned: number) => void | Promise<void>;
   onBack: () => void;
+  userStats?: {
+    name: string;
+    streak: number;
+    totalPoints: number;
+  };
+  leaderboardEntries?: {
+    rank: number;
+    name: string;
+    xp: number;
+    level: number;
+    avatar: string;
+  }[];
   onExplainRequest?: (prompt: string) => void;
   onQuizEvaluated?: (result: {
     question: string;
@@ -24,7 +36,13 @@ function getLessonStorageKey(lessonId: string) {
 }
 
 function getChipWidth(value: string) {
-  return `${Math.max(2.1, value.length * 0.8 + 0.7)}rem`;
+  const typed = value.trim();
+  if (!typed) {
+    // Keep all empty blanks visually identical so answer length is not revealed.
+    return '2.2rem';
+  }
+
+  return `${Math.max(2.2, typed.length * 0.72 + 1.1)}rem`;
 }
 
 function buildChipKey(value: string, index: number) {
@@ -54,16 +72,63 @@ function renderHighlightedText(text: string) {
   ));
 }
 
-function renderTemplateFragment(fragment: string, keyPrefix: string) {
-  return fragment.split('\n').map((line, lineIndex, lines) => (
+function isHtmlLikeSnippet(value: string) {
+  const trimmed = value.trim();
+  return /^<\/?[a-zA-Z][^>]*>$/.test(trimmed);
+}
+
+function renderCodeText(text: string, keyPrefix: string) {
+  const tagRegex = /(<\/?[^>\n]+>)/g;
+
+  return text.split('\n').map((line, lineIndex, lines) => (
     <span key={`${keyPrefix}-line-${lineIndex}`}>
-      {line}
+      {line.split(tagRegex).filter(Boolean).map((part, partIndex) =>
+        isHtmlLikeSnippet(part) ? (
+          <span key={`${keyPrefix}-tag-${lineIndex}-${partIndex}`} className="text-[#8eb8ff]">
+            {part}
+          </span>
+        ) : (
+          <span key={`${keyPrefix}-text-${lineIndex}-${partIndex}`} className="text-[#f3f6ff]">
+            {part}
+          </span>
+        )
+      )}
       {lineIndex < lines.length - 1 ? <br /> : null}
     </span>
   ));
 }
 
-export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQuizEvaluated }: LessonPlayerProps) {
+function getBlankSpacingClass(previousPart: string, nextPart: string) {
+  const prevChar = previousPart.slice(-1);
+  const nextChar = nextPart.charAt(0);
+
+  const needsLeftSpace = prevChar !== '' && prevChar !== '\n' && !/\s/.test(prevChar);
+  const needsRightSpace = nextChar !== '' && nextChar !== '\n' && !/\s/.test(nextChar);
+
+  if (needsLeftSpace && needsRightSpace) {
+    return 'mx-2';
+  }
+
+  if (needsLeftSpace) {
+    return 'ml-2 mr-1';
+  }
+
+  if (needsRightSpace) {
+    return 'ml-1 mr-2';
+  }
+
+  return 'mx-1';
+}
+
+export function LessonPlayer({
+  lesson,
+  onComplete,
+  onBack,
+  userStats,
+  leaderboardEntries = [],
+  onExplainRequest,
+  onQuizEvaluated
+}: LessonPlayerProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [furthestStep, setFurthestStep] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -72,19 +137,84 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
   const [blankValuesByStep, setBlankValuesByStep] = useState<Record<number, string[]>>({});
   const [activeBlankByStep, setActiveBlankByStep] = useState<Record<number, number>>({});
   const [chipAssignmentsByStep, setChipAssignmentsByStep] = useState<Record<number, (string | null)[]>>({});
+  const [visibleCodeTabByStep, setVisibleCodeTabByStep] = useState<Record<number, 'primary' | 'secondary'>>({});
   const [completedSteps, setCompletedSteps] = useState<Record<number, true>>({});
   const [browserChoices, setBrowserChoices] = useState<Record<number, string>>({});
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
+  const [completionStage, setCompletionStage] = useState<'xp' | 'momentum'>('xp');
   const [isClaimingReward, setIsClaimingReward] = useState(false);
 
+  const completionSnapshot = useMemo(() => {
+    const projectedXp = (userStats?.totalPoints ?? 0) + lesson.xpReward;
+    const currentUserName = userStats?.name ?? 'You';
+    const existingEntry = leaderboardEntries.find((entry) => entry.name.toLowerCase() === currentUserName.toLowerCase());
+    const otherEntries = leaderboardEntries.filter((entry) => entry.name.toLowerCase() !== currentUserName.toLowerCase());
+
+    const projectedEntries = [
+      ...otherEntries,
+      {
+        rank: existingEntry?.rank ?? leaderboardEntries.length + 1,
+        name: currentUserName,
+        xp: projectedXp,
+        level: existingEntry?.level ?? Math.floor(projectedXp / 250) + 1,
+        avatar: existingEntry?.avatar ?? currentUserName.charAt(0).toUpperCase()
+      }
+    ]
+      .sort((left, right) => {
+        if (right.xp !== left.xp) {
+          return right.xp - left.xp;
+        }
+        return left.name.localeCompare(right.name);
+      })
+      .map((entry, index) => ({ ...entry, rank: index + 1 }));
+
+    const userIndex = projectedEntries.findIndex((entry) => entry.name.toLowerCase() === currentUserName.toLowerCase());
+    const projectedRank = userIndex >= 0 ? projectedEntries[userIndex].rank : null;
+    const currentRank = existingEntry?.rank ?? null;
+    const rankImproved = projectedRank !== null && currentRank !== null ? projectedRank < currentRank : false;
+
+    let visibleEntries = projectedEntries.slice(Math.max(0, userIndex - 1), Math.min(projectedEntries.length, userIndex + 2));
+    if (visibleEntries.length < 3) {
+      visibleEntries = projectedEntries.slice(0, Math.min(3, projectedEntries.length));
+    }
+
+    return {
+      projectedXp,
+      currentUserName,
+      projectedRank,
+      currentRank,
+      rankImproved,
+      visibleEntries,
+      streak: userStats?.streak ?? 0
+    };
+  }, [leaderboardEntries, lesson.xpReward, userStats]);
+
   const step = lesson.content[currentStep];
+  const currentVisibleCodeTab =
+    step.type === 'interactive' && step.mode === 'fill-blanks'
+      ? visibleCodeTabByStep[currentStep] ?? step.activeCodeTab ?? 'primary'
+      : 'primary';
+  const editableCodeTab =
+    step.type === 'interactive' && step.mode === 'fill-blanks' ? step.activeCodeTab ?? 'primary' : 'primary';
+  const editableTemplateParts =
+    step.type === 'interactive' && step.mode === 'fill-blanks'
+      ? editableCodeTab === 'secondary'
+        ? step.secondaryTemplateParts ?? step.templateParts ?? ['']
+        : step.primaryTemplateParts ?? step.templateParts ?? ['']
+      : [''];
+  const visibleTemplateParts =
+    step.type === 'interactive' && step.mode === 'fill-blanks'
+      ? currentVisibleCodeTab === 'secondary'
+        ? step.secondaryTemplateParts ?? (editableCodeTab === 'secondary' ? step.templateParts : [''])
+        : step.primaryTemplateParts ?? (editableCodeTab === 'primary' ? step.templateParts : [''])
+      : [''];
   const isLastStep = currentStep === lesson.content.length - 1;
   const currentBlankValues = step.type === 'interactive'
     ? blankValuesByStep[currentStep] ?? step.blankAnswers?.map(() => '') ?? []
     : [];
   const currentCode = step.type === 'interactive'
     ? step.mode === 'fill-blanks'
-      ? (step.templateParts ?? [''])
+      ? editableTemplateParts
           .map((part, index) => `${part}${currentBlankValues[index] ?? ''}`)
           .join('')
       : codeByStep[currentStep] ?? step.initialCode ?? ''
@@ -127,6 +257,7 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
       setSelectedAnswer(null);
       setShowFeedback(false);
       setShowCompletionScreen(false);
+      setCompletionStage('xp');
       setIsClaimingReward(false);
     } catch {
       window.localStorage.removeItem(getLessonStorageKey(lesson.id));
@@ -201,6 +332,7 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
     }
 
     if (isLastStep) {
+      setCompletionStage('xp');
       setShowCompletionScreen(true);
       return;
     }
@@ -212,6 +344,11 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
   };
 
   const handleRewardClaim = async () => {
+    if (completionStage === 'xp') {
+      setCompletionStage('momentum');
+      return;
+    }
+
     if (isClaimingReward) {
       return;
     }
@@ -490,9 +627,9 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
     if (current.type === 'browser-demo') {
       return (
         <div className="mx-auto flex max-w-4xl flex-col items-center">
-          <p className="mb-6 max-w-3xl text-center text-lg leading-relaxed text-white sm:text-xl">{renderHighlightedText(current.data)}</p>
+          <p className="mb-5 max-w-3xl text-center text-sm leading-relaxed text-white sm:text-base">{renderHighlightedText(current.data)}</p>
           {current.secondaryText && (
-            <p className="mb-6 max-w-3xl text-center text-base leading-7 text-slate-300">{current.secondaryText}</p>
+            <p className="mb-5 max-w-3xl text-center text-sm leading-6 text-slate-300">{current.secondaryText}</p>
           )}
 
           <div className="w-full max-w-[32rem] overflow-hidden rounded-[1.25rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-[20px]">
@@ -550,21 +687,21 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
     if (current.type === 'browser-preview') {
       return (
         <div className="mx-auto flex max-w-4xl flex-col items-center">
-          <p className="mb-6 max-w-3xl text-center text-lg leading-relaxed text-white sm:text-xl">{renderHighlightedText(current.data)}</p>
+          <p className="mb-4 max-w-3xl text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
           {current.secondaryText && (
-            <p className="mb-6 max-w-3xl text-center text-base leading-7 text-slate-300">{current.secondaryText}</p>
+            <p className="mb-4 max-w-3xl text-center text-sm leading-6 text-slate-300 sm:text-base">{current.secondaryText}</p>
           )}
 
-          <div className="w-full max-w-[32rem] overflow-hidden rounded-[1.25rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-[20px]">
-            <div className="flex items-center justify-between border-b border-white/5 bg-[#151a21] px-5 py-3 text-sm font-semibold text-[#f1f3fc]">
+          <div className="w-full max-w-[42rem] overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-[20px]">
+            <div className="flex items-center justify-between border-b border-white/3 bg-[#151a21] px-7 py-5 text-lg font-semibold text-[#f1f3fc]">
               <span>{current.browserTitle}</span>
-              <span className="text-xs text-[#94aaff]">{current.previewHint ?? 'Preview'}</span>
+              <span className="text-sm text-[#94aaff]">{current.previewHint ?? 'Preview'}</span>
             </div>
             <iframe
               title={current.browserTitle}
-              sandbox="allow-scripts"
+              sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
               srcDoc={current.previewHtml}
-              className="h-[16rem] w-full bg-white"
+              className="h-[19rem] w-full bg-white sm:h-[23rem]"
             />
           </div>
         </div>
@@ -574,9 +711,9 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
     if (current.type === 'text') {
       return (
         <div className="mx-auto flex min-h-[18rem] max-w-4xl flex-col items-center justify-center text-center">
-          <p className="text-2xl leading-relaxed text-white">{renderHighlightedText(current.data)}</p>
+          <p className="text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
           {current.secondaryText && (
-            <p className="mt-8 max-w-3xl text-lg leading-8 text-slate-300">{current.secondaryText}</p>
+            <p className="mt-6 max-w-3xl text-base leading-7 text-slate-300">{current.secondaryText}</p>
           )}
         </div>
       );
@@ -585,12 +722,12 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
     if (current.type === 'code') {
       return (
         <div className="mx-auto flex max-w-4xl flex-col justify-center">
-          <p className="mb-8 text-center text-2xl leading-relaxed text-white">{renderHighlightedText(current.data)}</p>
+          <p className="mb-7 text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
           <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
             <div className="border-b border-white/5 bg-[#151a21] px-6 py-4 text-sm font-semibold text-slate-100">index.html</div>
             <div className="p-6">
-              <pre className="overflow-x-auto whitespace-pre-wrap text-lg leading-8 text-[#94aaff]">
-                <code>{current.code}</code>
+              <pre className="overflow-x-auto whitespace-pre-wrap text-base leading-7 text-[#94aaff]">
+                <code>{renderCodeText(current.code, 'code-step')}</code>
               </pre>
             </div>
           </div>
@@ -602,12 +739,43 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
       if (current.mode === 'fill-blanks') {
         return (
           <div className="mx-auto flex max-w-6xl flex-col">
-            <p className="mb-6 text-center text-xl leading-relaxed text-white sm:text-2xl">{renderHighlightedText(current.data)}</p>
+            <p className="mb-5 text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
 
             <div className={`grid gap-6 ${showFeedback && interactiveSolved ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'lg:grid-cols-1'}`}>
               <div className={`overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-5xl'}`}>
                 <div className="flex items-center justify-between border-b border-white/5 bg-[#151a21] px-6 py-3">
-                  <p className="text-sm font-semibold text-slate-100">index.html</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setVisibleCodeTabByStep((prev) => ({
+                          ...prev,
+                          [currentStep]: 'primary'
+                        }))
+                      }
+                      className={`rounded-md px-3 py-1 text-sm font-semibold transition-colors ${
+                        currentVisibleCodeTab === 'primary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {current.codeTitle ?? 'index.html'}
+                    </button>
+                    {current.secondaryCodeTitle && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setVisibleCodeTabByStep((prev) => ({
+                            ...prev,
+                            [currentStep]: 'secondary'
+                          }))
+                        }
+                        className={`rounded-md px-3 py-1 text-sm font-semibold transition-colors ${
+                          currentVisibleCodeTab === 'secondary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {current.secondaryCodeTitle}
+                      </button>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -645,11 +813,11 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
                 <div className="p-6">
                   <div className="min-h-[12rem] rounded-2xl border border-white/5 bg-[#0d1117] p-5 font-mono text-base leading-7 text-slate-100">
                     <div className="overflow-x-auto">
-                      <div className="min-w-max whitespace-pre-wrap break-words text-xl leading-[1.6] text-[#94aaff]">
-                        {(current.templateParts ?? ['']).map((part, index) => (
+                      <div className="min-w-max whitespace-pre-wrap break-words text-lg leading-[1.55] text-[#94aaff]">
+                        {visibleTemplateParts.map((part, index) => (
                           <span key={`template-${index}`}>
-                            {renderTemplateFragment(part, `part-${index}`)}
-                            {index < (current.blankAnswers?.length ?? 0) ? (
+                            {renderCodeText(part, `part-${index}`)}
+                            {currentVisibleCodeTab === editableCodeTab && index < (current.blankAnswers?.length ?? 0) ? (
                               <input
                                 value={currentBlankValues[index] ?? ''}
                                 onChange={(event) => handleBlankValueChange(index, event.target.value)}
@@ -660,8 +828,14 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
                                   }))
                                 }
                                 placeholder=""
-                                style={{ width: getChipWidth(current.blankAnswers?.[index] ?? '') }}
-                                className="mx-1 inline-block h-10 rounded-xl border border-[#94aaff]/20 bg-[#4d4a92]/85 px-2 py-1 align-middle text-center text-sm text-white outline-none transition-all focus:border-[#94aaff]/50 focus:ring-2 focus:ring-[#94aaff]/20"
+                                style={{ width: getChipWidth(currentBlankValues[index] ?? '') }}
+                                className={`${getBlankSpacingClass(part, visibleTemplateParts[index + 1] ?? '')} inline-block h-9 rounded-[0.85rem] border px-2 py-1 align-middle text-center text-sm font-semibold outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 focus:ring-2 ${
+                                  !(currentBlankValues[index] ?? '').trim()
+                                    ? 'border-[#9bb0ff]/45 bg-[#4c4a86] text-[#d8ddff] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_0_0_1px_rgba(119,147,255,0.18)] focus:border-[#b7c7ff]/70 focus:bg-[#5a58a0] focus:ring-[#9bb0ff]/25'
+                                    : isHtmlLikeSnippet(currentBlankValues[index] ?? '') || ['<', '>', '/', 'h1', 'h2', 'h3', 'h4', 'button', 'strong', 'em', 'br', 'p'].includes((currentBlankValues[index] ?? '').trim())
+                                    ? 'border-[#66d9ff]/35 bg-[#24536a] text-[#d9f6ff] focus:border-[#66d9ff]/55 focus:bg-[#2b627d] focus:ring-[#66d9ff]/20'
+                                    : 'border-[#94aaff]/35 bg-[#5a5898] text-white focus:border-[#b5c4ff]/55 focus:bg-[#6461aa] focus:ring-[#94aaff]/18'
+                                }`}
                               />
                             ) : null}
                           </span>
@@ -673,7 +847,7 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
               </div>
 
               {showFeedback && interactiveSolved && (
-                <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+                <div className="self-start overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
                   <div className="border-b border-white/5 bg-[#151a21] px-5 py-3 text-sm font-semibold text-slate-100">
                     {current.previewTitle ?? 'Browser'}
                   </div>
@@ -687,14 +861,12 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
               )}
             </div>
 
-            <div className={`mt-5 flex flex-wrap items-center gap-4 ${showFeedback && interactiveSolved ? 'justify-between' : 'justify-center'}`}>
-              <div>
-                {current.helperText && <p className="text-center text-sm text-[#a8abb3]">{current.helperText}</p>}
-                {showFeedback && (
-                  <p className={`mt-2 text-center text-sm ${interactiveSolved ? 'text-green-300' : 'text-rose-300'}`}>
-                    {interactiveSolved
-                      ? current.successMessage ?? 'Lesson solved. Good job!'
-                      : 'Not quite yet. Fill the blank correctly and try again.'}
+            <div className="mt-5 flex flex-col items-center gap-4">
+              <div className="min-h-[1.25rem]">
+                {current.helperText && !showFeedback && <p className="text-center text-sm text-[#a8abb3]">{current.helperText}</p>}
+                {showFeedback && !interactiveSolved && (
+                  <p className="mt-2 text-center text-sm text-rose-300">
+                    Not quite yet. Fill the blank correctly and try again.
                   </p>
                 )}
               </div>
@@ -726,7 +898,7 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
 
       return (
         <div className="mx-auto flex max-w-6xl flex-col">
-          <p className="mb-6 text-center text-xl leading-relaxed text-white sm:text-2xl">{renderHighlightedText(current.data)}</p>
+          <p className="mb-5 text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
 
           <div className={`grid gap-6 ${showFeedback && interactiveSolved ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'lg:grid-cols-1'}`}>
             <div className={`overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-3xl'}`}>
@@ -759,7 +931,7 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
                   }}
                   spellCheck={false}
                   placeholder={current.placeholder ?? '<button>Like</button>'}
-                  className="min-h-[12rem] w-full resize-none rounded-2xl border border-white/5 bg-[#0d1117] p-5 font-mono text-lg leading-8 text-slate-100 outline-none transition-colors placeholder:text-[#94aaff]/25 focus:border-[#94aaff]/30"
+                  className="min-h-[12rem] w-full resize-none rounded-2xl border border-white/5 bg-[#0d1117] p-5 font-mono text-base leading-7 text-slate-100 outline-none transition-colors placeholder:text-[#94aaff]/25 focus:border-[#94aaff]/30"
                 />
               </div>
             </div>
@@ -779,14 +951,12 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
             )}
           </div>
 
-          <div className={`mt-5 flex flex-wrap items-center gap-4 ${showFeedback && interactiveSolved ? 'justify-between' : 'justify-center'}`}>
-            <div>
-              {current.helperText && <p className="text-center text-sm text-[#a8abb3]">{current.helperText}</p>}
-              {showFeedback && (
-                <p className={`mt-2 text-center text-sm ${interactiveSolved ? 'text-green-300' : 'text-rose-300'}`}>
-                  {interactiveSolved
-                    ? current.successMessage ?? 'Lesson solved. Good job!'
-                    : 'Not quite yet. Match the target HTML and try again.'}
+          <div className="mt-5 flex flex-col items-center gap-4">
+            <div className="min-h-[1.25rem]">
+              {current.helperText && !showFeedback && <p className="text-center text-sm text-[#a8abb3]">{current.helperText}</p>}
+              {showFeedback && !interactiveSolved && (
+                <p className="mt-2 text-center text-sm text-rose-300">
+                  Not quite yet. Match the target HTML and try again.
                 </p>
               )}
             </div>
@@ -800,7 +970,37 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
 
     return (
       <div className="mx-auto max-w-3xl">
-        <p className="mb-8 text-center text-2xl leading-relaxed text-white">{renderHighlightedText(current.data)}</p>
+        <p className="mb-8 text-center text-lg leading-relaxed text-white sm:text-xl">{renderHighlightedText(current.data)}</p>
+        {(current.code || (showFeedback && selectedAnswer === current.correctAnswer && current.solvedPreviewHtml)) && (
+          <div className={`mb-6 grid gap-6 ${showFeedback && selectedAnswer === current.correctAnswer && current.solvedPreviewHtml ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'grid-cols-1'}`}>
+            {current.code && (
+              <div className="overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+                <div className="border-b border-white/5 bg-[#151a21] px-6 py-4 text-sm font-semibold text-slate-100">
+                  {current.codeTitle ?? 'index.html'}
+                </div>
+                <div className="p-6">
+                  <pre className="overflow-x-auto whitespace-pre-wrap text-base leading-7 text-[#94aaff]">
+                    <code>{renderCodeText(current.code, 'quiz-code')}</code>
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {showFeedback && selectedAnswer === current.correctAnswer && current.solvedPreviewHtml && (
+              <div className="self-start overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+                <div className="border-b border-white/5 bg-[#151a21] px-5 py-3 text-sm font-semibold text-slate-100">
+                  {current.previewTitle ?? 'Browser'}
+                </div>
+                <iframe
+                  title={current.previewTitle ?? 'Browser'}
+                  sandbox="allow-scripts"
+                  srcDoc={current.solvedPreviewHtml}
+                  className="h-[16rem] w-full bg-white"
+                />
+              </div>
+            )}
+          </div>
+        )}
         <div className="space-y-3">
           {current.options.map((option, index) => {
             const isSelected = selectedAnswer === index;
@@ -820,11 +1020,11 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
                     ? 'border-red-400/50 bg-red-500/10'
                     : isSelected
                     ? 'border-[#94aaff]/50 bg-[#94aaff]/10'
-                    : 'border-white/5 bg-[rgba(21,26,33,0.45)] hover:border-[#94aaff]/25'
+                    : 'border-[#6f8fff]/35 bg-[linear-gradient(180deg,rgba(27,36,54,0.92),rgba(14,20,33,0.92))] shadow-[inset_0_1px_0_rgba(165,188,255,0.18)] hover:border-[#9eb7ff]/55'
                 }`}
               >
                 <div className="flex items-center justify-between gap-4">
-                  <span className="text-lg text-white">{option}</span>
+                  <span className="text-base text-white sm:text-lg">{renderHighlightedText(option)}</span>
                   {showCorrect && <CheckCircle2 className="h-5 w-5 text-green-300" />}
                 </div>
               </button>
@@ -917,39 +1117,108 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
     return (
       <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#151a21_0%,#10141b_100%)] px-6 py-16 text-[#f1f3fc]">
         <div className="flex w-full max-w-4xl flex-col items-center text-center">
-          <div className="relative mb-8 flex h-64 w-64 items-center justify-center">
-            <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 220 220" aria-hidden="true">
-              <circle cx="110" cy="110" r="88" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="14" />
-              <circle
-                cx="110"
-                cy="110"
-                r="88"
-                fill="none"
-                stroke="#5cfd80"
-                strokeWidth="14"
-                strokeLinecap="round"
-                strokeDasharray="552.92"
-                strokeDashoffset="92"
-              />
-            </svg>
-            <div className="flex h-36 w-36 items-center justify-center rounded-[2rem] border border-[#94aaff]/20 bg-[rgba(21,26,33,0.75)] shadow-[0_0_40px_rgba(148,170,255,0.12)]">
-              <CheckCircle2 className="h-16 w-16 text-[#94aaff]" />
-            </div>
-          </div>
+          {completionStage === 'xp' ? (
+            <>
+              <div className="relative mb-8 flex h-64 w-64 items-center justify-center">
+                <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 220 220" aria-hidden="true">
+                  <circle cx="110" cy="110" r="88" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="14" />
+                  <circle
+                    cx="110"
+                    cy="110"
+                    r="88"
+                    fill="none"
+                    stroke="#5cfd80"
+                    strokeWidth="14"
+                    strokeLinecap="round"
+                    strokeDasharray="552.92"
+                    strokeDashoffset="92"
+                  />
+                </svg>
+                <div className="flex h-36 w-36 items-center justify-center rounded-[2rem] border border-[#94aaff]/20 bg-[rgba(21,26,33,0.75)] shadow-[0_0_40px_rgba(148,170,255,0.12)]">
+                  <CheckCircle2 className="h-16 w-16 text-[#94aaff]" />
+                </div>
+              </div>
 
-          <p className="mb-3 font-['Space_Grotesk'] text-lg font-bold text-[#94aaff]">{lesson.xpReward} / {lesson.xpReward} XP</p>
-          <h1 className="mb-3 font-['Space_Grotesk'] text-5xl font-black tracking-tight text-white">Lesson conquered!</h1>
-          <p className="mb-10 max-w-2xl text-lg text-[#a8abb3]">Great job finishing this lesson. Collect your XP reward to return to the course.</p>
+              <p className="mb-3 font-['Space_Grotesk'] text-lg font-bold text-[#94aaff]">{lesson.xpReward} / {lesson.xpReward} XP</p>
+              <h1 className="mb-3 font-['Space_Grotesk'] text-5xl font-black tracking-tight text-white">Lesson conquered!</h1>
+              <p className="mb-10 max-w-2xl text-lg text-[#a8abb3]">Great job finishing this lesson. Collect your XP reward to keep going.</p>
 
-          <div className="mb-8 flex items-center gap-4 rounded-[1.5rem] border border-[#5cfd80]/20 bg-[#5cfd80]/10 px-7 py-5">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5cfd80]/18 text-[#5cfd80]">
-              <Zap className="h-6 w-6" />
-            </div>
-            <div className="text-left">
-              <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#5cfd80]">Earned</p>
-              <p className="font-['Space_Grotesk'] text-3xl font-black text-white">+{lesson.xpReward} XP</p>
-            </div>
-          </div>
+              <div className="mb-10 flex items-center gap-4 rounded-[1.5rem] border border-[#5cfd80]/20 bg-[#5cfd80]/10 px-7 py-5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5cfd80]/18 text-[#5cfd80]">
+                  <Zap className="h-6 w-6" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#5cfd80]">Earned</p>
+                  <p className="font-['Space_Grotesk'] text-3xl font-black text-white">+{lesson.xpReward} XP</p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-10 w-full max-w-3xl rounded-[2rem] border border-[#5cfd80]/20 bg-[#5cfd80]/10 px-6 py-7 text-left shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
+                <div className="mb-5 flex items-center gap-4">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-[1.25rem] bg-[#5cfd80]/18 text-[#5cfd80]">
+                    <Trophy className="h-7 w-7" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.2em] text-[#aab6ff]">Position Boost</p>
+                    <h2 className="font-['Space_Grotesk'] text-3xl font-black text-[#e8fff0]">
+                      {completionSnapshot.projectedRank !== null
+                        ? `You are projected at #${completionSnapshot.projectedRank}!`
+                        : "You're strengthening your position!"}
+                    </h2>
+                  </div>
+                </div>
+
+                <p className="mb-6 max-w-2xl text-base leading-7 text-[#c1c6db]">
+                  {completionSnapshot.rankImproved
+                    ? `This lesson would move you up from #${completionSnapshot.currentRank} to #${completionSnapshot.projectedRank}.`
+                    : `This lesson pushes your total to ${completionSnapshot.projectedXp} XP and helps you keep your place on the leaderboard.`}
+                </p>
+
+                <div className="mb-5 grid gap-4 md:grid-cols-2">
+                  <div className="rounded-[1.35rem] border border-white/8 bg-[rgba(255,255,255,0.04)] px-4 py-4">
+                    <p className="mb-1 text-xs font-black uppercase tracking-[0.18em] text-[#aab6ff]">Current Streak</p>
+                    <p className="font-['Space_Grotesk'] text-3xl font-black text-white">{completionSnapshot.streak} day{completionSnapshot.streak === 1 ? '' : 's'}</p>
+                  </div>
+                  <div className="rounded-[1.35rem] border border-white/8 bg-[rgba(255,255,255,0.04)] px-4 py-4">
+                    <p className="mb-1 text-xs font-black uppercase tracking-[0.18em] text-[#aab6ff]">Projected Total XP</p>
+                    <p className="font-['Space_Grotesk'] text-3xl font-black text-white">{completionSnapshot.projectedXp}</p>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-[1.5rem] border border-white/8 bg-[rgba(255,255,255,0.04)] p-4">
+                  <div className="overflow-hidden rounded-[1.25rem] border border-white/8 bg-[rgba(16,20,27,0.3)]">
+                    {completionSnapshot.visibleEntries.map((entry) => {
+                      const isCurrentUser = entry.name.toLowerCase() === completionSnapshot.currentUserName.toLowerCase();
+                      const avatarLabel = (entry.avatar || entry.name.charAt(0)).slice(0, 2).toUpperCase();
+
+                      return (
+                        <div
+                          key={`${entry.rank}-${entry.name}`}
+                          className={`flex items-center justify-between px-4 py-3 text-sm ${
+                            isCurrentUser ? 'bg-[#94aaff]/18 text-white' : 'text-[#d7d9e7]'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="w-7 text-left font-black text-white">{entry.rank}</span>
+                            <span className={`flex h-9 w-9 items-center justify-center rounded-full text-xs font-black ${isCurrentUser ? 'bg-[#c08b5f] text-[#1d1206]' : 'bg-[#25382d] text-[#f1f3fc]'}`}>
+                              {avatarLabel}
+                            </span>
+                            <span className="font-semibold">{isCurrentUser ? 'You' : entry.name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 font-black text-white">
+                            <Zap className="h-4 w-4 text-[#ffd95e]" />
+                            <span>{entry.xp}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
 
           <button
             type="button"
@@ -957,7 +1226,7 @@ export function LessonPlayer({ lesson, onComplete, onBack, onExplainRequest, onQ
             disabled={isClaimingReward}
             className="rounded-[1.35rem] bg-[#5cfd80] px-10 py-5 font-['Space_Grotesk'] text-xl font-black text-[#005d22] shadow-[0_20px_50px_rgba(92,253,128,0.25)] transition-all hover:brightness-110 disabled:cursor-wait disabled:opacity-70"
           >
-            {isClaimingReward ? 'Saving...' : 'Get reward'}
+            {isClaimingReward ? 'Saving...' : completionStage === 'xp' ? 'Continue' : 'Get reward'}
           </button>
         </div>
       </div>

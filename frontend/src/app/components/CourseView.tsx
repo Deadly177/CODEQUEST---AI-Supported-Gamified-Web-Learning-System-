@@ -44,6 +44,8 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
   }, [sections]);
 
   const currentSection = sections.find(s => s.id === selectedSection);
+  const currentSectionIndex = sections.findIndex((section) => section.id === selectedSection);
+  const nextSection = currentSectionIndex >= 0 ? sections[currentSectionIndex + 1] : undefined;
   const completedLessons = currentSection?.lessons.filter(lesson => lesson.completed).length ?? 0;
   const totalLessons = currentSection?.lessons.length ?? 0;
   const sectionDescription =
@@ -136,33 +138,10 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                           strokeDashoffset={125.6 - (125.6 * (totalLessons ? completedLessons / totalLessons : 0))}
                         />
                       </svg>
-                      <span className="material-symbols-outlined text-lg text-[#94aaff]">school</span>
                     </div>
                   </div>
                 </div>
               </section>
-
-              {sections.length > 1 && (
-                <section className="flex flex-wrap gap-3">
-                  {sections.map((section) => {
-                    const active = selectedSection === section.id;
-                    return (
-                      <button
-                        key={section.id}
-                        onClick={() => setSelectedSection(section.id)}
-                        className={`rounded-xl border px-4 py-3 text-left transition-all ${
-                          active
-                            ? 'border-[#94aaff]/25 bg-[#94aaff]/10 text-[#94aaff]'
-                            : 'border-white/5 bg-[#151a21] text-[#a8abb3] hover:border-[#94aaff]/20 hover:text-[#f1f3fc]'
-                        }`}
-                      >
-                        <p className="font-['Space_Grotesk'] text-sm font-bold">{section.number}. {section.title}</p>
-                        <p className="mt-1 text-[10px] uppercase tracking-widest">{section.progress}</p>
-                      </button>
-                    );
-                  })}
-                </section>
-              )}
 
               <section className="space-y-4">
                 <div className="mb-8 flex items-center gap-4">
@@ -229,6 +208,20 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                     </div>
                   ))}
                 </div>
+
+                {nextSection && (
+                  <div className="mt-6 overflow-hidden rounded-2xl border border-[#94aaff]/20 bg-[linear-gradient(145deg,#071224_0%,#0a162d_70%)] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+                    <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#a8abb3]">Next Section</p>
+                    <h4 className="mt-3 font-['Space_Grotesk'] text-3xl font-black text-[#f1f3fc]">{nextSection.title}</h4>
+                    <p className="mt-2 text-sm text-[#c0c8e6]">Link multiple HTML files to create a website</p>
+                    <button
+                      onClick={() => setSelectedSection(nextSection.id)}
+                      className="mt-5 rounded-xl border border-[#8f6dff]/50 bg-[#7e56f8] px-6 py-3 font-['Space_Grotesk'] text-sm font-black text-white shadow-[0_0_0_2px_rgba(143,109,255,0.15)] transition-all hover:brightness-110 active:scale-95"
+                    >
+                      Continue learning
+                    </button>
+                  </div>
+                )}
               </section>
             </>
           ) : (

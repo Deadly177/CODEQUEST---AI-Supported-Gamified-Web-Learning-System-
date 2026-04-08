@@ -8,7 +8,7 @@ export const courses = [
     id: 'css',
     title: 'CSS',
     description: 'Style your websites beautifully. Learn selectors, layouts, animations, and responsive design.',
-    totalLessons: 25,
+    totalLessons: 8,
     icon: 'css',
     color: 'bg-gradient-to-br from-blue-500 to-indigo-600'
   },
@@ -40,6 +40,24 @@ export const courses = [
 
 export const courseSections = {
   html: htmlSections,
+  css: [
+    {
+      id: 'css-intro',
+      number: 1,
+      title: 'Intro to CSS',
+      icon: '🎨',
+      lessons: [
+        { id: 'css-1', number: 1, title: 'Stylesheet and Basic Selectors', type: 'learn', xpReward: 45 },
+        { id: 'css-2', number: 2, title: 'Styling Text', type: 'learn', xpReward: 45 },
+        { id: 'css-3', number: 3, title: 'Setting Size and Borders', type: 'learn', xpReward: 45 },
+        { id: 'css-4', number: 4, title: 'CSS Basics 1', type: 'practice', xpReward: 75 },
+        { id: 'css-5', number: 5, title: 'Building with the Box Model', type: 'learn', xpReward: 50 },
+        { id: 'css-6', number: 6, title: 'Adding Padding with One Line', type: 'learn', xpReward: 50 },
+        { id: 'css-7', number: 7, title: 'Styling Corners with One Line', type: 'learn', xpReward: 50 },
+        { id: 'css-8', number: 8, title: 'CSS Basics 2', type: 'practice', xpReward: 80 }
+      ]
+    }
+  ],
   javascript: [
     {
       id: 'js-basics',

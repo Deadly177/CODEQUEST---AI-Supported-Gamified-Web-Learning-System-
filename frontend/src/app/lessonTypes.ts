@@ -42,10 +42,19 @@ export type LessonStep =
       data: string;
       options: string[];
       correctAnswer: number;
+      code?: string;
+      codeTitle?: string;
+      previewTitle?: string;
+      solvedPreviewHtml?: string;
     }
   | {
       type: 'interactive';
       data: string;
+      codeTitle?: string;
+      secondaryCodeTitle?: string;
+      activeCodeTab?: 'primary' | 'secondary';
+      primaryTemplateParts?: string[];
+      secondaryTemplateParts?: string[];
       initialCode?: string;
       expectedCode: string[];
       previewTitle?: string;

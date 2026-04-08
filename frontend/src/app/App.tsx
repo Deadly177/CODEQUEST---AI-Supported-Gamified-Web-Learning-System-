@@ -11,6 +11,7 @@ import { UserSettings } from './components/UserSettings';
 import { StudyAssistant } from './components/StudyAssistant';
 import { Performance } from './components/Performance';
 import { htmlCourseDetail, htmlLessonContent } from './courses/html';
+import { cssCourseDetail, cssLessonContent } from './courses/css';
 import type { LessonDefinition } from './lessonTypes';
 import {
   Award,
@@ -295,6 +296,7 @@ const seededJavascriptDetail: CourseDetail = {
 };
 
 const seededHtmlDetail: CourseDetail = htmlCourseDetail;
+const seededCssDetail: CourseDetail = cssCourseDetail;
 
 function shouldUseSeededCourses(liveCourses: CourseSummary[]) {
   return liveCourses.length === 0 || !liveCourses.some((course) => course.progress > 0 || course.completedLessons > 0);
@@ -320,6 +322,10 @@ function getFallbackCourseDetail(courseId: string): CourseDetail | null {
 
   if (courseId === 'javascript') {
     return seededJavascriptDetail;
+  }
+
+  if (courseId === 'css') {
+    return seededCssDetail;
   }
 
   const fallbackCourse = seededCourses.find((course) => course.id === courseId);
@@ -449,6 +455,10 @@ export default function App() {
   function getLessonContent(courseId: string | null, lessonId: string | null): LessonDefinition {
     if (courseId === 'html' && lessonId && lessonId in htmlLessonContent) {
       return htmlLessonContent[lessonId as keyof typeof htmlLessonContent];
+    }
+
+    if (courseId === 'css' && lessonId && lessonId in cssLessonContent) {
+      return cssLessonContent[lessonId as keyof typeof cssLessonContent];
     }
 
     return {
@@ -913,6 +923,8 @@ export default function App() {
             lesson={activeLesson}
             onComplete={handleLessonComplete}
             onBack={() => setCurrentView('course-view')}
+            userStats={userStats}
+            leaderboardEntries={leaderboardData}
             onExplainRequest={(prompt) => {
               setAssistantOpenSignal((value) => value + 1);
               setAssistantPromptSignal({ id: Date.now(), prompt });
