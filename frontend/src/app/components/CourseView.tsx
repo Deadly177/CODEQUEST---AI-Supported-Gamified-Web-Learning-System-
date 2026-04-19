@@ -1,4 +1,4 @@
-import { ArrowLeft, Flame, Lock, LogOut, PlayCircle, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Flame, Lock, LogOut, PlayCircle, X, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Lesson {
@@ -38,6 +38,7 @@ interface CourseViewProps {
 
 export function CourseView({ courseTitle, sections, onBack, onStartLesson, userStats, certificate }: CourseViewProps) {
   const [selectedSection, setSelectedSection] = useState<string>(sections[0]?.id ?? '');
+  const [isLessonPopupOpen, setIsLessonPopupOpen] = useState(false);
 
   useEffect(() => {
     setSelectedSection(sections[0]?.id ?? '');
@@ -48,12 +49,14 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
   const nextSection = currentSectionIndex >= 0 ? sections[currentSectionIndex + 1] : undefined;
   const completedLessons = currentSection?.lessons.filter(lesson => lesson.completed).length ?? 0;
   const totalLessons = currentSection?.lessons.length ?? 0;
+  const cssPreviewLessons = currentSection?.id === 'css-intro' ? currentSection.lessons.slice(0, 4) ?? [] : [];
   const sectionDescription =
     currentSection?.lessons[0]?.title.includes('variables')
       ? 'Create variables storing numbers, strings, and booleans'
       : 'Learn the fundamentals step by step';
 
   const getLessonMinutes = (lesson: Lesson) => 8 + lesson.number * 2 + (lesson.type === 'practice' ? 4 : 0);
+  const shouldOpenCssPopup = (lesson: Lesson) => currentSection?.id === 'css-intro' && lesson.id === 'css-1';
 
   return (
     <div className="min-h-screen bg-[#0a0e14] text-[#f1f3fc]">
@@ -153,6 +156,19 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                   {currentSection.lessons.map((lesson) => (
                     <div
                       key={lesson.id}
+                      role={shouldOpenCssPopup(lesson) ? 'button' : undefined}
+                      tabIndex={shouldOpenCssPopup(lesson) ? 0 : undefined}
+                      onClick={() => {
+                        if (shouldOpenCssPopup(lesson)) {
+                          setIsLessonPopupOpen(true);
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (shouldOpenCssPopup(lesson) && (event.key === 'Enter' || event.key === ' ')) {
+                          event.preventDefault();
+                          setIsLessonPopupOpen(true);
+                        }
+                      }}
                       className={`flex items-center justify-between rounded-2xl p-6 transition-all duration-300 ${
                         lesson.locked
                           ? 'border border-dashed border-white/10 bg-[rgba(21,26,33,0.4)] opacity-60 grayscale backdrop-blur-[16px]'
@@ -189,16 +205,32 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5">
                           <Lock className="h-4 w-4 text-[#a8abb3]" />
                         </div>
+                      ) : shouldOpenCssPopup(lesson) ? (
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setIsLessonPopupOpen(true);
+                          }}
+                          className="flex items-center gap-2 rounded-xl bg-[#5cfd80] px-8 py-3 font-['Space_Grotesk'] text-[0.7rem] font-black uppercase tracking-[0.15em] text-[#005d22] shadow-[0_0_20px_rgba(92,253,128,0.2)] transition-all hover:brightness-110 active:scale-95"
+                        >
+                          {lesson.completed ? 'View Track' : 'Open Track'}
+                        </button>
                       ) : lesson.completed ? (
                         <button
-                          onClick={() => onStartLesson(lesson.id)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onStartLesson(lesson.id);
+                          }}
                           className="flex items-center gap-2 rounded-xl bg-[#5cfd80] px-8 py-3 font-['Space_Grotesk'] text-[0.7rem] font-black uppercase tracking-[0.15em] text-[#005d22] shadow-[0_0_20px_rgba(92,253,128,0.2)] transition-all hover:brightness-110 active:scale-95"
                         >
                           Continue
                         </button>
                       ) : (
                         <button
-                          onClick={() => onStartLesson(lesson.id)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onStartLesson(lesson.id);
+                          }}
                           className="flex items-center gap-2 rounded-xl bg-[#5cfd80] px-8 py-3 font-['Space_Grotesk'] text-[0.7rem] font-black uppercase tracking-[0.15em] text-[#005d22] shadow-[0_0_20px_rgba(92,253,128,0.2)] transition-all hover:brightness-110 active:scale-95"
                         >
                           <PlayCircle className="h-4 w-4 fill-current" />
@@ -234,6 +266,76 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
           )}
         </div>
       </main>
+
+      {isLessonPopupOpen && currentSection?.id === 'css-intro' && cssPreviewLessons.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#02050b]/75 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-[1.8rem] border border-[#94aaff]/18 bg-[#151a21] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.45)]">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#94aaff]">Stylesheet Track</p>
+                <h3 className="mt-2 font-['Space_Grotesk'] text-2xl font-black text-[#f1f3fc]">Lesson Progress</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsLessonPopupOpen(false)}
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#20262f] text-[#a8abb3] transition-colors hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {cssPreviewLessons.map((lesson, index) => (
+                <div
+                  key={lesson.id}
+                  className={`flex items-center justify-between rounded-2xl border px-4 py-4 ${
+                    lesson.completed
+                      ? 'border-[#5cfd80]/20 bg-[#5cfd80]/10'
+                      : lesson.locked
+                      ? 'border-white/8 bg-[#20262f]/60'
+                      : 'border-[#94aaff]/16 bg-[#94aaff]/8'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                      lesson.completed
+                        ? 'bg-[#5cfd80]/14 text-[#5cfd80]'
+                        : lesson.locked
+                        ? 'bg-white/6 text-[#8e95a3]'
+                        : 'bg-[#94aaff]/14 text-[#dbe4ff]'
+                    }`}>
+                      {lesson.completed ? <CheckCircle2 className="h-4 w-4" /> : lesson.locked ? <Lock className="h-4 w-4" /> : <PlayCircle className="h-4 w-4 fill-current" />}
+                    </div>
+                    <div>
+                      <p className="font-['Space_Grotesk'] text-sm font-bold text-[#f1f3fc]">Lesson {index + 1}</p>
+                      <p className="text-xs text-[#a8abb3]">
+                        {lesson.completed ? 'Completed' : lesson.locked ? 'Locked' : 'Open now'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {!lesson.locked && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsLessonPopupOpen(false);
+                        onStartLesson(lesson.id);
+                      }}
+                      className={`rounded-xl px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] ${
+                        lesson.completed
+                          ? 'bg-[#20262f] text-[#f1f3fc]'
+                          : 'bg-[#5cfd80] text-[#005d22]'
+                      }`}
+                    >
+                      {lesson.completed ? 'Review' : 'Start'}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

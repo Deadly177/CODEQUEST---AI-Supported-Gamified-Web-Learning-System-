@@ -36,6 +36,11 @@ export type LessonStep =
       type: 'code';
       data: string;
       code: string;
+      codeTitle?: string;
+      secondaryCodeTitle?: string;
+      secondaryCode?: string;
+      previewTitle?: string;
+      previewHtml?: string;
     }
   | {
       type: 'quiz';

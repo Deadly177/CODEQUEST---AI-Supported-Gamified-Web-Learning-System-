@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, EyeOff, GraduationCap, Lock, Mail, User } from 'lucide-react';
+import { Eye, EyeOff, GraduationCap, Mail, User } from 'lucide-react';
 import './AuthScreen.css';
 
 interface AuthScreenProps {

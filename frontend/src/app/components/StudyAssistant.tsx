@@ -233,7 +233,7 @@ export function StudyAssistant({
                 )}
                 <div>
                   <div className="flex items-center gap-2">
-                    <p className="text-base font-semibold tracking-wide text-white">{isLessonVariant ? 'AI Chat ⌘J' : 'QUEST AI'}</p>
+                    <p className="text-base font-semibold tracking-wide text-white">{isLessonVariant ? 'Quest AI' : 'QUEST AI'}</p>
                     {!isLessonVariant && (
                       <span className="rounded-full border border-cyan-300/20 bg-cyan-400/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.22em] text-cyan-200">
                         Study Mode
@@ -376,16 +376,30 @@ export function StudyAssistant({
 
             {activeTab === 'chat' && isLoading && (
               <div className="flex justify-start">
-                <div className="rounded-[22px] border border-slate-700/70 bg-slate-800/90 px-4 py-3 text-sm text-slate-300">
-                  <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-300/80">
-                    <Sparkles className="h-3.5 w-3.5" />
+                <div
+                  className={`rounded-[22px] px-4 py-3 text-sm ${
+                    isLessonVariant
+                      ? 'border border-[#94aaff]/18 bg-[#1d2738] text-[#dbe5ff] shadow-[0_12px_30px_rgba(15,23,42,0.22)]'
+                      : 'border border-slate-700/70 bg-slate-800/90 text-slate-300'
+                  }`}
+                >
+                  <div
+                    className={`mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] ${
+                      isLessonVariant ? 'text-[#8fb3ff]' : 'text-cyan-300/80'
+                    }`}
+                  >
+                    <Sparkles className={`h-3.5 w-3.5 ${isLessonVariant ? 'text-[#57a6ff]' : ''}`} />
                     QUEST AI
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300" />
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:120ms]" />
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-cyan-300 [animation-delay:240ms]" />
-                    <span className="ml-2 text-slate-400">Thinking</span>
+                    <span className={`h-2 w-2 animate-pulse rounded-full ${isLessonVariant ? 'bg-[#57a6ff]' : 'bg-cyan-300'}`} />
+                    <span
+                      className={`h-2 w-2 animate-pulse rounded-full [animation-delay:120ms] ${isLessonVariant ? 'bg-[#57a6ff]' : 'bg-cyan-300'}`}
+                    />
+                    <span
+                      className={`h-2 w-2 animate-pulse rounded-full [animation-delay:240ms] ${isLessonVariant ? 'bg-[#57a6ff]' : 'bg-cyan-300'}`}
+                    />
+                    <span className={`ml-2 ${isLessonVariant ? 'text-[#9fb0d5]' : 'text-slate-400'}`}>Thinking</span>
                   </div>
                 </div>
               </div>
@@ -447,9 +461,9 @@ export function StudyAssistant({
         ) : (
           <div className="relative flex items-center justify-center">
             <Bot className={`${isLessonVariant ? 'h-6 w-6' : 'h-7 w-7'}`} />
-            <span className={`absolute left-1/2 flex min-w-[1.75rem] -translate-x-1/2 items-center justify-center rounded-full border border-cyan-200/40 bg-slate-950/90 px-1 text-[9px] font-semibold uppercase leading-none tracking-[0.12em] text-cyan-100 shadow-[0_6px_18px_rgba(15,23,42,0.35)] ${
-              isLessonVariant ? '-top-2 h-5' : '-top-4 h-5 -translate-y-1/2'
-            }`}>
+              <span className={`absolute left-1/2 flex min-w-[1.75rem] -translate-x-1/2 items-center justify-center rounded-full border border-cyan-200/40 bg-slate-950/90 px-1 text-[9px] font-semibold uppercase leading-none tracking-[0.12em] text-cyan-100 shadow-[0_6px_18px_rgba(15,23,42,0.35)] ${
+                isLessonVariant ? '-top-6 h-5' : '-top-4 h-5 -translate-y-1/2'
+              }`}>
               AI
             </span>
           </div>

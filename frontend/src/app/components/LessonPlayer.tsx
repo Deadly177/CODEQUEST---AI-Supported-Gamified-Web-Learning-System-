@@ -137,9 +137,10 @@ export function LessonPlayer({
   const [blankValuesByStep, setBlankValuesByStep] = useState<Record<number, string[]>>({});
   const [activeBlankByStep, setActiveBlankByStep] = useState<Record<number, number>>({});
   const [chipAssignmentsByStep, setChipAssignmentsByStep] = useState<Record<number, (string | null)[]>>({});
-  const [visibleCodeTabByStep, setVisibleCodeTabByStep] = useState<Record<number, 'primary' | 'secondary'>>({});
+  const [visibleCodeTabByStep, setVisibleCodeTabByStep] = useState<Record<number, 'primary' | 'secondary' | 'preview'>>({});
   const [completedSteps, setCompletedSteps] = useState<Record<number, true>>({});
   const [browserChoices, setBrowserChoices] = useState<Record<number, string>>({});
+  const [revealedCodePreviewByStep, setRevealedCodePreviewByStep] = useState<Record<number, true>>({});
   const [showCompletionScreen, setShowCompletionScreen] = useState(false);
   const [completionStage, setCompletionStage] = useState<'xp' | 'momentum'>('xp');
   const [isClaimingReward, setIsClaimingReward] = useState(false);
@@ -191,7 +192,7 @@ export function LessonPlayer({
 
   const step = lesson.content[currentStep];
   const currentVisibleCodeTab =
-    step.type === 'interactive' && step.mode === 'fill-blanks'
+    (step.type === 'interactive' && step.mode === 'fill-blanks') || step.type === 'code'
       ? visibleCodeTabByStep[currentStep] ?? step.activeCodeTab ?? 'primary'
       : 'primary';
   const editableCodeTab =
@@ -244,6 +245,7 @@ export function LessonPlayer({
         activeBlankByStep?: Record<number, number>;
         chipAssignmentsByStep?: Record<number, (string | null)[]>;
         browserChoices?: Record<number, string>;
+        revealedCodePreviewByStep?: Record<number, true>;
       };
 
       setCurrentStep(Math.max(0, Math.min(saved.currentStep ?? 0, lesson.content.length - 1)));
@@ -254,6 +256,7 @@ export function LessonPlayer({
       setActiveBlankByStep(saved.activeBlankByStep ?? {});
       setChipAssignmentsByStep(saved.chipAssignmentsByStep ?? {});
       setBrowserChoices(saved.browserChoices ?? {});
+      setRevealedCodePreviewByStep(saved.revealedCodePreviewByStep ?? {});
       setSelectedAnswer(null);
       setShowFeedback(false);
       setShowCompletionScreen(false);
@@ -273,11 +276,12 @@ export function LessonPlayer({
       blankValuesByStep,
       activeBlankByStep,
       chipAssignmentsByStep,
-      browserChoices
+      browserChoices,
+      revealedCodePreviewByStep
     };
 
     window.localStorage.setItem(getLessonStorageKey(lesson.id), JSON.stringify(payload));
-  }, [activeBlankByStep, blankValuesByStep, browserChoices, chipAssignmentsByStep, codeByStep, completedSteps, currentStep, furthestStep, lesson.id]);
+  }, [activeBlankByStep, blankValuesByStep, browserChoices, chipAssignmentsByStep, codeByStep, completedSteps, currentStep, furthestStep, lesson.id, revealedCodePreviewByStep]);
 
   const interactiveSolved = useMemo(() => {
     if (step.type !== 'interactive') {
@@ -297,7 +301,11 @@ export function LessonPlayer({
       return true;
     }
 
-    if (step.type === 'intro' || step.type === 'text' || step.type === 'code' || step.type === 'browser-preview') {
+    if (step.type === 'intro' || step.type === 'text' || step.type === 'browser-preview') {
+      return true;
+    }
+
+    if (step.type === 'code') {
       return true;
     }
 
@@ -327,7 +335,17 @@ export function LessonPlayer({
       return;
     }
 
-    if (step.type === 'quiz' || step.type === 'interactive' || step.type === 'browser-demo') {
+    if (step.type === 'code' && step.previewHtml && !revealedCodePreviewByStep[currentStep]) {
+      setRevealedCodePreviewByStep((prev) => ({
+        ...prev,
+        [currentStep]: true
+      }));
+      markStepComplete();
+      unlockNextStep();
+      return;
+    }
+
+    if (step.type === 'quiz' || step.type === 'interactive' || step.type === 'browser-demo' || step.type === 'code') {
       markStepComplete();
     }
 
@@ -356,7 +374,19 @@ export function LessonPlayer({
     setIsClaimingReward(true);
 
     try {
-      window.localStorage.removeItem(getLessonStorageKey(lesson.id));
+      const completedLessonState = {
+        currentStep: 0,
+        furthestStep: Math.max(0, lesson.content.length - 1),
+        completedSteps,
+        codeByStep,
+        blankValuesByStep,
+        activeBlankByStep,
+        chipAssignmentsByStep,
+        browserChoices,
+        revealedCodePreviewByStep
+      };
+
+      window.localStorage.setItem(getLessonStorageKey(lesson.id), JSON.stringify(completedLessonState));
       await onComplete(lesson.xpReward);
     } finally {
       setIsClaimingReward(false);
@@ -720,16 +750,67 @@ export function LessonPlayer({
     }
 
     if (current.type === 'code') {
+      const visibleCode = currentVisibleCodeTab === 'secondary' && current.secondaryCode ? current.secondaryCode : current.code;
+      const showCodePreview = Boolean(current.previewHtml && revealedCodePreviewByStep[currentStep]);
       return (
-        <div className="mx-auto flex max-w-4xl flex-col justify-center">
+        <div className="mx-auto flex max-w-6xl flex-col justify-center">
           <p className="mb-7 text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
-          <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
-            <div className="border-b border-white/5 bg-[#151a21] px-6 py-4 text-sm font-semibold text-slate-100">index.html</div>
-            <div className="p-6">
-              <pre className="overflow-x-auto whitespace-pre-wrap text-base leading-7 text-[#94aaff]">
-                <code>{renderCodeText(current.code, 'code-step')}</code>
-              </pre>
+          <div className={`grid gap-6 ${showCodePreview ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'grid-cols-1'}`}>
+            <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+              <div className="border-b border-white/5 bg-[#151a21] px-4 py-2.5 sm:px-6 sm:py-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVisibleCodeTabByStep((prev) => ({
+                        ...prev,
+                        [currentStep]: 'primary'
+                      }))
+                    }
+                    className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                      currentVisibleCodeTab === 'primary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {current.codeTitle ?? 'index.html'}
+                  </button>
+                  {current.secondaryCodeTitle && current.secondaryCode && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setVisibleCodeTabByStep((prev) => ({
+                          ...prev,
+                          [currentStep]: 'secondary'
+                        }))
+                      }
+                      className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                        currentVisibleCodeTab === 'secondary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {current.secondaryCodeTitle}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <div className="p-4 sm:p-6">
+                <pre className="overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-[#94aaff] sm:text-base sm:leading-7">
+                  <code>{renderCodeText(visibleCode, 'code-step')}</code>
+                </pre>
+              </div>
             </div>
+
+            {showCodePreview ? (
+              <div className="self-start overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+                <div className="border-b border-white/5 bg-[#151a21] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
+                  {current.previewTitle ?? 'Browser'}
+                </div>
+                <iframe
+                  title={current.previewTitle ?? 'Browser'}
+                  sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+                  srcDoc={current.previewHtml}
+                  className="h-[24rem] w-full bg-white"
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       );
@@ -738,12 +819,12 @@ export function LessonPlayer({
     if (current.type === 'interactive') {
       if (current.mode === 'fill-blanks') {
         return (
-          <div className="mx-auto flex max-w-6xl flex-col">
-            <p className="mb-5 text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
+          <div className="mx-auto flex max-w-5xl flex-col">
+            <p className="mb-4 text-center text-[15px] leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
 
             <div className={`grid gap-6 ${showFeedback && interactiveSolved ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'lg:grid-cols-1'}`}>
-              <div className={`overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-5xl'}`}>
-                <div className="flex items-center justify-between border-b border-white/5 bg-[#151a21] px-6 py-3">
+              <div className={`overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-[920px]'}`}>
+                <div className="flex items-center justify-between border-b border-white/5 bg-[#151a21] px-4 py-2.5 sm:px-6 sm:py-3">
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -753,7 +834,7 @@ export function LessonPlayer({
                           [currentStep]: 'primary'
                         }))
                       }
-                      className={`rounded-md px-3 py-1 text-sm font-semibold transition-colors ${
+                      className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
                         currentVisibleCodeTab === 'primary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
                       }`}
                     >
@@ -768,7 +849,7 @@ export function LessonPlayer({
                             [currentStep]: 'secondary'
                           }))
                         }
-                        className={`rounded-md px-3 py-1 text-sm font-semibold transition-colors ${
+                        className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
                           currentVisibleCodeTab === 'secondary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
                         }`}
                       >
@@ -780,7 +861,7 @@ export function LessonPlayer({
                     <button
                       type="button"
                       onClick={handleBlankDelete}
-                      className="flex items-center gap-2 rounded-full border border-white/10 bg-[#0d1117] px-3 py-1.5 text-xs text-slate-300 transition-colors hover:text-white"
+                      className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0d1117] px-2.5 py-1 text-[11px] text-slate-300 transition-colors hover:text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
                       aria-label="Clear blank"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -803,17 +884,17 @@ export function LessonPlayer({
                         }));
                         setShowFeedback(false);
                       }}
-                      className="flex items-center gap-2 rounded-full border border-white/10 bg-[#0d1117] px-3 py-1.5 text-xs text-slate-300 transition-colors hover:text-white"
+                      className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0d1117] px-2.5 py-1 text-[11px] text-slate-300 transition-colors hover:text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
                       Reset
                     </button>
                   </div>
                 </div>
-                <div className="p-6">
-                  <div className="min-h-[12rem] rounded-2xl border border-white/5 bg-[#0d1117] p-5 font-mono text-base leading-7 text-slate-100">
-                    <div className="overflow-x-auto">
-                      <div className="min-w-max whitespace-pre-wrap break-words text-lg leading-[1.55] text-[#94aaff]">
+                <div className="p-4 sm:p-5">
+                  <div className="h-[19rem] rounded-2xl border border-white/5 bg-[#0d1117] p-4 font-mono text-sm leading-6 text-slate-100 sm:h-[21rem] sm:p-4 sm:text-[15px] sm:leading-6">
+                    <div className="lesson-code-scrollbar h-full overflow-x-auto overflow-y-auto pr-2">
+                      <div className="min-w-max whitespace-pre-wrap break-words text-[14px] leading-[1.4] text-[#94aaff] sm:text-[15px] sm:leading-[1.45]">
                         {visibleTemplateParts.map((part, index) => (
                           <span key={`template-${index}`}>
                             {renderCodeText(part, `part-${index}`)}
@@ -829,7 +910,7 @@ export function LessonPlayer({
                                 }
                                 placeholder=""
                                 style={{ width: getChipWidth(currentBlankValues[index] ?? '') }}
-                                className={`${getBlankSpacingClass(part, visibleTemplateParts[index + 1] ?? '')} inline-block h-9 rounded-[0.85rem] border px-2 py-1 align-middle text-center text-sm font-semibold outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 focus:ring-2 ${
+                                className={`${getBlankSpacingClass(part, visibleTemplateParts[index + 1] ?? '')} inline-block h-7 rounded-[0.75rem] border px-2 py-0.5 align-middle text-center text-[11px] font-semibold outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 focus:ring-2 sm:h-8 sm:rounded-[0.8rem] sm:text-xs ${
                                   !(currentBlankValues[index] ?? '').trim()
                                     ? 'border-[#9bb0ff]/45 bg-[#4c4a86] text-[#d8ddff] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_0_0_1px_rgba(119,147,255,0.18)] focus:border-[#b7c7ff]/70 focus:bg-[#5a58a0] focus:ring-[#9bb0ff]/25'
                                     : isHtmlLikeSnippet(currentBlankValues[index] ?? '') || ['<', '>', '/', 'h1', 'h2', 'h3', 'h4', 'button', 'strong', 'em', 'br', 'p'].includes((currentBlankValues[index] ?? '').trim())
@@ -848,7 +929,7 @@ export function LessonPlayer({
 
               {showFeedback && interactiveSolved && (
                 <div className="self-start overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
-                  <div className="border-b border-white/5 bg-[#151a21] px-5 py-3 text-sm font-semibold text-slate-100">
+                  <div className="border-b border-white/5 bg-[#151a21] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
                     {current.previewTitle ?? 'Browser'}
                   </div>
                   <iframe
@@ -861,7 +942,7 @@ export function LessonPlayer({
               )}
             </div>
 
-            <div className="mt-5 flex flex-col items-center gap-4">
+            <div className="mt-4 flex flex-col items-center gap-3">
               <div className="min-h-[1.25rem]">
                 {current.helperText && !showFeedback && <p className="text-center text-sm text-[#a8abb3]">{current.helperText}</p>}
                 {showFeedback && !interactiveSolved && (
@@ -870,7 +951,7 @@ export function LessonPlayer({
                   </p>
                 )}
               </div>
-              <div className="flex flex-wrap items-center justify-center gap-4">
+              <div className="flex max-w-[920px] flex-wrap items-center justify-center gap-2 sm:gap-3">
                 {(current.promptChips ?? []).map((chip, index) => {
                   const chipKey = buildChipKey(chip, index);
                   const isUsed = (chipAssignmentsByStep[currentStep] ?? []).includes(chipKey);
@@ -880,7 +961,7 @@ export function LessonPlayer({
                       key={chipKey}
                       type="button"
                       onClick={() => handlePromptChipClick(chip, chipKey)}
-                      className={`rounded-full border px-4 py-2 font-mono text-xs transition-all ${
+                      className={`rounded-full border px-2.5 py-1.5 font-mono text-[10px] transition-all sm:px-3 sm:text-[11px] ${
                         isUsed
                           ? 'border-[#5cfd80]/45 bg-[#5cfd80]/18 text-[#b9ffcb] shadow-[0_0_0_1px_rgba(92,253,128,0.16)]'
                           : 'border-[#94aaff]/20 bg-[#94aaff]/10 text-[#94aaff] hover:border-[#94aaff]/35 hover:bg-[#94aaff]/15'

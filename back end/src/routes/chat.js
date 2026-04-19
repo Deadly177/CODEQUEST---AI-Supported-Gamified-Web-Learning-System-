@@ -19,7 +19,7 @@ function getProviderConfig() {
     return {
       provider,
       apiKey: process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY,
-      model: process.env.OPENROUTER_MODEL || 'deepseek/deepseek-chat-v3-0324:free',
+      model: process.env.OPENROUTER_MODEL || 'openai/gpt-oss-120b:free',
       baseUrl: 'https://openrouter.ai/api/v1/chat/completions'
     };
   }
@@ -108,6 +108,11 @@ router.post('/', async (req, res) => {
       ? `Learning context:\n${context}\n\nRecent conversation:\n${historyText || 'None'}\n\nStudent question: ${String(message).trim()}`
       : `Recent conversation:\n${historyText || 'None'}\n\nStudent question: ${String(message).trim()}`;
 
+    const openRouterReasoning =
+      providerConfig.provider === 'openrouter' && providerConfig.model.startsWith('openai/gpt-oss')
+        ? { reasoning: { enabled: true } }
+        : {};
+
     const response = providerConfig.provider === 'deepseek' || providerConfig.provider === 'openrouter'
       ? await fetch(providerConfig.baseUrl, {
           method: 'POST',
@@ -124,6 +129,7 @@ router.post('/', async (req, res) => {
           body: JSON.stringify({
             model: providerConfig.model,
             temperature: 0.7,
+            ...openRouterReasoning,
             messages: [
               { role: 'system', content: systemPrompt },
               { role: 'user', content: userPrompt }
@@ -157,7 +163,7 @@ router.post('/', async (req, res) => {
 
     if (!response.ok) {
       return res.status(response.status).json({
-        error: payload?.error?.message || 'OpenAI request failed'
+        error: payload?.error?.message || 'AI provider request failed'
       });
     }
 
@@ -178,7 +184,7 @@ router.post('/', async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      error: error instanceof Error ? error.message : 'Failed to contact OpenAI'
+      error: error instanceof Error ? error.message : 'Failed to contact AI provider'
     });
   }
 });

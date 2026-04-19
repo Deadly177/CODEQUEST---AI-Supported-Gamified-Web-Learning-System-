@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="900" viewBox="0 0 1400 900">
+  <defs>
+    <style>
+      .title { font: 700 28px 'Times New Roman', serif; fill: #000; }
+      .subtitle { font: 400 16px 'Times New Roman', serif; fill: #000; }
+      .label { font: 600 18px 'Times New Roman', serif; fill: #000; }
+      .small { font: 400 15px 'Times New Roman', serif; fill: #000; }
+      .box { fill: #fff; stroke: #000; stroke-width: 2.2; }
+      .arrow { stroke: #000; stroke-width: 2.2; fill: none; marker-end: url(#arrowhead); }
+      .line { stroke: #000; stroke-width: 1.8; fill: none; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#000"/>
+    </marker>
+  </defs>
+
+  <rect width="1400" height="900" fill="#fff"/>
+
+  <text x="700" y="60" text-anchor="middle" class="title">AI Assistant API Workflow</text>
+  <text x="700" y="88" text-anchor="middle" class="subtitle">CodeQuest system-level interaction between user interface, backend, database, and OpenRouter model API</text>
+
+  <rect x="540" y="130" rx="8" ry="8" width="320" height="70" class="box"/>
+  <text x="700" y="173" text-anchor="middle" class="label">User</text>
+
+  <rect x="430" y="250" rx="8" ry="8" width="540" height="90" class="box"/>
+  <text x="700" y="287" text-anchor="middle" class="label">Frontend AI Assistant Interface</text>
+  <text x="700" y="315" text-anchor="middle" class="small">User enters question from dashboard or lesson assistant</text>
+
+  <rect x="430" y="390" rx="8" ry="8" width="540" height="110" class="box"/>
+  <text x="700" y="428" text-anchor="middle" class="label">Backend Chat API</text>
+  <text x="700" y="455" text-anchor="middle" class="small">Receives message, context, thread key, and JWT token</text>
+  <text x="700" y="478" text-anchor="middle" class="small">Validates request and prepares AI input</text>
+
+  <rect x="110" y="565" rx="8" ry="8" width="410" height="150" class="box"/>
+  <text x="315" y="605" text-anchor="middle" class="label">MongoDB</text>
+  <text x="315" y="635" text-anchor="middle" class="small">Loads recent chat history</text>
+  <text x="315" y="660" text-anchor="middle" class="small">Stores user message and assistant reply</text>
+  <text x="315" y="685" text-anchor="middle" class="small">Maintains per-user conversation records</text>
+
+  <rect x="880" y="565" rx="8" ry="8" width="410" height="150" class="box"/>
+  <text x="1085" y="605" text-anchor="middle" class="label">OpenRouter API</text>
+  <text x="1085" y="635" text-anchor="middle" class="small">Forwards prompt to selected free model</text>
+  <text x="1085" y="660" text-anchor="middle" class="small">Configured model: GPT-OSS Free</text>
+  <text x="1085" y="685" text-anchor="middle" class="small">Alternative option: Llama-based free model</text>
+
+  <rect x="430" y="765" rx="8" ry="8" width="540" height="90" class="box"/>
+  <text x="700" y="802" text-anchor="middle" class="label">Response Returned to Frontend</text>
+  <text x="700" y="830" text-anchor="middle" class="small">Assistant reply is displayed to the learner</text>
+
+  <path d="M700 200 L700 250" class="arrow"/>
+  <path d="M700 340 L700 390" class="arrow"/>
+  <path d="M520 445 L315 445 L315 565" class="arrow"/>
+  <path d="M880 445 L1085 445 L1085 565" class="arrow"/>
+  <path d="M315 715 L315 740 L700 740 L700 765" class="arrow"/>
+  <path d="M1085 715 L1085 740 L700 740 L700 765" class="arrow"/>
+
+  <text x="735" y="225" class="small">1. Ask question</text>
+  <text x="735" y="365" class="small">2. Send API request</text>
+  <text x="70" y="470" class="small">3. Read history and save conversation</text>
+  <text x="940" y="470" class="small">4. Generate AI response</text>
+  <text x="735" y="752" class="small">5. Return final reply</text>
+</svg>

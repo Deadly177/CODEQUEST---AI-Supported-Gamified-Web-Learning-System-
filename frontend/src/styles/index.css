@@ -1,3 +1,28 @@
 @import './fonts.css';
 @import './tailwind.css';
 @import './theme.css';
+
+.lesson-code-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.92) rgba(255, 255, 255, 0.14);
+}
+
+.lesson-code-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.lesson-code-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+}
+
+.lesson-code-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(13, 17, 23, 0.9);
+  border-radius: 999px;
+}
+
+.lesson-code-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 1);
+}

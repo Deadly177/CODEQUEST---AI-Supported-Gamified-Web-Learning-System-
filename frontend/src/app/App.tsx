@@ -10,6 +10,7 @@ import { AuthScreen } from './components/AuthScreen';
 import { UserSettings } from './components/UserSettings';
 import { StudyAssistant } from './components/StudyAssistant';
 import { Performance } from './components/Performance';
+import { DashboardAssistant } from './components/DashboardAssistant';
 import { htmlCourseDetail, htmlLessonContent } from './courses/html';
 import { cssCourseDetail, cssLessonContent } from './courses/css';
 import type { LessonDefinition } from './lessonTypes';
@@ -29,7 +30,7 @@ import {
   Zap
 } from 'lucide-react';
 
-type View = 'home' | 'learn' | 'lessons' | 'frontend-path' | 'course-view' | 'lesson' | 'achievements' | 'leaderboard' | 'performance' | 'settings';
+type View = 'home' | 'learn' | 'lessons' | 'frontend-path' | 'course-view' | 'lesson' | 'assistant' | 'achievements' | 'leaderboard' | 'performance' | 'settings';
 
 type UserStats = {
   name: string;
@@ -565,6 +566,14 @@ export default function App() {
     'Summarize the topic simply',
     ...(!latestQuizInsight || latestQuizInsight.isCorrect ? [] : ['Explain my last quiz mistake'])
   ];
+  const dashboardAssistantQuickPrompts = [
+    'Where should I start in coding?',
+    'Which language should I learn first?',
+    'Explain this lesson',
+    'Give me a practice question',
+    'Summarize the topic simply',
+    ...(!latestQuizInsight || latestQuizInsight.isCorrect ? [] : ['Explain my last quiz mistake'])
+  ];
   const useCourseLayout = currentView === 'course-view' || currentView === 'lesson';
   const useLessonLayout = currentView === 'lesson';
 
@@ -604,6 +613,7 @@ export default function App() {
   }, [authToken, currentView, selectedCourse]);
 
   const handleStartCourse = (courseId: string) => {
+    window.localStorage.setItem('codequest_recent_course', courseId);
     setSelectedCourse(courseId);
     setSelectedLesson(null);
     setCourseDetail(null);
@@ -798,6 +808,7 @@ export default function App() {
         <div className="mb-6 px-4">
           <button
             type="button"
+            onClick={() => setCurrentView('assistant')}
             className="flex w-full items-center justify-center space-x-2 rounded-xl bg-gradient-to-r from-[#94aaff] to-[#3367ff] py-4 text-xs font-black uppercase tracking-[0.18em] text-[#000000] transition-transform hover:scale-[1.02]"
           >
             <Bot className="h-4 w-4" />
@@ -935,6 +946,18 @@ export default function App() {
 
         {currentView === 'home' && (
           <Dashboard userStats={userStats} courses={courses} onSelectCourse={handleStartCourse} />
+        )}
+
+        {currentView === 'assistant' && (
+          <DashboardAssistant
+            authToken={authToken}
+            apiBaseUrl={apiBaseUrl}
+            context={assistantContext}
+            threadKey="dashboard:assistant"
+            userName={userStats.name}
+            courses={courses}
+            quickPrompts={dashboardAssistantQuickPrompts}
+          />
         )}
 
         {currentView === 'achievements' && (

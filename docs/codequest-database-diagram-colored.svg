@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1020" viewBox="0 0 1600 1020">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f8fbff"/>
+      <stop offset="100%" stop-color="#eef4ff"/>
+    </linearGradient>
+    <linearGradient id="userHead" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="progressHead" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0f766e"/>
+      <stop offset="100%" stop-color="#14b8a6"/>
+    </linearGradient>
+    <linearGradient id="embedHead" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#b45309"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="chatHead" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+    <style>
+      .title { font: 700 30px 'Arial', sans-serif; fill: #0f172a; }
+      .subtitle { font: 400 16px 'Arial', sans-serif; fill: #334155; }
+      .entity { font: 700 22px 'Arial', sans-serif; fill: #fff; }
+      .field { font: 400 17px 'Arial', sans-serif; fill: #0f172a; }
+      .small { font: 600 14px 'Arial', sans-serif; fill: #334155; }
+      .note { font: 400 14px 'Arial', sans-serif; fill: #475569; }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 2; }
+      .arrowBlue { stroke: #2563eb; stroke-width: 3; fill: none; marker-end: url(#blueArrow); }
+      .arrowGreen { stroke: #0f766e; stroke-width: 3; fill: none; marker-end: url(#greenArrow); }
+      .arrowPurple { stroke: #7c3aed; stroke-width: 3; fill: none; marker-end: url(#purpleArrow); }
+      .dash { stroke: #94a3b8; stroke-width: 2; stroke-dasharray: 8 6; fill: none; }
+    </style>
+    <marker id="blueArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#2563eb"/>
+    </marker>
+    <marker id="greenArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0f766e"/>
+    </marker>
+    <marker id="purpleArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#7c3aed"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#94a3b8" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1020" fill="url(#bg)"/>
+
+  <text x="800" y="60" text-anchor="middle" class="title">CodeQuest Database Structure</text>
+  <text x="800" y="88" text-anchor="middle" class="subtitle">Colored presentation view of MongoDB collections and embedded documents</text>
+
+  <g filter="url(#shadow)">
+    <rect x="90" y="150" width="390" height="270" rx="18" class="card"/>
+    <rect x="90" y="150" width="390" height="64" rx="18" fill="url(#userHead)"/>
+    <rect x="90" y="196" width="390" height="18" fill="url(#userHead)"/>
+    <text x="285" y="190" text-anchor="middle" class="entity">User</text>
+    <text x="118" y="248" class="field">_id : ObjectId</text>
+    <text x="118" y="282" class="field">name : String</text>
+    <text x="118" y="316" class="field">email : String (unique)</text>
+    <text x="118" y="350" class="field">passwordHash : String</text>
+    <text x="118" y="384" class="field">createdAt : Date</text>
+    <text x="118" y="412" class="field">updatedAt : Date</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="585" y="150" width="450" height="350" rx="18" class="card"/>
+    <rect x="585" y="150" width="450" height="64" rx="18" fill="url(#progressHead)"/>
+    <rect x="585" y="196" width="450" height="18" fill="url(#progressHead)"/>
+    <text x="810" y="190" text-anchor="middle" class="entity">UserProgress</text>
+    <text x="613" y="248" class="field">_id : ObjectId</text>
+    <text x="613" y="282" class="field">userId : ObjectId (ref User)</text>
+    <text x="613" y="316" class="field">totalPoints : Number</text>
+    <text x="613" y="350" class="field">streak : Number</text>
+    <text x="613" y="384" class="field">lastActivityAt : Date | null</text>
+    <text x="613" y="418" class="field">badges : [String]</text>
+    <text x="613" y="452" class="field">courseProgress : [CourseProgress]</text>
+    <text x="613" y="480" class="field">createdAt / updatedAt : Date</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="1120" y="165" width="360" height="190" rx="18" class="card"/>
+    <rect x="1120" y="165" width="360" height="60" rx="18" fill="url(#embedHead)"/>
+    <rect x="1120" y="205" width="360" height="20" fill="url(#embedHead)"/>
+    <text x="1300" y="202" text-anchor="middle" class="entity">CourseProgress</text>
+    <text x="1148" y="258" class="field">courseId : String</text>
+    <text x="1148" y="292" class="field">completedLessonIds : [String]</text>
+    <text x="1148" y="330" class="note">Embedded inside UserProgress</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="255" y="610" width="450" height="310" rx="18" class="card"/>
+    <rect x="255" y="610" width="450" height="64" rx="18" fill="url(#chatHead)"/>
+    <rect x="255" y="656" width="450" height="18" fill="url(#chatHead)"/>
+    <text x="480" y="650" text-anchor="middle" class="entity">ChatSession</text>
+    <text x="283" y="708" class="field">_id : ObjectId</text>
+    <text x="283" y="742" class="field">userId : ObjectId (ref User)</text>
+    <text x="283" y="776" class="field">threadKey : String</text>
+    <text x="283" y="810" class="field">messages : [ChatMessage]</text>
+    <text x="283" y="844" class="field">createdAt : Date</text>
+    <text x="283" y="878" class="field">updatedAt : Date</text>
+    <text x="283" y="906" class="small">Unique key: userId + threadKey</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="925" y="635" width="390" height="215" rx="18" class="card"/>
+    <rect x="925" y="635" width="390" height="60" rx="18" fill="url(#embedHead)"/>
+    <rect x="925" y="675" width="390" height="20" fill="url(#embedHead)"/>
+    <text x="1120" y="672" text-anchor="middle" class="entity">ChatMessage</text>
+    <text x="953" y="730" class="field">role : 'user' | 'assistant'</text>
+    <text x="953" y="764" class="field">text : String</text>
+    <text x="953" y="798" class="field">createdAt : Date</text>
+    <text x="953" y="834" class="note">Embedded inside ChatSession</text>
+  </g>
+
+  <path d="M480 285 L585 285" class="arrowBlue"/>
+  <text x="532" y="262" text-anchor="middle" class="small">1 : 1 tracking link</text>
+
+  <path d="M1035 315 L1120 315" class="arrowGreen"/>
+  <text x="1078" y="292" text-anchor="middle" class="small">embedded array</text>
+
+  <path d="M350 420 L350 535 L480 535 L480 610" class="arrowPurple"/>
+  <text x="430" y="513" text-anchor="middle" class="small">user conversation sessions</text>
+
+  <path d="M705 760 L925 760" class="arrowPurple"/>
+  <text x="815" y="738" text-anchor="middle" class="small">embedded messages</text>
+
+  <path d="M1300 355 L1300 430 L1450 430" class="dash"/>
+  <text x="1462" y="435" class="note">Stores per-course lesson completion lists</text>
+
+  <path d="M1120 850 L1120 920 L1430 920" class="dash"/>
+  <text x="1442" y="925" class="note">Stores message history per user thread</text>
+</svg>

@@ -34,10 +34,15 @@ export function CourseSelection({
   onBack
 }: CourseSelectionProps) {
   const [selectedTab, setSelectedTab] = useState<'all' | 'frontend' | 'backend'>(initialTab);
+  const [recentCourseId, setRecentCourseId] = useState<string | null>(null);
 
   useEffect(() => {
     setSelectedTab(initialTab);
   }, [initialTab]);
+
+  useEffect(() => {
+    setRecentCourseId(window.localStorage.getItem('codequest_recent_course'));
+  }, []);
 
   const frontendCourseIds = new Set(['html', 'css', 'javascript', 'react', 'typescript']);
   const backendCourseIds = new Set(['nodejs', 'python', 'sql', 'apis']);
@@ -53,6 +58,11 @@ export function CourseSelection({
   });
 
   const progressCourses = courses.filter((course) => course.progress > 0);
+  const recentCourse = recentCourseId ? courses.find((course) => course.id === recentCourseId) ?? null : null;
+  const visibleProgressCourses = [
+    ...(recentCourse ? [recentCourse] : []),
+    ...progressCourses
+  ].filter((course, index, list) => list.findIndex((item) => item.id === course.id) === index);
 
   const getIcon = (iconType: string) => {
     switch (iconType) {
@@ -107,8 +117,8 @@ export function CourseSelection({
         <h2 className="font-['Space_Grotesk'] text-4xl font-black uppercase tracking-tighter text-[#f1f3fc]">{heading}</h2>
         <p className="mt-2 text-[#a8abb3]">{subheading}</p>
 
-        <div className="mt-8 grid grid-cols-1 gap-8">
-          {progressCourses.slice(0, 1).map((course) => (
+        <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+          {visibleProgressCourses.map((course) => (
             <div
               key={course.id}
               onClick={() => onSelectCourse(course.id)}

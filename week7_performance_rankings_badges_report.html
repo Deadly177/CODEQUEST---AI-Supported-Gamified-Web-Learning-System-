@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Week 7 Report: Performance Tab and Rankings and Badges Tab</title>
+  <style>
+    body { font-family: Georgia, 'Times New Roman', serif; margin: 48px; line-height: 1.5; color: #111; }
+    h1 { text-align: center; font-size: 22pt; margin-bottom: 24px; }
+    h2 { font-size: 15pt; margin-top: 24px; margin-bottom: 8px; }
+    p { font-size: 11.5pt; text-align: justify; margin: 0 0 12px 0; }
+    pre { font-family: 'Courier New', monospace; font-size: 10pt; background: #f4f4f4; padding: 10px; border: 1px solid #ddd; white-space: pre-wrap; }
+    ul { margin-top: 0; margin-bottom: 12px; }
+    li { font-size: 11.5pt; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Week 7 Report: Performance Tab and Rankings and Badges Tab</h1>
+
+  <h2>1. Introduction</h2>
+  <p>This week's development work focused on two major sections of the CodeQuest platform: the Performance tab and the combined Rankings and Badges tab. Both sections are part of the main application navigation and are accessible to every authenticated user. Together they form the motivational and analytical layer of the platform, giving students a clear picture of how they are progressing, where they stand relative to other learners, and what achievements they have earned along the way.</p>
+  <p>The Performance tab is designed to give each student a personal analytics view of their learning activity. The Rankings and Badges tab is split into two sub-sections: the Leaderboard, which shows competitive standings across all users, and the Achievements screen, which tracks individual badge collection and upcoming milestones. This report covers the design decisions, component structure, data flow, and educational purpose behind each of these features.</p>
+
+  <h2>2. Purpose and Educational Role</h2>
+  <p>Gamification is a core principle of CodeQuest. Research in educational technology consistently shows that progress visibility, competitive ranking, and reward systems increase student motivation and retention. The Performance tab addresses progress visibility by showing students their XP history, skill coverage, active course missions, and recent system events. The Rankings and Badges tab addresses competitive motivation and reward collection by showing where a student ranks among peers and which achievements they have unlocked.</p>
+  <p>These two tabs work together to answer the three questions every learner implicitly asks: How am I doing? How do I compare to others? What have I earned? By answering these questions clearly and visually, the platform encourages students to keep learning, maintain their streaks, and push toward the next milestone.</p>
+
+  <h2>3. Performance Tab: Component Structure</h2>
+  <p>The Performance tab is implemented in <b>frontend/src/app/components/Performance.tsx</b>. The component receives two props: a <i>userStats</i> object containing the student's name, level, XP, XP-to-next-level, streak, total points, and badge list, and a <i>courses</i> array containing progress summaries for each available course.</p>
+  <p>The component is divided into four visual sections arranged in a responsive grid layout:</p>
+  <ul>
+    <li><b>Profile Header:</b> Displays the student's avatar initial, level badge, username, active streak, and location label. Two action buttons are present: View Public Profile and Edit Loadout.</li>
+    <li><b>XP Telemetry Chart:</b> A bar chart showing simulated XP activity over the last 30 days. The chart uses a fixed array of bar heights to represent daily activity patterns. The total XP earned is displayed prominently above the chart.</li>
+    <li><b>Skill Mastery Radar:</b> An SVG-based radar chart showing proficiency across five skill areas: HTML, CSS, JavaScript, TypeScript, and React. The polygon shape is drawn using fixed mastery points that represent the student's current skill distribution.</li>
+    <li><b>Active Missions and System Events:</b> The Active Missions panel lists the top three courses sorted by progress, each with a progress bar. The System Events panel shows three recent milestones including a completed quiz, an unlocked badge, and an AI hint usage, each with a time label and XP reward or cost.</li>
+  </ul>
+
+  <h2>4. Performance Tab: Data Handling and Derived Values</h2>
+  <p>The Performance component derives several values from its props rather than fetching them independently. The top three courses are computed by sorting the courses array by progress in descending order and taking the first three results. The total XP earned is calculated by adding the student's totalPoints and current xp values together. The course completion average is computed as the mean progress percentage across all courses.</p>
+  <p>The recent events section is dynamically populated using the student's badge list and course data. If the student has at least one badge, the Unlocked Badge event displays the name of the first badge. If the student has a second top course, the Completed Quiz event references that course title. The XP reward shown in the quiz event is derived from the student's current XP value to make it feel personalized rather than static.</p>
+  <p>An example of how the top courses are derived is shown below:</p>
+  <pre>const topCourses = [...courses].sort((a, b) => b.progress - a.progress).slice(0, 3);
+const totalXpEarned = userStats.totalPoints + userStats.xp;</pre>
+
+  <h2>5. Performance Tab: Visual Design Decisions</h2>
+  <p>The Performance tab uses a dark theme consistent with the rest of the platform. The primary accent color for XP and positive metrics is a bright green (#5cfd80), which is used for the XP telemetry total, the highest activity bars in the chart, and the active mission progress bars for the top course. Secondary metrics use a blue-purple (#94aaff) for the radar chart and skill labels, and a warm amber (#ffbd5c) for streak indicators.</p>
+  <p>The bar chart is intentionally decorative rather than data-driven. It uses a fixed array of heights to create a visually convincing activity pattern. This design choice was made because the backend does not currently store per-day XP history. The chart communicates the concept of activity over time without requiring a time-series data model. Future iterations could replace this with real daily XP data once the backend is extended to track it.</p>
+  <p>The radar chart is similarly constructed using fixed polygon points. The five axes represent the five main skill areas covered by the course catalog. The polygon fill uses a semi-transparent blue to show coverage area, and the axis labels are positioned around the SVG using absolute positioning.</p>
+
+  <h2>6. Leaderboard Tab: Component Structure and Ranking Logic</h2>
+  <p>The Leaderboard is implemented in <b>frontend/src/app/components/Leaderboard.tsx</b>. It receives an <i>entries</i> array of leaderboard records and a <i>currentUser</i> string identifying the logged-in student. Each entry contains a rank, name, XP value, level, and avatar emoji.</p>
+  <p>The component supports two display modes toggled by the user: Weekly and All-Time. The toggle is managed through a local state variable. The entries are sorted by rank using useMemo to avoid unnecessary re-sorting on every render. The top three entries are separated into a podium section, and the remaining entries are displayed in a scrollable table below.</p>
+  <p>The podium section arranges the top three students in a visual hierarchy. The first-place student is displayed in the center with a larger card, a gold border, and a glowing background effect. The second-place student appears to the left and the third-place student to the right, both with smaller cards. Each podium card shows the student's avatar image, name, XP total, a progress bar relative to the top XP score, and a tier label such as Apex Architect, Diamond Tier, or Platinum Tier.</p>
+  <p>The leaderboard uses custom avatar images for the top three positions, loaded from the assets directory:</p>
+  <pre>const firstPlaceImage = new URL('../../assets/leaderboard/First.png', import.meta.url).href;
+const secondPlaceImage = new URL('../../assets/leaderboard/Second.png', import.meta.url).href;
+const thirdPlaceImage = new URL('../../assets/leaderboard/Third.png', import.meta.url).href;</pre>
+
+  <h2>7. Leaderboard Tab: Current User Highlighting and Search</h2>
+  <p>A key usability feature of the leaderboard is that the current user's entry is always shown at the top of the table section, highlighted with a blue-purple border and background, regardless of their actual rank. This ensures that students can immediately see their own position without scrolling through the full list. The current user is identified by matching the entry name against the currentUser prop using a case-insensitive comparison.</p>
+  <p>The table also includes a live search input that filters entries by name as the user types. The search is applied only to the table entries below the podium, not to the podium itself. When a search query is active, only matching entries are shown. When the query is cleared, all entries return.</p>
+  <p>Each table row is rendered by a LeaderboardRow sub-component that displays the rank number, avatar, name with a You badge for the current user, tier and level label, streak indicator, and XP total. The streak value is derived from the entry's XP and rank rather than being stored directly, which is a simplification that will be replaced once the backend exposes per-user streak data through the leaderboard endpoint.</p>
+
+  <h2>8. Achievements Tab: Component Structure and Badge Gallery</h2>
+  <p>The Achievements screen is implemented in <b>frontend/src/app/components/Achievements.tsx</b>. It receives an <i>achievements</i> array, the <i>userStats</i> object, and the <i>courses</i> array. Each achievement record contains an id, title, description, icon emoji, an unlocked boolean, and an optional unlockedAt timestamp.</p>
+  <p>The screen is divided into a main content area and a sidebar. The main area contains the header stats row, the badge gallery grid, and the upcoming milestones section. The sidebar, visible only on extra-large screens, contains the activity log and a seasonal tournament promotion card.</p>
+  <p>The header stats row shows four key metrics in card format: Total Experience (totalPoints in XP), Global Ranking (derived as 2500 minus totalPoints), Lessons Mastery (completed lessons out of total lessons), and Active Streak (streak in days). Each card uses a hover accent border to indicate interactivity. A mastery percentage ring is also shown in the header, calculated as the ratio of unlocked achievements to total achievements.</p>
+  <p>The badge gallery renders all achievements in a six-column grid. Unlocked badges are displayed with a colorful gradient background, a glowing shadow, and a green checkmark icon. Locked badges are shown with a grey gradient, reduced opacity, a grayscale filter, and a lock icon. The gradient style for each unlocked badge cycles through six preset color schemes to create visual variety across the collection.</p>
+
+  <h2>9. Achievements Tab: Upcoming Milestones and Activity Log</h2>
+  <p>The Upcoming Milestones section shows the next two goals the student should work toward. These milestones are generated dynamically from the student's current data rather than being hardcoded. The three milestone targets are: reaching a level eight levels above the current level, completing 100 total lessons, and unlocking 20 total badges. Each milestone card shows a progress bar, a current-versus-target counter, and a reward label such as a specific XP amount or a cosmetic item like a Legend Frame.</p>
+  <p>The milestone progress is calculated as follows:</p>
+  <pre>const progress = milestone.target > 0
+  ? Math.min(100, Math.round((milestone.current / milestone.target) * 100))
+  : 0;</pre>
+  <p>The Activity Log in the sidebar shows the three most recently unlocked achievements as timestamped entries. If fewer than three achievements have been unlocked, the log is padded with a module completion entry and a streak milestone entry derived from the student's live data. Each log entry shows a colored dot, a title, a subtitle, and a timestamp. The dots are connected by a vertical line to create a timeline visual.</p>
+
+  <h2>10. Backend Data Model Supporting Both Tabs</h2>
+  <p>Both the Performance tab and the Achievements tab rely on data that originates from the backend progress system. The <b>UserProgress</b> database model, defined in <b>back end/database/UserProgress.js</b>, stores the following fields per user: totalPoints, streak, lastActivityAt, badges, and courseProgress. The courseProgress field is an array of sub-documents, each containing a courseId and a list of completedLessonIds.</p>
+  <p>The <b>back end/src/lib/progress.js</b> module provides the functions that transform raw database records into the structured data the frontend consumes. The buildStats function computes the student's level and current XP from totalPoints using a fixed points-per-level constant. The buildCourseSummaries function maps each course in the catalog to a summary object that includes the completion count and progress percentage. The computeBadges function awards badges based on milestone thresholds: the first-lesson badge is awarded after completing at least one lesson, the week-streak badge is awarded after maintaining a seven-day streak, and the quiz-master badge is awarded after completing ten or more lessons.</p>
+  <p>The Leaderboard tab currently receives its data from the frontend application state rather than a dedicated leaderboard API endpoint. All registered users' progress records would need to be aggregated and ranked server-side for a production leaderboard. The current implementation demonstrates the full visual design and interaction model while using the available data structure.</p>
+
+  <h2>11. Challenges and Design Decisions</h2>
+  <p>Several design decisions were made during the implementation of these two tabs. The first was the choice to use derived and simulated data for the XP chart and radar chart rather than waiting for the backend to expose time-series and per-skill data. This allowed the visual design to be completed and evaluated without blocking on backend changes. The charts communicate the intended information clearly and can be connected to real data in a future iteration.</p>
+  <p>The second challenge was the leaderboard's current user highlighting. Because the leaderboard may contain many entries, always surfacing the current user's row at the top of the table regardless of rank was an important usability decision. Without this, a student ranked outside the top ten would have to scroll to find themselves, which reduces the motivational impact of the feature.</p>
+  <p>The third challenge was the badge gallery's locked state presentation. Showing locked badges alongside unlocked ones, rather than hiding them, was a deliberate choice. Seeing locked badges gives students a clear picture of what they are working toward. The grayscale and reduced opacity treatment communicates the locked state without removing the visual from the interface entirely.</p>
+
+  <h2>12. Conclusion</h2>
+  <p>This week's work delivered two complete and fully functional tabs that form the motivational core of the CodeQuest platform. The Performance tab gives students a personal analytics view of their XP history, skill coverage, active course missions, and recent activity. The Leaderboard tab creates a competitive social layer with a visual podium, ranked table, current user highlighting, and live search. The Achievements tab rewards students for reaching milestones with a badge gallery, mastery percentage, upcoming milestone tracking, and an activity log.</p>
+  <p>Together these features implement the gamification principles that make CodeQuest more than a static lesson platform. Students can see their progress, compare themselves to peers, and collect rewards for consistent learning. The backend data model already supports the core metrics these tabs rely on, and the frontend components are structured to accept real-time data as the backend continues to grow. The visual design is consistent with the rest of the platform and uses the established color system and typography to create a cohesive experience across all sections.</p>
+</body>
+</html>
