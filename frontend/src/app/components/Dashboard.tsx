@@ -25,6 +25,9 @@ interface DashboardProps {
   userStats: UserStats;
   courses: CourseSummary[];
   onSelectCourse: (courseId: string) => void;
+  globalRank?: number;
+  achievementsUnlocked: number;
+  achievementsTotal: number;
 }
 
 const iconMap = {
@@ -34,7 +37,14 @@ const iconMap = {
   backend: BookOpen
 };
 
-export function Dashboard({ userStats, courses, onSelectCourse }: DashboardProps) {
+export function Dashboard({
+  userStats,
+  courses,
+  onSelectCourse,
+  globalRank,
+  achievementsUnlocked,
+  achievementsTotal
+}: DashboardProps) {
   const xpProgress = Math.min(100, (userStats.xp / userStats.xpToNextLevel) * 100);
   const activeCourse = [...courses].sort((left, right) => right.progress - left.progress)[0] ?? courses[0];
   const suggestedCourses = [...courses].sort((left, right) => right.progress - left.progress).slice(0, 2);
@@ -159,13 +169,13 @@ export function Dashboard({ userStats, courses, onSelectCourse }: DashboardProps
               <div className="rounded-2xl bg-[#20262f] p-4 text-left">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#a8abb3]">Global Rank</p>
                 <p className="mt-2 font-['Space_Grotesk'] text-xl font-bold text-[#ffbd5c]">
-                  #{Math.max(1, 2500 - userStats.totalPoints)}
+                  {globalRank ? `#${globalRank.toLocaleString()}` : '-'}
                 </p>
               </div>
               <div className="rounded-2xl bg-[#20262f] p-4 text-left">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#a8abb3]">Achievements</p>
                 <p className="mt-2 font-['Space_Grotesk'] text-xl font-bold text-[#5cfd80]">
-                  {userStats.badges.length}/{Math.max(userStats.badges.length, 12)}
+                  {achievementsUnlocked}/{achievementsTotal}
                 </p>
               </div>
             </div>

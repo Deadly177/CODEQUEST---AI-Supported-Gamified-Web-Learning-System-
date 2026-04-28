@@ -15,6 +15,7 @@ interface LeaderboardEntry {
   name: string;
   xp: number;
   level: number;
+  streak: number;
   avatar: string;
 }
 
@@ -47,17 +48,18 @@ export function Leaderboard({ entries, currentUser }: LeaderboardProps) {
   );
 
   const podiumEntries = sortedEntries.slice(0, 3);
-  const tableEntries = sortedEntries.slice(3);
+  const tableEntries = sortedEntries;
   const topXp = podiumEntries[0]?.xp ?? 1;
 
   const currentUserEntry =
     sortedEntries.find((entry) => entry.name.toLowerCase() === currentUser.toLowerCase()) ?? sortedEntries[0];
 
-  const filteredTableEntries = tableEntries.filter((entry) =>
-    entry.name.toLowerCase().includes(query.trim().toLowerCase())
-  );
+  const filteredTableEntries = tableEntries.filter((entry) => {
+    const isPinnedCurrentUser = entry.name.toLowerCase() === currentUser.toLowerCase();
+    return !isPinnedCurrentUser && entry.name.toLowerCase().includes(query.trim().toLowerCase());
+  });
 
-  const displayEntries = query.trim() ? filteredTableEntries : tableEntries;
+  const displayEntries = filteredTableEntries;
 
   return (
     <div className="space-y-10">
@@ -252,7 +254,7 @@ export function Leaderboard({ entries, currentUser }: LeaderboardProps) {
 
       <footer className="mt-12 flex flex-col items-center justify-between gap-6 sm:flex-row">
         <div className="text-sm text-[#a8abb3]">
-          Showing 1-{sortedEntries.length} of {Math.max(2450, sortedEntries.length)} competitors
+          Showing 1-{sortedEntries.length} of {sortedEntries.length} competitors
         </div>
         <div className="flex gap-2">
           <button
@@ -294,7 +296,7 @@ function LeaderboardRow({
   highlight?: boolean;
 }) {
   const isCurrentUser = entry.name.toLowerCase() === currentUser.toLowerCase();
-  const streak = Math.max(0, Math.round(entry.xp / 900) - entry.rank);
+  const streak = Math.max(0, entry.streak);
   const streakActive = streak > 0;
   const tier = entry.level >= 20 ? 'Apex Tier' : entry.level >= 15 ? 'Diamond Tier' : entry.level >= 10 ? 'Platinum Tier' : 'Gold Tier';
 

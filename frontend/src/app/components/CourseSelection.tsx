@@ -1,4 +1,4 @@
-import { ArrowLeft, Code, Palette, Zap } from 'lucide-react';
+import { ArrowLeft, Code, Lock, Palette, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Course {
@@ -15,6 +15,7 @@ interface Course {
 interface CourseSelectionProps {
   courses: Course[];
   onSelectCourse: (courseId: string) => void;
+  unlockAllCourses?: boolean;
   onOpenFrontendPath?: () => void;
   initialTab?: 'all' | 'frontend' | 'backend';
   heading?: string;
@@ -26,6 +27,7 @@ interface CourseSelectionProps {
 export function CourseSelection({
   courses,
   onSelectCourse,
+  unlockAllCourses = false,
   onOpenFrontendPath,
   initialTab = 'all',
   heading = 'Your Progress',
@@ -46,6 +48,21 @@ export function CourseSelection({
 
   const frontendCourseIds = new Set(['html', 'css', 'javascript', 'react', 'typescript']);
   const backendCourseIds = new Set(['nodejs', 'python', 'sql', 'apis']);
+  const orderedCourseIds = ['html', 'css', 'javascript', 'react', 'typescript', 'nodejs', 'python', 'sql', 'apis'];
+  const courseById = new Map(courses.map((course) => [course.id, course]));
+  const isCourseUnlocked = (course: Course) => {
+    if (unlockAllCourses) {
+      return true;
+    }
+
+    const courseIndex = orderedCourseIds.indexOf(course.id);
+    if (courseIndex <= 0) {
+      return true;
+    }
+
+    const previousCourse = courseById.get(orderedCourseIds[courseIndex - 1]);
+    return Boolean(previousCourse && previousCourse.progress >= 100);
+  };
 
   const displayedCourses = courses.filter((course) => {
     if (selectedTab === 'frontend') {
@@ -121,8 +138,14 @@ export function CourseSelection({
           {visibleProgressCourses.map((course) => (
             <div
               key={course.id}
-              onClick={() => onSelectCourse(course.id)}
-              className="group relative max-w-md cursor-pointer overflow-hidden rounded-[2rem] border border-blue-500/20 bg-[#0f141a] p-8 transition-all hover:border-blue-500/40"
+              onClick={() => {
+                if (isCourseUnlocked(course)) {
+                  onSelectCourse(course.id);
+                }
+              }}
+              className={`group relative max-w-md overflow-hidden rounded-[2rem] border border-blue-500/20 bg-[#0f141a] p-8 transition-all ${
+                isCourseUnlocked(course) ? 'cursor-pointer hover:border-blue-500/40' : 'cursor-not-allowed opacity-60 grayscale'
+              }`}
             >
               <div className="mb-6 flex items-start justify-between">
                 <div>
@@ -150,8 +173,11 @@ export function CourseSelection({
                 </div>
               </div>
 
-              <button className="w-full rounded-xl border border-blue-500/30 bg-blue-500/10 py-4 text-xs font-black uppercase tracking-widest text-blue-400 transition-all hover:bg-blue-500/20">
-                Continue Learning
+              <button
+                disabled={!isCourseUnlocked(course)}
+                className="w-full rounded-xl border border-blue-500/30 bg-blue-500/10 py-4 text-xs font-black uppercase tracking-widest text-blue-400 transition-all enabled:hover:bg-blue-500/20 disabled:cursor-not-allowed"
+              >
+                {isCourseUnlocked(course) ? 'Continue Learning' : 'Locked'}
               </button>
             </div>
           ))}
@@ -307,12 +333,22 @@ export function CourseSelection({
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-          {displayedCourses.map((course) => (
+          {displayedCourses.map((course) => {
+            const unlocked = isCourseUnlocked(course);
+
+            return (
             <button
               key={course.id}
               type="button"
-              onClick={() => onSelectCourse(course.id)}
-              className="group flex min-h-[20rem] flex-col rounded-[2rem] border border-[#2a3240] bg-[#20262f] p-7 text-left transition-all duration-300 hover:border-[#94aaff]/30"
+              onClick={() => {
+                if (unlocked) {
+                  onSelectCourse(course.id);
+                }
+              }}
+              disabled={!unlocked}
+              className={`group flex min-h-[20rem] flex-col rounded-[2rem] border border-[#2a3240] bg-[#20262f] p-7 text-left transition-all duration-300 ${
+                unlocked ? 'hover:border-[#94aaff]/30' : 'cursor-not-allowed opacity-55 grayscale'
+              }`}
             >
               <div className="mb-8 flex items-start justify-between gap-6">
                 <div>
@@ -324,8 +360,8 @@ export function CourseSelection({
                     {frontendCourseIds.has(course.id) ? 'Frontend' : backendCourseIds.has(course.id) ? 'Backend' : 'Track'}
                   </span>
                 </div>
-                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${course.color} text-black/80`}>
-                  {getIcon(course.icon)}
+                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl ${unlocked ? course.color : 'bg-[#151a21]'} text-black/80`}>
+                  {unlocked ? getIcon(course.icon) : <Lock className="h-8 w-8 text-[#a8abb3]" />}
                 </div>
               </div>
 
@@ -340,7 +376,8 @@ export function CourseSelection({
                 <span className="text-[#94aaff]">{course.progress}%</span>
               </div>
             </button>
-          ))}
+          );
+          })}
         </div>
       </section>
     </div>

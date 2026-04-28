@@ -48,10 +48,20 @@ interface CourseSummary {
   color: string;
 }
 
+interface LeaderboardEntry {
+  rank: number;
+  name: string;
+  xp: number;
+  level: number;
+  streak: number;
+  avatar: string;
+}
+
 interface AchievementsProps {
   achievements: Achievement[];
   userStats: UserStats;
   courses: CourseSummary[];
+  leaderboardEntries: LeaderboardEntry[];
 }
 
 const earnedBadgeStyles = [
@@ -67,13 +77,14 @@ const milestoneIconMap = [Trophy, BookOpen, ShieldCheck];
 const activityIconMap = [Award, BookOpen, Flame];
 const activityDotClasses = ['bg-[#5cfd80]', 'bg-[#94aaff]', 'bg-[#ffbd5c]'];
 
-export function Achievements({ achievements, userStats, courses }: AchievementsProps) {
+export function Achievements({ achievements, userStats, courses, leaderboardEntries }: AchievementsProps) {
   const unlockedCount = achievements.filter((achievement) => achievement.unlocked).length;
   const lockedCount = Math.max(0, achievements.length - unlockedCount);
   const totalLessons = courses.reduce((sum, course) => sum + course.totalLessons, 0);
   const completedLessons = courses.reduce((sum, course) => sum + course.completedLessons, 0);
   const mastery = achievements.length > 0 ? Math.round((unlockedCount / achievements.length) * 100) : 0;
-  const globalRank = Math.max(1, 2500 - userStats.totalPoints);
+  const currentRank = leaderboardEntries.find((entry) => entry.name.toLowerCase() === userStats.name.toLowerCase())?.rank;
+  const lessonMasteryPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
   const upcomingMilestones = [
     {
       id: 'level',
@@ -95,10 +106,10 @@ export function Achievements({ achievements, userStats, courses }: AchievementsP
     },
     {
       id: 'badges',
-      title: 'Unlock 20 Badges',
+      title: 'Unlock 18 Badges',
       description: "Open the next achievement tier and a rare profile frame.",
       current: unlockedCount,
-      target: Math.max(20, unlockedCount + 6),
+      target: Math.max(18, unlockedCount + 6),
       reward: 'Legend Frame',
       tint: 'tertiary'
     }
@@ -196,15 +207,15 @@ export function Achievements({ achievements, userStats, courses }: AchievementsP
               label="Total Experience"
               value={userStats.totalPoints.toLocaleString()}
               suffix="XP"
-              hint={`+${Math.max(50, userStats.xp)} TODAY`}
+              hint={`LEVEL ${userStats.level}`}
               icon={<MonitorUp className="h-5 w-5 text-[#94aaff]" />}
               badgeClass="text-[#5cfd80]"
               accentClass="hover:border-b-[#94aaff]"
             />
             <StatCard
               label="Global Ranking"
-              value={`#${globalRank.toLocaleString()}`}
-              hint="TOP ACTIVE"
+              value={currentRank ? `#${currentRank.toLocaleString()}` : '-'}
+              hint={currentRank ? `${leaderboardEntries.length} COMPETITORS` : 'NOT RANKED'}
               icon={<Globe className="h-5 w-5 text-[#94aaff]" />}
               badgeClass="text-[#a8abb3]"
               accentClass="hover:border-b-[#94aaff]"
@@ -212,8 +223,8 @@ export function Achievements({ achievements, userStats, courses }: AchievementsP
             <StatCard
               label="Lessons Mastery"
               value={String(completedLessons)}
-              suffix={`/ ${totalLessons || 150}`}
-              hint="COMPLETE"
+              suffix={`/ ${totalLessons}`}
+              hint={`${lessonMasteryPercent}% COMPLETE`}
               icon={<GraduationCap className="h-5 w-5 text-[#94aaff]" />}
               badgeClass="text-[#a8abb3]"
               accentClass="hover:border-b-[#94aaff]"

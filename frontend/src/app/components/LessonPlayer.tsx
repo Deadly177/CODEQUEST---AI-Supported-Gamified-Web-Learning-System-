@@ -14,11 +14,13 @@ interface LessonPlayerProps {
     streak: number;
     totalPoints: number;
   };
+  storageScope?: string;
   leaderboardEntries?: {
     rank: number;
     name: string;
     xp: number;
     level: number;
+    streak: number;
     avatar: string;
   }[];
   onExplainRequest?: (prompt: string) => void;
@@ -91,6 +93,11 @@ function cssSnippetMatches(input: string, expected: string) {
 
 function getLessonStorageKey(lessonId: string) {
   return `codequest_lesson_state:v4:${lessonId}`;
+}
+
+function getScopedLessonStorageKey(lessonId: string, storageScope: string) {
+  const safeScope = storageScope.trim().toLowerCase().replace(/[^a-z0-9_-]+/g, '-');
+  return `codequest_lesson_state:v5:${safeScope || 'guest'}:${lessonId}`;
 }
 
 function getLessonStateSignature(lesson: LessonDefinition) {
@@ -438,11 +445,16 @@ export function LessonPlayer({
   onComplete,
   onBack,
   userStats,
+  storageScope,
   leaderboardEntries = [],
   onExplainRequest,
   onQuizEvaluated
 }: LessonPlayerProps) {
   const lessonStateSignature = useMemo(() => getLessonStateSignature(lesson), [lesson]);
+  const lessonStorageKey = useMemo(
+    () => getScopedLessonStorageKey(lesson.id, storageScope ?? userStats?.name ?? 'guest'),
+    [lesson.id, storageScope, userStats?.name]
+  );
   const [currentStep, setCurrentStep] = useState(0);
   const [furthestStep, setFurthestStep] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -472,6 +484,7 @@ export function LessonPlayer({
         name: currentUserName,
         xp: projectedXp,
         level: existingEntry?.level ?? Math.floor(projectedXp / 250) + 1,
+        streak: userStats?.streak ?? existingEntry?.streak ?? 0,
         avatar: existingEntry?.avatar ?? currentUserName.charAt(0).toUpperCase()
       }
     ]
@@ -578,9 +591,27 @@ export function LessonPlayer({
   const xpPerGate = gatedStepIndices.length > 0 ? Math.max(5, Math.floor(lesson.xpReward / gatedStepIndices.length)) : lesson.xpReward;
   const earnedXp = Object.keys(completedSteps).length * xpPerGate;
   useEffect(() => {
+    const resetLessonState = () => {
+      setCurrentStep(0);
+      setFurthestStep(0);
+      setCompletedSteps({});
+      setCodeByStep({});
+      setBlankValuesByStep({});
+      setActiveBlankByStep({});
+      setChipAssignmentsByStep({});
+      setBrowserChoices({});
+      setRevealedCodePreviewByStep({});
+      setSelectedAnswer(null);
+      setShowFeedback(false);
+      setShowCompletionScreen(false);
+      setCompletionStage('xp');
+      setIsClaimingReward(false);
+    };
+
     try {
-      const raw = window.localStorage.getItem(getLessonStorageKey(lesson.id));
+      const raw = window.localStorage.getItem(lessonStorageKey);
       if (!raw) {
+        resetLessonState();
         return;
       }
 
@@ -638,9 +669,10 @@ export function LessonPlayer({
       setCompletionStage('xp');
       setIsClaimingReward(false);
     } catch {
-      window.localStorage.removeItem(getLessonStorageKey(lesson.id));
+      window.localStorage.removeItem(lessonStorageKey);
+      resetLessonState();
     }
-  }, [lesson.id, lesson.content.length, lessonStateSignature]);
+  }, [lesson.content.length, lessonStateSignature, lessonStorageKey]);
 
   useEffect(() => {
     const payload = {
@@ -656,8 +688,8 @@ export function LessonPlayer({
       revealedCodePreviewByStep
     };
 
-    window.localStorage.setItem(getLessonStorageKey(lesson.id), JSON.stringify(payload));
-  }, [activeBlankByStep, blankValuesByStep, browserChoices, chipAssignmentsByStep, codeByStep, completedSteps, currentStep, furthestStep, lesson.id, lessonStateSignature, revealedCodePreviewByStep]);
+    window.localStorage.setItem(lessonStorageKey, JSON.stringify(payload));
+  }, [activeBlankByStep, blankValuesByStep, browserChoices, chipAssignmentsByStep, codeByStep, completedSteps, currentStep, furthestStep, lessonStateSignature, lessonStorageKey, revealedCodePreviewByStep]);
 
   const interactiveSolved = useMemo(() => {
     if (step.type !== 'interactive') {
@@ -742,11 +774,6 @@ export function LessonPlayer({
   };
 
   const handleRewardClaim = async () => {
-    if (completionStage === 'xp') {
-      setCompletionStage('momentum');
-      return;
-    }
-
     if (isClaimingReward) {
       return;
     }
@@ -767,7 +794,7 @@ export function LessonPlayer({
         revealedCodePreviewByStep
       };
 
-      window.localStorage.setItem(getLessonStorageKey(lesson.id), JSON.stringify(completedLessonState));
+      window.localStorage.setItem(lessonStorageKey, JSON.stringify(completedLessonState));
       await onComplete(lesson.xpReward);
     } finally {
       setIsClaimingReward(false);
@@ -1229,11 +1256,11 @@ export function LessonPlayer({
       const visibleCode = currentVisibleCodeTab === 'secondary' && current.secondaryCode ? current.secondaryCode : current.code;
       const showCodePreview = Boolean((current.previewHtml || current.solvedConsoleOutput) && revealedCodePreviewByStep[currentStep]);
       return (
-        <div className="mx-auto flex max-w-6xl flex-col justify-center">
-          <p className="mb-7 text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
+          <div className="mx-auto flex max-w-6xl flex-col justify-center">
+          <p className="mb-7 text-center text-base font-semibold leading-relaxed text-[#f1f3fc] sm:text-lg">{renderHighlightedText(current.data)}</p>
           <div className={`grid gap-6 ${showCodePreview ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'grid-cols-1'}`}>
-            <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
-              <div className="border-b border-white/5 bg-[#151a21] px-4 py-2.5 sm:px-6 sm:py-3">
+            <div className="overflow-hidden rounded-[1.75rem] border border-[#94aaff]/22 bg-[linear-gradient(180deg,rgba(24,31,44,0.94),rgba(13,18,29,0.96))] shadow-[0_24px_80px_rgba(0,0,0,0.34),0_0_0_1px_rgba(148,170,255,0.06)] backdrop-blur-[20px]">
+              <div className="border-b border-[#94aaff]/16 bg-[#111927] px-4 py-2.5 shadow-[inset_0_-1px_0_rgba(148,170,255,0.06)] sm:px-6 sm:py-3">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -1243,8 +1270,8 @@ export function LessonPlayer({
                         [currentStep]: 'primary'
                       }))
                     }
-                    className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
-                      currentVisibleCodeTab === 'primary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                    className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                      currentVisibleCodeTab === 'primary' ? 'border-[#94aaff]/35 bg-[#2b3560] text-[#f1f3fc] shadow-[0_0_18px_rgba(148,170,255,0.12)]' : 'border-transparent text-slate-400 hover:border-[#94aaff]/18 hover:bg-[#94aaff]/8 hover:text-slate-200'
                     }`}
                   >
                     {current.codeTitle ?? 'index.html'}
@@ -1258,8 +1285,8 @@ export function LessonPlayer({
                           [currentStep]: 'secondary'
                         }))
                       }
-                      className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
-                        currentVisibleCodeTab === 'secondary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                        currentVisibleCodeTab === 'secondary' ? 'border-[#94aaff]/35 bg-[#2b3560] text-[#f1f3fc] shadow-[0_0_18px_rgba(148,170,255,0.12)]' : 'border-transparent text-slate-400 hover:border-[#94aaff]/18 hover:bg-[#94aaff]/8 hover:text-slate-200'
                       }`}
                     >
                       {current.secondaryCodeTitle}
@@ -1275,8 +1302,8 @@ export function LessonPlayer({
             </div>
 
             {showCodePreview ? (
-              <div className="self-start overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
-                <div className="border-b border-white/5 bg-[#151a21] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
+              <div className="self-start overflow-hidden rounded-[1.75rem] border border-[#5cfd80]/18 bg-[linear-gradient(180deg,rgba(20,34,31,0.9),rgba(13,18,29,0.96))] shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-[20px]">
+                <div className="border-b border-[#5cfd80]/14 bg-[#101b20] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
                   {current.previewTitle ?? (current.solvedConsoleOutput ? 'Console output' : 'Browser')}
                 </div>
                 {current.solvedConsoleOutput ? (
@@ -1308,11 +1335,11 @@ export function LessonPlayer({
         const visibleLanguage = currentVisibleCodeTab === 'secondary' ? 'css' : 'html';
         return (
           <div className="mx-auto flex max-w-5xl flex-col">
-            <p className="mb-4 text-center text-[15px] leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
+            <p className="mb-4 text-center text-[15px] font-semibold leading-relaxed text-[#f1f3fc] sm:text-lg">{renderHighlightedText(current.data)}</p>
 
             <div className={`grid gap-6 ${showFeedback && interactiveSolved ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'lg:grid-cols-1'}`}>
-              <div className={`overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-[920px]'}`}>
-                <div className="flex items-center justify-between border-b border-white/5 bg-[#151a21] px-4 py-2.5 sm:px-6 sm:py-3">
+              <div className={`overflow-hidden rounded-[1.75rem] border border-[#94aaff]/24 bg-[linear-gradient(180deg,rgba(24,31,44,0.96),rgba(12,17,28,0.98))] shadow-[0_28px_90px_rgba(0,0,0,0.38),0_0_0_1px_rgba(148,170,255,0.08)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-[920px]'}`}>
+                <div className="flex items-center justify-between border-b border-[#94aaff]/16 bg-[#111927] px-4 py-2.5 shadow-[inset_0_-1px_0_rgba(148,170,255,0.06)] sm:px-6 sm:py-3">
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
@@ -1322,8 +1349,8 @@ export function LessonPlayer({
                           [currentStep]: 'primary'
                         }))
                       }
-                      className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
-                        currentVisibleCodeTab === 'primary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                        currentVisibleCodeTab === 'primary' ? 'border-[#94aaff]/35 bg-[#2b3560] text-[#f1f3fc] shadow-[0_0_18px_rgba(148,170,255,0.12)]' : 'border-transparent text-slate-400 hover:border-[#94aaff]/18 hover:bg-[#94aaff]/8 hover:text-slate-200'
                       }`}
                     >
                       {current.codeTitle ?? 'index.html'}
@@ -1337,8 +1364,8 @@ export function LessonPlayer({
                             [currentStep]: 'secondary'
                           }))
                         }
-                        className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
-                          currentVisibleCodeTab === 'secondary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                        className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                          currentVisibleCodeTab === 'secondary' ? 'border-[#94aaff]/35 bg-[#2b3560] text-[#f1f3fc] shadow-[0_0_18px_rgba(148,170,255,0.12)]' : 'border-transparent text-slate-400 hover:border-[#94aaff]/18 hover:bg-[#94aaff]/8 hover:text-slate-200'
                         }`}
                       >
                         {current.secondaryCodeTitle}
@@ -1349,7 +1376,7 @@ export function LessonPlayer({
                     <button
                       type="button"
                       onClick={handleBlankDelete}
-                      className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0d1117] px-2.5 py-1 text-[11px] text-slate-300 transition-colors hover:text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
+                      className="flex items-center gap-1.5 rounded-full border border-[#ff6e84]/24 bg-[#21131a] px-2.5 py-1 text-[11px] text-[#ffc6d0] transition-colors hover:border-[#ff6e84]/45 hover:text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
                       aria-label="Clear blank"
                     >
                       <X className="h-3.5 w-3.5" />
@@ -1372,7 +1399,7 @@ export function LessonPlayer({
                         }));
                         setShowFeedback(false);
                       }}
-                      className="flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0d1117] px-2.5 py-1 text-[11px] text-slate-300 transition-colors hover:text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
+                      className="flex items-center gap-1.5 rounded-full border border-[#94aaff]/22 bg-[#111827] px-2.5 py-1 text-[11px] text-[#d8e0ff] transition-colors hover:border-[#94aaff]/45 hover:bg-[#17213a] hover:text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
                       Reset
@@ -1382,7 +1409,7 @@ export function LessonPlayer({
                 <div className="p-4 sm:p-5">
                   {useMonacoLikeBlankEditor && !isEditableVisibleTab ? (
                     <Suspense fallback={<MonacoLoadingShell height="21rem" />}>
-                      <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#0d1117]">
+                      <div className="overflow-hidden rounded-2xl border border-[#94aaff]/18 bg-[#080d16] shadow-[inset_0_1px_0_rgba(148,170,255,0.05)]">
                         <MonacoEditor
                           beforeMount={configureMonaco}
                           theme="codequest-dark"
@@ -1400,11 +1427,11 @@ export function LessonPlayer({
                       </div>
                     </Suspense>
                   ) : (
-                    <div className={`h-[19rem] rounded-2xl border border-white/5 bg-[#0d1117] font-mono text-sm leading-6 text-slate-100 sm:h-[21rem] sm:text-[15px] sm:leading-6 ${useMonacoLikeBlankEditor ? 'overflow-hidden p-0' : 'p-4 sm:p-4'}`}>
+                    <div className={`h-[19rem] rounded-2xl border border-[#94aaff]/18 bg-[#080d16] font-mono text-sm leading-6 text-slate-100 shadow-[inset_0_1px_0_rgba(148,170,255,0.05)] sm:h-[21rem] sm:text-[15px] sm:leading-6 ${useMonacoLikeBlankEditor ? 'overflow-hidden p-0' : 'p-4 sm:p-4'}`}>
                       <div className={`lesson-code-scrollbar h-full overflow-x-auto overflow-y-auto ${useMonacoLikeBlankEditor ? '' : 'pr-2'}`}>
                         {useMonacoLikeBlankEditor ? (
                           <div className="flex min-w-max text-[14px] leading-[1.8] sm:text-[15px]">
-                            <div className="select-none border-r border-white/5 bg-[#10151d] px-4 py-5 text-right text-[#6f7aa8]">
+                            <div className="select-none border-r border-[#94aaff]/14 bg-[#0f1725] px-4 py-5 text-right text-[#8096d9]">
                               {Array.from({ length: visibleTemplateLineCount }, (_, index) => (
                                 <div key={`line-number-${index + 1}`} className="h-[32px]">
                                   {index + 1}
@@ -1477,12 +1504,12 @@ export function LessonPlayer({
               </div>
 
               {showFeedback && interactiveSolved && (
-                <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
-                  <div className="border-b border-white/5 bg-[#151a21] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
+                <div className="overflow-hidden rounded-[1.75rem] border border-[#5cfd80]/20 bg-[linear-gradient(180deg,rgba(20,34,31,0.9),rgba(13,18,29,0.96))] shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-[20px]">
+                  <div className="border-b border-[#5cfd80]/14 bg-[#101b20] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
                     {current.previewTitle ?? (current.solvedConsoleOutput ? 'Console output' : 'Browser')}
                   </div>
                   {current.solvedConsoleOutput ? (
-                    <div className="h-[19rem] overflow-auto bg-[rgba(49,51,92,0.88)] p-5 font-mono text-[1.05rem] leading-8 sm:h-[21rem]">
+                    <div className="h-[19rem] overflow-auto bg-[#08100f] p-5 font-mono text-[1.05rem] leading-8 sm:h-[21rem]">
                       <pre className="whitespace-pre-wrap text-[#f3f6ff]">
                         <code>{renderConsoleText(current.solvedConsoleOutput, 'interactive-console-fill')}</code>
                       </pre>
@@ -1520,8 +1547,8 @@ export function LessonPlayer({
                       onClick={() => handlePromptChipClick(chip, chipKey)}
                       className={`rounded-full border px-2.5 py-1.5 font-mono text-[10px] transition-all sm:px-3 sm:text-[11px] ${
                         isUsed
-                          ? 'border-[#5cfd80]/45 bg-[#5cfd80]/18 text-[#b9ffcb] shadow-[0_0_0_1px_rgba(92,253,128,0.16)]'
-                          : 'border-[#94aaff]/20 bg-[#94aaff]/10 text-[#94aaff] hover:border-[#94aaff]/35 hover:bg-[#94aaff]/15'
+                          ? 'border-[#5cfd80]/55 bg-[#163c27] text-[#c7ffd4] shadow-[0_0_18px_rgba(92,253,128,0.16)]'
+                          : 'border-[#94aaff]/32 bg-[#17213a] text-[#c7d3ff] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:border-[#94aaff]/55 hover:bg-[#202c4d] hover:text-white'
                       }`}
                     >
                       {chip}
@@ -1535,12 +1562,12 @@ export function LessonPlayer({
       }
 
       return (
-        <div className="mx-auto flex max-w-6xl flex-col">
-          <p className="mb-5 text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
+          <div className="mx-auto flex max-w-6xl flex-col">
+          <p className="mb-5 text-center text-base font-semibold leading-relaxed text-[#f1f3fc] sm:text-lg">{renderHighlightedText(current.data)}</p>
 
           <div className={`grid gap-6 ${showFeedback && interactiveSolved ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'lg:grid-cols-1'}`}>
-            <div className={`overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-3xl'}`}>
-              <div className="flex items-center justify-between border-b border-white/5 bg-[#151a21] px-6 py-3">
+            <div className={`overflow-hidden rounded-[1.75rem] border border-[#94aaff]/24 bg-[linear-gradient(180deg,rgba(24,31,44,0.96),rgba(12,17,28,0.98))] shadow-[0_28px_90px_rgba(0,0,0,0.38),0_0_0_1px_rgba(148,170,255,0.08)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-3xl'}`}>
+              <div className="flex items-center justify-between border-b border-[#94aaff]/16 bg-[#111927] px-6 py-3 shadow-[inset_0_-1px_0_rgba(148,170,255,0.06)]">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
@@ -1550,8 +1577,8 @@ export function LessonPlayer({
                         [currentStep]: 'primary'
                       }))
                     }
-                    className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
-                      currentVisibleCodeTab === 'primary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                    className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                      currentVisibleCodeTab === 'primary' ? 'border-[#94aaff]/35 bg-[#2b3560] text-[#f1f3fc] shadow-[0_0_18px_rgba(148,170,255,0.12)]' : 'border-transparent text-slate-400 hover:border-[#94aaff]/18 hover:bg-[#94aaff]/8 hover:text-slate-200'
                     }`}
                   >
                     {current.codeTitle ?? 'index.html'}
@@ -1565,8 +1592,8 @@ export function LessonPlayer({
                           [currentStep]: 'secondary'
                         }))
                       }
-                      className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
-                        currentVisibleCodeTab === 'secondary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                        currentVisibleCodeTab === 'secondary' ? 'border-[#94aaff]/35 bg-[#2b3560] text-[#f1f3fc] shadow-[0_0_18px_rgba(148,170,255,0.12)]' : 'border-transparent text-slate-400 hover:border-[#94aaff]/18 hover:bg-[#94aaff]/8 hover:text-slate-200'
                       }`}
                     >
                       {current.secondaryCodeTitle}
@@ -1582,7 +1609,7 @@ export function LessonPlayer({
                     }));
                     setShowFeedback(false);
                   }}
-                  className="flex items-center gap-2 rounded-full border border-white/10 bg-[#0d1117] px-3 py-1.5 text-xs text-slate-300 transition-colors hover:text-white"
+                  className="flex items-center gap-2 rounded-full border border-[#94aaff]/22 bg-[#111827] px-3 py-1.5 text-xs text-[#d8e0ff] transition-colors hover:border-[#94aaff]/45 hover:bg-[#17213a] hover:text-white"
                 >
                   <RotateCcw className="h-3.5 w-3.5" />
                   Reset
@@ -1591,7 +1618,7 @@ export function LessonPlayer({
               <div className="p-6">
                 {!hasSecondaryEditorTab || currentVisibleCodeTab === 'secondary' ? (
                   <Suspense fallback={<MonacoLoadingShell height="19rem" />}>
-                    <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#0d1117]">
+                    <div className="overflow-hidden rounded-2xl border border-[#94aaff]/18 bg-[#080d16] shadow-[inset_0_1px_0_rgba(148,170,255,0.05)]">
                       <MonacoEditor
                         beforeMount={configureMonaco}
                         theme="codequest-dark"
@@ -1616,7 +1643,7 @@ export function LessonPlayer({
                   </Suspense>
                 ) : (
                   <Suspense fallback={<MonacoLoadingShell height="19rem" />}>
-                    <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#0d1117]">
+                    <div className="overflow-hidden rounded-2xl border border-[#94aaff]/18 bg-[#080d16] shadow-[inset_0_1px_0_rgba(148,170,255,0.05)]">
                       <MonacoEditor
                         beforeMount={configureMonaco}
                         theme="codequest-dark"
@@ -1972,7 +1999,7 @@ export function LessonPlayer({
             disabled={isClaimingReward}
             className="rounded-[1.35rem] bg-[#5cfd80] px-10 py-5 font-['Space_Grotesk'] text-xl font-black text-[#005d22] shadow-[0_20px_50px_rgba(92,253,128,0.25)] transition-all hover:brightness-110 disabled:cursor-wait disabled:opacity-70"
           >
-            {isClaimingReward ? 'Saving...' : completionStage === 'xp' ? 'Continue' : 'Get reward'}
+            {isClaimingReward ? 'Saving...' : 'Get reward'}
           </button>
         </div>
       </div>
@@ -1980,8 +2007,8 @@ export function LessonPlayer({
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[linear-gradient(180deg,#151a21_0%,#10141b_100%)]">
-      <div className="flex items-center justify-between border-b border-white/5 px-5 py-4">
+    <div className="flex h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_50%_0%,rgba(148,170,255,0.10),transparent_28%),linear-gradient(180deg,#111821_0%,#080d14_100%)]">
+      <div className="flex items-center justify-between border-b border-[#94aaff]/12 bg-[#0d131d]/92 px-5 py-4 shadow-[0_8px_28px_rgba(0,0,0,0.22)] backdrop-blur-xl">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-slate-300 transition-colors hover:text-white"
@@ -1995,7 +2022,7 @@ export function LessonPlayer({
             type="button"
             onClick={handlePrevious}
             disabled={currentStep === 0}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#151a21] text-slate-200 transition-all hover:border-[#94aaff]/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#94aaff]/18 bg-[#121b2a] text-slate-200 transition-all hover:border-[#94aaff]/45 hover:bg-[#18243a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -2008,7 +2035,7 @@ export function LessonPlayer({
                 onClick={() => handleHeaderStepJump(index)}
                 disabled={index > furthestStep}
                 className={`h-2 flex-1 rounded-full transition-all ${
-                  index <= currentStep ? 'bg-gradient-to-r from-[#94aaff] to-[#6c8cff]' : 'bg-white/8'
+                  index <= currentStep ? 'bg-gradient-to-r from-[#39e66f] to-[#8cff9d] shadow-[0_0_14px_rgba(92,253,128,0.24)]' : 'bg-[#29313c]'
                 } ${index <= furthestStep ? 'cursor-pointer hover:opacity-85' : 'cursor-not-allowed'}`}
               />
             ))}
@@ -2018,13 +2045,13 @@ export function LessonPlayer({
             type="button"
             onClick={handleHeaderNext}
             disabled={currentStep === lesson.content.length - 1 ? !canAdvanceCurrentStep() : !(currentStep < furthestStep || canAdvanceCurrentStep())}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#151a21] text-slate-200 transition-all hover:border-[#94aaff]/30 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#94aaff]/18 bg-[#121b2a] text-slate-200 transition-all hover:border-[#94aaff]/45 hover:bg-[#18243a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="flex items-center gap-2 rounded-full border border-[#94aaff]/20 bg-[#94aaff]/10 px-3 py-1.5 text-sm text-[#94aaff]">
+        <div className="flex items-center gap-2 rounded-full border border-[#94aaff]/35 bg-[#1a2440] px-3 py-1.5 text-sm font-semibold text-[#b9c8ff] shadow-[0_0_24px_rgba(148,170,255,0.16)]">
           <Sparkles className="h-4 w-4 text-[#ffbd5c]" />
           {Math.min(earnedXp, lesson.xpReward)}/{lesson.xpReward} XP
         </div>
@@ -2034,7 +2061,7 @@ export function LessonPlayer({
         {renderStep(step)}
       </div>
 
-      <div className="flex items-end justify-between border-t border-white/5 px-6 py-4 sm:px-8">
+      <div className="flex items-end justify-between border-t border-[#94aaff]/12 bg-[#0d131d]/92 px-6 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:px-8">
         <div className="min-h-[56px] pl-20 text-slate-300">
           {showExplainPrompt ? (
               <div className="space-y-2">

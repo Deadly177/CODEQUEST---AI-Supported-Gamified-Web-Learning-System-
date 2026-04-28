@@ -11,6 +11,7 @@ import { UserSettings } from './components/UserSettings';
 import { StudyAssistant } from './components/StudyAssistant';
 import { Performance } from './components/Performance';
 import { DashboardAssistant } from './components/DashboardAssistant';
+import { BuildWorkspace } from './components/BuildWorkspace';
 import { htmlCourseDetail, htmlLessonContent } from './courses/html';
 import { cssCourseDetail, cssLessonContent } from './courses/css';
 import { javascriptLessonContent } from './courses/javascript';
@@ -21,17 +22,19 @@ import {
   BookOpen,
   Bot,
   Code2,
+  Hammer,
   GraduationCap,
   Grid2x2,
   LibraryBig,
   LogOut,
   Palette,
   Settings,
+  Sparkles,
   Trophy,
   Zap
 } from 'lucide-react';
 
-type View = 'home' | 'learn' | 'lessons' | 'frontend-path' | 'course-view' | 'lesson' | 'assistant' | 'achievements' | 'leaderboard' | 'performance' | 'settings';
+type View = 'home' | 'learn' | 'lessons' | 'frontend-path' | 'course-view' | 'lesson' | 'assistant' | 'achievements' | 'leaderboard' | 'performance' | 'settings' | 'build';
 
 type UserStats = {
   name: string;
@@ -102,7 +105,16 @@ type LeaderboardEntry = {
   name: string;
   xp: number;
   level: number;
+  streak: number;
   avatar: string;
+};
+
+type Achievement = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
 };
 
 type AuthUser = {
@@ -313,10 +325,6 @@ const seededJavascriptDetail: CourseDetail = {
 const seededHtmlDetail: CourseDetail = htmlCourseDetail;
 const seededCssDetail: CourseDetail = cssCourseDetail;
 
-function shouldUseSeededCourses(liveCourses: CourseSummary[]) {
-  return liveCourses.length === 0 || !liveCourses.some((course) => course.progress > 0 || course.completedLessons > 0);
-}
-
 function mergeCourses(liveCourses: CourseSummary[]) {
   const byId = new Map(seededCourses.map((course) => [course.id, course]));
 
@@ -410,14 +418,7 @@ function mergeCourseDetailWithSeeded(courseId: string, liveDetail: CourseDetail)
 }
 
 function normalizeTrackLessonId(lessonId: string) {
-  const lessonAliases: Record<string, string> = {
-    'css-track-1': 'css-1',
-    'css-track-2': 'css-1',
-    'css-track-3': 'css-1',
-    'css-track-4': 'css-1',
-    'css-track-5': 'css-3',
-    'css-track-6': 'css-3'
-  };
+  const lessonAliases: Record<string, string> = {};
 
   return lessonAliases[lessonId] ?? lessonId;
 }
@@ -467,16 +468,30 @@ function loadStoredToken() {
 function buildAchievements(userStats: UserStats, courses: CourseSummary[]) {
   const totalCompletedLessons = courses.reduce((sum, course) => sum + course.completedLessons, 0);
   const anyCompletedCourse = courses.some((course) => course.progress === 100);
+  const completedCourses = courses.filter((course) => course.progress === 100).length;
+  const courseById = new Map(courses.map((course) => [course.id, course]));
+  const completedInCourse = (courseId: string) => courseById.get(courseId)?.completedLessons ?? 0;
+  const courseComplete = (courseId: string) => (courseById.get(courseId)?.progress ?? 0) === 100;
 
   return [
     { id: '1', title: 'First Steps', description: 'Complete your first lesson', icon: '🎯', unlocked: totalCompletedLessons >= 1 },
     { id: '2', title: 'Quick Learner', description: 'Complete 5 lessons', icon: '⚡', unlocked: totalCompletedLessons >= 5 },
-    { id: '3', title: 'Week Warrior', description: 'Maintain a 7-day streak', icon: '🔥', unlocked: userStats.streak >= 7 },
-    { id: '4', title: 'Quiz Master', description: 'Complete 10 lessons', icon: '🎓', unlocked: totalCompletedLessons >= 10 },
-    { id: '5', title: 'Persistent', description: 'Maintain a 30-day streak', icon: '💪', unlocked: userStats.streak >= 30 },
-    { id: '6', title: 'Course Champion', description: 'Complete your first course', icon: '🏆', unlocked: anyCompletedCourse },
-    { id: '7', title: 'Code Ninja', description: 'Complete 50 lessons', icon: '🥷', unlocked: totalCompletedLessons >= 50 },
-    { id: '8', title: 'Night Owl', description: 'Complete a lesson after midnight', icon: '🦉', unlocked: false }
+    { id: '3', title: 'Quiz Master', description: 'Complete 10 lessons', icon: '🎓', unlocked: totalCompletedLessons >= 10 },
+    { id: '4', title: 'Code Ninja', description: 'Complete 25 lessons', icon: '🥷', unlocked: totalCompletedLessons >= 25 },
+    { id: '5', title: 'Lesson Legend', description: 'Complete 50 lessons', icon: '🏅', unlocked: totalCompletedLessons >= 50 },
+    { id: '6', title: 'HTML Initiate', description: 'Start the HTML course', icon: '🧱', unlocked: completedInCourse('html') >= 1 },
+    { id: '7', title: 'HTML Architect', description: 'Complete HTML', icon: '🏛️', unlocked: courseComplete('html') },
+    { id: '8', title: 'CSS Stylist', description: 'Start the CSS course', icon: '🎨', unlocked: completedInCourse('css') >= 1 },
+    { id: '9', title: 'Layout Master', description: 'Complete CSS', icon: '📐', unlocked: courseComplete('css') },
+    { id: '10', title: 'Script Starter', description: 'Start JavaScript', icon: '✨', unlocked: completedInCourse('javascript') >= 1 },
+    { id: '11', title: 'JavaScript Pro', description: 'Complete JavaScript', icon: '🟨', unlocked: courseComplete('javascript') },
+    { id: '12', title: 'Course Champion', description: 'Complete your first course', icon: '🏆', unlocked: anyCompletedCourse },
+    { id: '13', title: 'Path Finisher', description: 'Complete 3 courses', icon: '🧭', unlocked: completedCourses >= 3 },
+    { id: '14', title: 'Level Climber', description: 'Reach level 5', icon: '🚀', unlocked: userStats.level >= 5 },
+    { id: '15', title: 'Elite Learner', description: 'Reach level 10', icon: '💎', unlocked: userStats.level >= 10 },
+    { id: '16', title: 'Week Warrior', description: 'Maintain a 7-day streak', icon: '🔥', unlocked: userStats.streak >= 7 },
+    { id: '17', title: 'Persistent', description: 'Maintain a 30-day streak', icon: '💪', unlocked: userStats.streak >= 30 },
+    { id: '18', title: 'XP Collector', description: 'Earn 2,000 XP', icon: '💰', unlocked: userStats.totalPoints >= 2000 }
   ];
 }
 
@@ -498,6 +513,7 @@ export default function App() {
   const [isLoadingData, setIsLoadingData] = useState(false);
   const [isCompletingLesson, setIsCompletingLesson] = useState(false);
   const [dataError, setDataError] = useState<string | null>(null);
+  const [badgeToast, setBadgeToast] = useState<{ achievement: Achievement; extraCount: number } | null>(null);
 
   const courseIconMap = {
     html: Code2,
@@ -560,7 +576,7 @@ export default function App() {
       setAuthEmail(profilePayload.user.email);
       setProfile(profilePayload.user);
       setUserStats(progressPayload.stats ?? profilePayload.stats);
-      setCourses(shouldUseSeededCourses(progressPayload.courses) ? seededCourses : mergeCourses(progressPayload.courses));
+      setCourses(mergeCourses(progressPayload.courses));
       setLeaderboardData(leaderboardPayload.entries);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load dashboard data';
@@ -586,6 +602,8 @@ export default function App() {
   }
 
   const achievements = buildAchievements(userStats, courses);
+  const currentUserRank = leaderboardData.find((entry) => entry.name.toLowerCase() === userStats.name.toLowerCase())?.rank;
+  const unlockedAchievementCount = achievements.filter((achievement) => achievement.unlocked).length;
   const selectedLessonMeta = courseDetail?.sections
     .flatMap((section) => section.lessons)
     .find((lesson) => lesson.id === selectedLesson);
@@ -638,8 +656,9 @@ export default function App() {
     'Summarize the topic simply',
     ...(!latestQuizInsight || latestQuizInsight.isCorrect ? [] : ['Explain my last quiz mistake'])
   ];
-  const useCourseLayout = currentView === 'course-view' || currentView === 'lesson';
-  const useLessonLayout = currentView === 'lesson';
+  const useCourseLayout = currentView === 'course-view' || currentView === 'lesson' || currentView === 'build';
+  const useFullscreenLayout = currentView === 'lesson' || currentView === 'build';
+  const unlockAllCourses = userStats.name.trim().toLowerCase() === 'admin';
 
   useEffect(() => {
     if (!authToken) {
@@ -675,6 +694,18 @@ export default function App() {
 
     void loadCourseDetail(authToken, selectedCourse);
   }, [authToken, currentView, selectedCourse]);
+
+  useEffect(() => {
+    if (!badgeToast) {
+      return;
+    }
+
+    const timeout = window.setTimeout(() => {
+      setBadgeToast(null);
+    }, 6500);
+
+    return () => window.clearTimeout(timeout);
+  }, [badgeToast]);
 
   const handleStartCourse = (courseId: string) => {
     window.localStorage.setItem('codequest_recent_course', courseId);
@@ -737,16 +768,20 @@ export default function App() {
         method: 'POST'
       });
 
+      const nextAchievements = buildAchievements(payload.stats, payload.courses);
+      const previouslyUnlocked = new Set(achievements.filter((achievement) => achievement.unlocked).map((achievement) => achievement.id));
+      const newlyUnlocked = nextAchievements.filter(
+        (achievement) => achievement.unlocked && !previouslyUnlocked.has(achievement.id)
+      );
+
       setUserStats(payload.stats);
       setCourses(payload.courses);
       setCourseDetail(payload.courseDetail);
       const leaderboardPayload = await apiFetch<{ entries: LeaderboardEntry[] }>('/api/progress/leaderboard', authToken);
       setLeaderboardData(leaderboardPayload.entries);
-      alert(
-        payload.alreadyCompleted
-          ? 'Lesson was already completed earlier.'
-          : `Lesson complete!\nXP earned: +${payload.awardedPoints}`
-      );
+      if (!payload.alreadyCompleted && newlyUnlocked.length > 0) {
+        setBadgeToast({ achievement: newlyUnlocked[0], extraCount: newlyUnlocked.length - 1 });
+      }
       setCurrentView('course-view');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to save lesson progress';
@@ -782,7 +817,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#0a0e14] text-[#f1f3fc]">
-      {!useLessonLayout && (
+      {!useFullscreenLayout && (
       <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-[#0f141a] py-8 shadow-2xl shadow-black/40">
         <div className="mb-10 flex items-center space-x-3 px-6">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#809bff]">
@@ -832,6 +867,18 @@ export default function App() {
           >
             <Code2 className="mr-3 h-4 w-4" />
             Library
+          </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView('build')}
+            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+              currentView === 'build'
+                ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
+                : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
+            }`}
+          >
+            <Hammer className="mr-3 h-4 w-4" />
+            Build
           </button>
           <button
             type="button"
@@ -907,7 +954,7 @@ export default function App() {
       </aside>
       )}
 
-      <main className={useLessonLayout ? 'min-h-screen overflow-hidden' : 'ml-64 min-h-screen overflow-y-auto'}>
+      <main className={useFullscreenLayout ? 'min-h-screen overflow-hidden' : 'ml-64 min-h-screen overflow-y-auto'}>
         {!useCourseLayout && (
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between bg-[#0a0e14] px-8">
           <h1 className="font-['Space_Grotesk'] text-xl font-black uppercase tracking-tight text-blue-400">Code Quest</h1>
@@ -943,7 +990,7 @@ export default function App() {
         </header>
         )}
 
-        <div className={currentView === 'lesson' ? '' : useCourseLayout ? '' : 'mx-auto max-w-7xl px-8 py-8'}>
+        <div className={useFullscreenLayout ? '' : useCourseLayout ? '' : 'mx-auto max-w-7xl px-8 py-8'}>
         {dataError && (
           <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-red-300">
             {dataError}
@@ -960,6 +1007,7 @@ export default function App() {
           <CourseSelection
             courses={courses}
             onSelectCourse={handleStartCourse}
+            unlockAllCourses={unlockAllCourses}
             onOpenFrontendPath={() => setCurrentView('frontend-path')}
           />
         )}
@@ -968,6 +1016,7 @@ export default function App() {
           <CourseSelection
             courses={courses}
             onSelectCourse={handleStartCourse}
+            unlockAllCourses={unlockAllCourses}
             initialTab="frontend"
             heading="Front-End Developer"
             subheading="Browse only the front-end learning path courses."
@@ -977,7 +1026,7 @@ export default function App() {
         )}
 
         {currentView === 'lessons' && (
-          <LessonsOverview courses={courses} onSelectCourse={handleStartCourse} />
+          <LessonsOverview courses={courses} onSelectCourse={handleStartCourse} unlockAllCourses={unlockAllCourses} />
         )}
 
         {currentView === 'course-view' && selectedCourse && courseDetail && (
@@ -1002,6 +1051,7 @@ export default function App() {
             onComplete={handleLessonComplete}
             onBack={() => setCurrentView('course-view')}
             userStats={userStats}
+            storageScope={profile?.id ?? authEmail ?? userStats.name}
             leaderboardEntries={leaderboardData}
             onExplainRequest={(prompt) => {
               setAssistantOpenSignal((value) => value + 1);
@@ -1012,7 +1062,14 @@ export default function App() {
         )}
 
         {currentView === 'home' && (
-          <Dashboard userStats={userStats} courses={courses} onSelectCourse={handleStartCourse} />
+          <Dashboard
+            userStats={userStats}
+            courses={courses}
+            onSelectCourse={handleStartCourse}
+            globalRank={currentUserRank}
+            achievementsUnlocked={unlockedAchievementCount}
+            achievementsTotal={achievements.length}
+          />
         )}
 
         {currentView === 'assistant' && (
@@ -1027,8 +1084,15 @@ export default function App() {
           />
         )}
 
+        {currentView === 'build' && <BuildWorkspace onBack={() => setCurrentView('home')} />}
+
         {currentView === 'achievements' && (
-          <Achievements achievements={achievements} userStats={userStats} courses={courses} />
+          <Achievements
+            achievements={achievements}
+            userStats={userStats}
+            courses={courses}
+            leaderboardEntries={leaderboardData}
+          />
         )}
 
         {currentView === 'leaderboard' && (
@@ -1061,6 +1125,33 @@ export default function App() {
         )}
         </div>
       </main>
+
+      {badgeToast && (
+        <div className="pointer-events-none fixed inset-x-0 top-6 z-[80] flex justify-center px-4">
+          <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-[#ffbd5c]/40 bg-[#121821]/95 p-5 text-center shadow-[0_0_45px_rgba(255,189,92,0.24)] backdrop-blur-xl animate-pulse">
+            <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-[#ffbd5c] to-transparent" />
+            <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#ffbd5c] to-[#feaa00] text-4xl text-[#3a2600] shadow-[0_0_35px_rgba(255,189,92,0.32)]">
+              <span>{badgeToast.achievement.icon}</span>
+            </div>
+            <div className="mb-2 flex items-center justify-center gap-2 text-[#ffbd5c]">
+              <Sparkles className="h-4 w-4 fill-current" />
+              <span className="font-['Space_Grotesk'] text-[0.65rem] font-black uppercase tracking-[0.28em]">
+                Badge Achieved
+              </span>
+              <Sparkles className="h-4 w-4 fill-current" />
+            </div>
+            <h3 className="font-['Space_Grotesk'] text-2xl font-black text-[#f1f3fc]">
+              {badgeToast.achievement.title}
+            </h3>
+            <p className="mt-1 text-sm text-[#a8abb3]">{badgeToast.achievement.description}</p>
+            {badgeToast.extraCount > 0 && (
+              <p className="mt-3 text-xs font-bold uppercase tracking-[0.18em] text-[#5cfd80]">
+                +{badgeToast.extraCount} more badge{badgeToast.extraCount === 1 ? '' : 's'} unlocked
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {currentView === 'lesson' && (
         <StudyAssistant

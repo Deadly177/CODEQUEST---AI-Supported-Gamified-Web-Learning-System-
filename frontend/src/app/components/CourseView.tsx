@@ -55,16 +55,16 @@ export function CourseView({ courseTitle, sections, lessonTracks, onBack, onStar
       label: 'Stylesheet Track',
       lessons: [
         { id: 'css-track-1', title: 'Stylesheet Setup', completed: false, locked: false },
-        { id: 'css-track-2', title: 'Basic CSS Rules', completed: false, locked: false },
-        { id: 'css-track-3', title: 'Class Selectors', completed: false, locked: false },
-        { id: 'css-track-4', title: 'Selector Practice', completed: false, locked: false }
+        { id: 'css-track-2', title: 'Basic CSS Rules', completed: false, locked: true },
+        { id: 'css-track-3', title: 'Class Selectors', completed: false, locked: true },
+        { id: 'css-track-4', title: 'Selector Practice', completed: false, locked: true }
       ]
     },
     'css-3': {
       label: 'Sizing Track',
       lessons: [
         { id: 'css-track-5', title: 'Height and Width', completed: false, locked: false },
-        { id: 'css-track-6', title: 'Borders', completed: false, locked: false }
+        { id: 'css-track-6', title: 'Borders', completed: false, locked: true }
       ]
     },
     'js-1': {
@@ -102,6 +102,7 @@ export function CourseView({ courseTitle, sections, lessonTracks, onBack, onStar
   const currentSection = sections.find(s => s.id === selectedSection);
   const currentSectionIndex = sections.findIndex((section) => section.id === selectedSection);
   const nextSection = currentSectionIndex >= 0 ? sections[currentSectionIndex + 1] : undefined;
+  const nextSectionUnlocked = Boolean(nextSection?.lessons.some((lesson) => !lesson.locked));
   const completedLessons = currentSection?.lessons.filter(lesson => lesson.completed).length ?? 0;
   const totalLessons = currentSection?.lessons.length ?? 0;
   const activeTrack = activePopupLessonId ? trackLessonsByLessonId[activePopupLessonId] : undefined;
@@ -114,7 +115,7 @@ export function CourseView({ courseTitle, sections, lessonTracks, onBack, onStar
   const nextSectionDescription = nextSection?.description ?? `Continue with ${nextSection?.title ?? 'the next section'}.`;
 
   const getLessonMinutes = (lesson: Lesson) => 8 + lesson.number * 2 + (lesson.type === 'practice' ? 4 : 0);
-  const shouldOpenTrackPopup = (lesson: Lesson) => lesson.id in trackLessonsByLessonId;
+  const shouldOpenTrackPopup = (lesson: Lesson) => !lesson.locked && lesson.id in trackLessonsByLessonId;
 
   return (
     <div className="min-h-screen bg-[#0a0e14] text-[#f1f3fc]">
@@ -303,15 +304,24 @@ export function CourseView({ courseTitle, sections, lessonTracks, onBack, onStar
                 </div>
 
                 {nextSection && (
-                  <div className="mt-6 overflow-hidden rounded-2xl border border-[#94aaff]/20 bg-[linear-gradient(145deg,#071224_0%,#0a162d_70%)] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+                  <div className={`mt-6 overflow-hidden rounded-2xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.3)] ${
+                    nextSectionUnlocked
+                      ? 'border-[#94aaff]/20 bg-[linear-gradient(145deg,#071224_0%,#0a162d_70%)]'
+                      : 'border-white/10 bg-[#151a21]/60 opacity-70'
+                  }`}>
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#a8abb3]">Next Section</p>
                     <h4 className="mt-3 font-['Space_Grotesk'] text-3xl font-black text-[#f1f3fc]">{nextSection.title}</h4>
                     <p className="mt-2 text-sm text-[#c0c8e6]">{nextSectionDescription}</p>
                     <button
                       onClick={() => setSelectedSection(nextSection.id)}
-                      className="mt-5 rounded-xl border border-[#8f6dff]/50 bg-[#7e56f8] px-6 py-3 font-['Space_Grotesk'] text-sm font-black text-white shadow-[0_0_0_2px_rgba(143,109,255,0.15)] transition-all hover:brightness-110 active:scale-95"
+                      disabled={!nextSectionUnlocked}
+                      className={`mt-5 rounded-xl border px-6 py-3 font-['Space_Grotesk'] text-sm font-black shadow-[0_0_0_2px_rgba(143,109,255,0.15)] transition-all ${
+                        nextSectionUnlocked
+                          ? 'border-[#8f6dff]/50 bg-[#7e56f8] text-white hover:brightness-110 active:scale-95'
+                          : 'cursor-not-allowed border-white/10 bg-white/5 text-[#a8abb3]'
+                      }`}
                     >
-                      Continue learning
+                      {nextSectionUnlocked ? 'Continue learning' : 'Complete this section first'}
                     </button>
                   </div>
                 )}

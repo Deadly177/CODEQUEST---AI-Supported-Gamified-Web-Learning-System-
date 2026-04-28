@@ -130,6 +130,24 @@ export const courseSections = {
 };
 
 export const courseLessonTracks = {
+  css: {
+    'css-1': {
+      label: 'Stylesheet Track',
+      lessons: [
+        { id: 'css-track-1', number: 1, title: 'Stylesheet Setup', type: 'learn', xpReward: 45 },
+        { id: 'css-track-2', number: 2, title: 'Basic CSS Rules', type: 'learn', xpReward: 45 },
+        { id: 'css-track-3', number: 3, title: 'Class Selectors', type: 'learn', xpReward: 45 },
+        { id: 'css-track-4', number: 4, title: 'Selector Practice', type: 'practice', xpReward: 75 }
+      ]
+    },
+    'css-3': {
+      label: 'Sizing Track',
+      lessons: [
+        { id: 'css-track-5', number: 1, title: 'Height and Width', type: 'learn', xpReward: 45 },
+        { id: 'css-track-6', number: 2, title: 'Borders', type: 'learn', xpReward: 45 }
+      ]
+    }
+  },
   javascript: {
     'js-1': {
       label: 'Variables Track',
@@ -151,14 +169,7 @@ export const courseLessonTracks = {
   }
 };
 
-const lessonAliases = {
-  'css-track-1': 'css-1',
-  'css-track-2': 'css-1',
-  'css-track-3': 'css-1',
-  'css-track-4': 'css-1',
-  'css-track-5': 'css-3',
-  'css-track-6': 'css-3'
-};
+const lessonAliases = {};
 
 export function getCourseCatalog() {
   return courses;
@@ -196,7 +207,7 @@ export function findLesson(lessonId) {
     for (const [parentLessonId, track] of Object.entries(tracksByLessonId)) {
       const lesson = track.lessons.find((entry) => entry.id === normalizedLessonId);
       if (lesson) {
-        return { courseId, sectionId: `${parentLessonId}-track`, lesson };
+        return { courseId, sectionId: `${parentLessonId}-track`, parentLessonId, lesson };
       }
     }
   }

@@ -5,6 +5,7 @@ import {
   buildCourseSummaries,
   buildStats,
   completeLessonForUser,
+  getDisplayStreak,
   getOrCreateProgress
 } from '../lib/progress.js';
 import { User } from '../../database/User.js';
@@ -74,21 +75,43 @@ router.post('/lessons/:lessonId/complete', async (req, res) => {
   }
 });
 
-router.get('/leaderboard', async (_req, res) => {
+router.get('/leaderboard', async (req, res) => {
   try {
-    const progressEntries = await UserProgress.find()
-      .sort({ totalPoints: -1, updatedAt: 1 })
-      .limit(10)
-      .populate('userId', 'name')
-      .lean();
+    const users = await User.find().select('name createdAt').lean();
+    const progressEntries = await UserProgress.find({
+      userId: { $in: users.map((user) => user._id) }
+    }).lean();
+    const progressByUserId = new Map(progressEntries.map((entry) => [String(entry.userId), entry]));
+    const timeZone = getRequestTimeZone(req);
 
-    const entries = progressEntries.map((entry, index) => ({
-      rank: index + 1,
-      name: entry.userId?.name ?? 'Unknown User',
-      xp: entry.totalPoints,
-      level: Math.floor(entry.totalPoints / 250) + 1,
-      avatar: '🧑'
-    }));
+    const entries = users
+      .map((user) => {
+        const progress = progressByUserId.get(String(user._id));
+        const totalPoints = progress?.totalPoints ?? 0;
+
+        return {
+          name: user.name,
+          xp: totalPoints,
+          level: Math.floor(totalPoints / 250) + 1,
+          streak: progress ? getDisplayStreak(progress, timeZone) : 0,
+          avatar: user.name?.charAt(0).toUpperCase() || '🧑',
+          updatedAt: progress?.updatedAt ?? user.createdAt
+        };
+      })
+      .sort((left, right) => {
+        if (right.xp !== left.xp) {
+          return right.xp - left.xp;
+        }
+        return new Date(left.updatedAt).getTime() - new Date(right.updatedAt).getTime();
+      })
+      .map((entry, index) => ({
+        rank: index + 1,
+        name: entry.name,
+        xp: entry.xp,
+        level: entry.level,
+        streak: entry.streak,
+        avatar: entry.avatar
+      }));
 
     return res.json({ entries });
   } catch (error) {

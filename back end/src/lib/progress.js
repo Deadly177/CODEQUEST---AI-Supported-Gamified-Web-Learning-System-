@@ -55,7 +55,7 @@ function getSafeTimeZone(timeZone) {
   }
 }
 
-function getDisplayStreak(progress, timeZone) {
+export function getDisplayStreak(progress, timeZone) {
   if (!progress.lastActivityAt || progress.streak <= 0) {
     return 0;
   }
@@ -107,11 +107,15 @@ export function buildStats(name, progress, timeZone = 'UTC') {
 }
 
 export async function getOrCreateProgress(userId) {
-  let progress = await UserProgress.findOne({ userId });
-  if (!progress) {
-    progress = await UserProgress.create({ userId });
-  }
-  return progress;
+  return UserProgress.findOneAndUpdate(
+    { userId },
+    { $setOnInsert: { userId } },
+    {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true
+    }
+  );
 }
 
 export function buildCourseSummaries(progress) {
@@ -171,6 +175,73 @@ function buildLessonTracks(courseId, completedLessonIds) {
   );
 }
 
+function isCatalogLessonComplete(lessonId, completedLessonIds, tracksByLessonId) {
+  const track = tracksByLessonId[lessonId];
+  return (
+    completedLessonIds.has(lessonId) ||
+    (Boolean(track?.lessons.length) && track.lessons.every((lesson) => completedLessonIds.has(lesson.id)))
+  );
+}
+
+function isCourseLessonUnlocked(courseId, lessonId, completedLessonIds) {
+  const tracksByLessonId = getLessonTracksByCourseId(courseId);
+
+  for (const section of getSectionsByCourseId(courseId)) {
+    for (const lesson of section.lessons) {
+      if (lesson.id === lessonId) {
+        return true;
+      }
+
+      if (!isCatalogLessonComplete(lesson.id, completedLessonIds, tracksByLessonId)) {
+        return false;
+      }
+    }
+  }
+
+  return false;
+}
+
+function isTrackLessonUnlocked(courseId, parentLessonId, lessonId, completedLessonIds) {
+  if (!isCourseLessonUnlocked(courseId, parentLessonId, completedLessonIds)) {
+    return false;
+  }
+
+  const track = getLessonTracksByCourseId(courseId)[parentLessonId];
+  if (!track) {
+    return false;
+  }
+
+  for (const lesson of track.lessons) {
+    if (lesson.id === lessonId) {
+      return true;
+    }
+
+    if (!completedLessonIds.has(lesson.id)) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
+function isLessonUnlocked(lessonInfo, completedLessonIds) {
+  if (lessonInfo.parentLessonId) {
+    return isTrackLessonUnlocked(
+      lessonInfo.courseId,
+      lessonInfo.parentLessonId,
+      lessonInfo.lesson.id,
+      completedLessonIds
+    );
+  }
+
+  const tracksByLessonId = getLessonTracksByCourseId(lessonInfo.courseId);
+  if (tracksByLessonId[lessonInfo.lesson.id]) {
+    return false;
+  }
+
+  return isCourseLessonUnlocked(lessonInfo.courseId, lessonInfo.lesson.id, completedLessonIds);
+}
+
 export function buildCourseDetail(progress, courseId) {
   const course = getCourseById(courseId);
   if (!course) {
@@ -181,16 +252,12 @@ export function buildCourseDetail(progress, courseId) {
   const completedLessonIds = new Set(entry?.completedLessonIds ?? []);
   const sections = getSectionsByCourseId(courseId);
   const tracksByLessonId = getLessonTracksByCourseId(courseId);
-  const isTrackedLessonComplete = (lessonId) => {
-    const track = tracksByLessonId[lessonId];
-    return Boolean(track?.lessons.length) && track.lessons.every((lesson) => completedLessonIds.has(lesson.id));
-  };
   let previousLessonIdsCompleted = true;
   let completedCount = 0;
 
   const hydratedSections = sections.map((section) => {
     const lessons = section.lessons.map((lesson, index) => {
-      const completed = completedLessonIds.has(lesson.id) || isTrackedLessonComplete(lesson.id);
+      const completed = isCatalogLessonComplete(lesson.id, completedLessonIds, tracksByLessonId);
       if (completed) {
         completedCount += 1;
       }
@@ -262,6 +329,11 @@ export async function completeLessonForUser(userId, lessonId, timeZone = 'UTC') 
   const alreadyCompleted = courseEntry.completedLessonIds.includes(normalizedLessonId);
   const now = new Date();
   const safeTimeZone = getSafeTimeZone(timeZone);
+  const completedLessonIds = new Set(courseEntry.completedLessonIds);
+
+  if (!alreadyCompleted && !isLessonUnlocked(lessonInfo, completedLessonIds)) {
+    return { error: 'lesson is locked', status: 423 };
+  }
 
   if (!alreadyCompleted) {
     courseEntry.completedLessonIds.push(normalizedLessonId);
