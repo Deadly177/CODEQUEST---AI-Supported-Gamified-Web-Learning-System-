@@ -8,6 +8,7 @@ interface Lesson {
   type: 'learn' | 'practice';
   completed: boolean;
   locked: boolean;
+  xpReward?: number;
 }
 
 interface Section {
@@ -15,13 +16,25 @@ interface Section {
   number: number;
   title: string;
   progress: string;
+  description?: string;
   lessons: Lesson[];
   icon?: string;
 }
 
+type TrackLesson = {
+  id: string;
+  number?: number;
+  title: string;
+  type?: 'learn' | 'practice';
+  completed: boolean;
+  locked: boolean;
+  xpReward?: number;
+};
+
 interface CourseViewProps {
   courseTitle: string;
   sections: Section[];
+  lessonTracks?: Record<string, { label: string; lessons: TrackLesson[] }>;
   onBack: () => void;
   onStartLesson: (lessonId: string) => void;
   userStats: {
@@ -36,12 +49,54 @@ interface CourseViewProps {
   };
 }
 
-export function CourseView({ courseTitle, sections, onBack, onStartLesson, userStats, certificate }: CourseViewProps) {
+export function CourseView({ courseTitle, sections, lessonTracks, onBack, onStartLesson, userStats, certificate }: CourseViewProps) {
+  const fallbackTrackLessonsByLessonId: Record<string, { label: string; lessons: TrackLesson[] }> = {
+    'css-1': {
+      label: 'Stylesheet Track',
+      lessons: [
+        { id: 'css-track-1', title: 'Stylesheet Setup', completed: false, locked: false },
+        { id: 'css-track-2', title: 'Basic CSS Rules', completed: false, locked: false },
+        { id: 'css-track-3', title: 'Class Selectors', completed: false, locked: false },
+        { id: 'css-track-4', title: 'Selector Practice', completed: false, locked: false }
+      ]
+    },
+    'css-3': {
+      label: 'Sizing Track',
+      lessons: [
+        { id: 'css-track-5', title: 'Height and Width', completed: false, locked: false },
+        { id: 'css-track-6', title: 'Borders', completed: false, locked: false }
+      ]
+    },
+    'js-1': {
+      label: 'Variables Track',
+      lessons: [
+        { id: 'js-track-1', title: 'What Variables Do', completed: false, locked: false },
+        { id: 'js-track-2', title: 'Creating String Variables', completed: false, locked: true },
+        { id: 'js-track-3', title: 'Creating Number Variables', completed: false, locked: true },
+        { id: 'js-track-4', title: 'Boolean Variables Practice', completed: false, locked: true }
+      ]
+    },
+    'js-2': {
+      label: 'Using Variables Track',
+      lessons: [
+        { id: 'js-2-track-1', title: 'Reading Variables', completed: false, locked: false },
+        { id: 'js-2-track-2', title: 'Console Output', completed: false, locked: true },
+        { id: 'js-2-track-3', title: 'Using Variables Practice', completed: false, locked: true }
+      ]
+    }
+  };
+  const trackLessonsByLessonId = {
+    ...fallbackTrackLessonsByLessonId,
+    ...(lessonTracks ?? {})
+  };
   const [selectedSection, setSelectedSection] = useState<string>(sections[0]?.id ?? '');
   const [isLessonPopupOpen, setIsLessonPopupOpen] = useState(false);
+  const [activePopupLessonId, setActivePopupLessonId] = useState<string | null>(null);
 
   useEffect(() => {
     setSelectedSection(sections[0]?.id ?? '');
+    setIsLessonPopupOpen(false);
+    setActivePopupLessonId(null);
   }, [sections]);
 
   const currentSection = sections.find(s => s.id === selectedSection);
@@ -49,14 +104,17 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
   const nextSection = currentSectionIndex >= 0 ? sections[currentSectionIndex + 1] : undefined;
   const completedLessons = currentSection?.lessons.filter(lesson => lesson.completed).length ?? 0;
   const totalLessons = currentSection?.lessons.length ?? 0;
-  const cssPreviewLessons = currentSection?.id === 'css-intro' ? currentSection.lessons.slice(0, 4) ?? [] : [];
+  const activeTrack = activePopupLessonId ? trackLessonsByLessonId[activePopupLessonId] : undefined;
+  const popupTrackLessons = activeTrack?.lessons ?? [];
+  const firstLessonTitle = currentSection?.lessons[0]?.title.toLowerCase() ?? '';
   const sectionDescription =
-    currentSection?.lessons[0]?.title.includes('variables')
+    firstLessonTitle.includes('variables')
       ? 'Create variables storing numbers, strings, and booleans'
       : 'Learn the fundamentals step by step';
+  const nextSectionDescription = nextSection?.description ?? `Continue with ${nextSection?.title ?? 'the next section'}.`;
 
   const getLessonMinutes = (lesson: Lesson) => 8 + lesson.number * 2 + (lesson.type === 'practice' ? 4 : 0);
-  const shouldOpenCssPopup = (lesson: Lesson) => currentSection?.id === 'css-intro' && lesson.id === 'css-1';
+  const shouldOpenTrackPopup = (lesson: Lesson) => lesson.id in trackLessonsByLessonId;
 
   return (
     <div className="min-h-screen bg-[#0a0e14] text-[#f1f3fc]">
@@ -156,16 +214,18 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                   {currentSection.lessons.map((lesson) => (
                     <div
                       key={lesson.id}
-                      role={shouldOpenCssPopup(lesson) ? 'button' : undefined}
-                      tabIndex={shouldOpenCssPopup(lesson) ? 0 : undefined}
+                      role={shouldOpenTrackPopup(lesson) ? 'button' : undefined}
+                      tabIndex={shouldOpenTrackPopup(lesson) ? 0 : undefined}
                       onClick={() => {
-                        if (shouldOpenCssPopup(lesson)) {
+                        if (shouldOpenTrackPopup(lesson)) {
+                          setActivePopupLessonId(lesson.id);
                           setIsLessonPopupOpen(true);
                         }
                       }}
                       onKeyDown={(event) => {
-                        if (shouldOpenCssPopup(lesson) && (event.key === 'Enter' || event.key === ' ')) {
+                        if (shouldOpenTrackPopup(lesson) && (event.key === 'Enter' || event.key === ' ')) {
                           event.preventDefault();
+                          setActivePopupLessonId(lesson.id);
                           setIsLessonPopupOpen(true);
                         }
                       }}
@@ -205,10 +265,11 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5">
                           <Lock className="h-4 w-4 text-[#a8abb3]" />
                         </div>
-                      ) : shouldOpenCssPopup(lesson) ? (
+                      ) : shouldOpenTrackPopup(lesson) ? (
                         <button
                           onClick={(event) => {
                             event.stopPropagation();
+                            setActivePopupLessonId(lesson.id);
                             setIsLessonPopupOpen(true);
                           }}
                           className="flex items-center gap-2 rounded-xl bg-[#5cfd80] px-8 py-3 font-['Space_Grotesk'] text-[0.7rem] font-black uppercase tracking-[0.15em] text-[#005d22] shadow-[0_0_20px_rgba(92,253,128,0.2)] transition-all hover:brightness-110 active:scale-95"
@@ -245,7 +306,7 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                   <div className="mt-6 overflow-hidden rounded-2xl border border-[#94aaff]/20 bg-[linear-gradient(145deg,#071224_0%,#0a162d_70%)] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
                     <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#a8abb3]">Next Section</p>
                     <h4 className="mt-3 font-['Space_Grotesk'] text-3xl font-black text-[#f1f3fc]">{nextSection.title}</h4>
-                    <p className="mt-2 text-sm text-[#c0c8e6]">Link multiple HTML files to create a website</p>
+                    <p className="mt-2 text-sm text-[#c0c8e6]">{nextSectionDescription}</p>
                     <button
                       onClick={() => setSelectedSection(nextSection.id)}
                       className="mt-5 rounded-xl border border-[#8f6dff]/50 bg-[#7e56f8] px-6 py-3 font-['Space_Grotesk'] text-sm font-black text-white shadow-[0_0_0_2px_rgba(143,109,255,0.15)] transition-all hover:brightness-110 active:scale-95"
@@ -267,17 +328,20 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
         </div>
       </main>
 
-      {isLessonPopupOpen && currentSection?.id === 'css-intro' && cssPreviewLessons.length > 0 && (
+      {isLessonPopupOpen && popupTrackLessons.length > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#02050b]/75 px-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-[1.8rem] border border-[#94aaff]/18 bg-[#151a21] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.45)]">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#94aaff]">Stylesheet Track</p>
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#94aaff]">{activeTrack?.label ?? 'Lesson Track'}</p>
                 <h3 className="mt-2 font-['Space_Grotesk'] text-2xl font-black text-[#f1f3fc]">Lesson Progress</h3>
               </div>
               <button
                 type="button"
-                onClick={() => setIsLessonPopupOpen(false)}
+                onClick={() => {
+                  setIsLessonPopupOpen(false);
+                  setActivePopupLessonId(null);
+                }}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#20262f] text-[#a8abb3] transition-colors hover:text-white"
               >
                 <X className="h-4 w-4" />
@@ -285,7 +349,7 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
             </div>
 
             <div className="space-y-3">
-              {cssPreviewLessons.map((lesson, index) => (
+              {popupTrackLessons.map((lesson) => (
                 <div
                   key={lesson.id}
                   className={`flex items-center justify-between rounded-2xl border px-4 py-4 ${
@@ -307,7 +371,7 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                       {lesson.completed ? <CheckCircle2 className="h-4 w-4" /> : lesson.locked ? <Lock className="h-4 w-4" /> : <PlayCircle className="h-4 w-4 fill-current" />}
                     </div>
                     <div>
-                      <p className="font-['Space_Grotesk'] text-sm font-bold text-[#f1f3fc]">Lesson {index + 1}</p>
+                      <p className="font-['Space_Grotesk'] text-sm font-bold text-[#f1f3fc]">{lesson.title}</p>
                       <p className="text-xs text-[#a8abb3]">
                         {lesson.completed ? 'Completed' : lesson.locked ? 'Locked' : 'Open now'}
                       </p>
@@ -319,6 +383,7 @@ export function CourseView({ courseTitle, sections, onBack, onStartLesson, userS
                       type="button"
                       onClick={() => {
                         setIsLessonPopupOpen(false);
+                        setActivePopupLessonId(null);
                         onStartLesson(lesson.id);
                       }}
                       className={`rounded-xl px-4 py-2 text-[11px] font-black uppercase tracking-[0.16em] ${

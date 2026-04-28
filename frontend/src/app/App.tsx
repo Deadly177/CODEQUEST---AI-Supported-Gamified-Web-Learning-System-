@@ -13,6 +13,7 @@ import { Performance } from './components/Performance';
 import { DashboardAssistant } from './components/DashboardAssistant';
 import { htmlCourseDetail, htmlLessonContent } from './courses/html';
 import { cssCourseDetail, cssLessonContent } from './courses/css';
+import { javascriptLessonContent } from './courses/javascript';
 import type { LessonDefinition } from './lessonTypes';
 import {
   Award,
@@ -65,6 +66,7 @@ type CourseDetail = {
     number: number;
     title: string;
     progress: string;
+    description?: string;
     icon?: string;
     lessons: {
       id: string;
@@ -76,6 +78,18 @@ type CourseDetail = {
       xpReward: number;
     }[];
   }[];
+  lessonTracks?: Record<string, {
+    label: string;
+    lessons: {
+      id: string;
+      number: number;
+      title: string;
+      type: 'learn' | 'practice';
+      completed: boolean;
+      locked: boolean;
+      xpReward: number;
+    }[];
+  }>;
   certificate: {
     progress: number;
     total: number;
@@ -350,6 +364,72 @@ function getFallbackCourseDetail(courseId: string): CourseDetail | null {
   };
 }
 
+function mergeCourseDetailWithSeeded(courseId: string, liveDetail: CourseDetail): CourseDetail {
+  const fallbackDetail = getFallbackCourseDetail(courseId);
+
+  if (!fallbackDetail || fallbackDetail.sections.length === 0) {
+    return liveDetail;
+  }
+
+  const liveSectionsById = new Map(liveDetail.sections.map((section) => [section.id, section]));
+  const mergedSections = fallbackDetail.sections.map((fallbackSection) => {
+    const liveSection = liveSectionsById.get(fallbackSection.id);
+    if (!liveSection) {
+      return fallbackSection;
+    }
+
+    const liveLessonsById = new Map(liveSection.lessons.map((lesson) => [lesson.id, lesson]));
+
+    return {
+      ...fallbackSection,
+      ...liveSection,
+      description: fallbackSection.description ?? liveSection.description,
+      lessons: fallbackSection.lessons.map((fallbackLesson) => ({
+        ...fallbackLesson,
+        ...(liveLessonsById.get(fallbackLesson.id) ?? {})
+      }))
+    };
+  });
+
+  const extraLiveSections = liveDetail.sections.filter(
+    (section) => !fallbackDetail.sections.some((fallbackSection) => fallbackSection.id === section.id)
+  );
+
+  return {
+    ...liveDetail,
+    course: {
+      ...liveDetail.course,
+      ...fallbackDetail.course
+    },
+    sections: [...mergedSections, ...extraLiveSections],
+    certificate: {
+      ...liveDetail.certificate,
+      total: fallbackDetail.certificate.total
+    }
+  };
+}
+
+function normalizeTrackLessonId(lessonId: string) {
+  const lessonAliases: Record<string, string> = {
+    'css-track-1': 'css-1',
+    'css-track-2': 'css-1',
+    'css-track-3': 'css-1',
+    'css-track-4': 'css-1',
+    'css-track-5': 'css-3',
+    'css-track-6': 'css-3'
+  };
+
+  return lessonAliases[lessonId] ?? lessonId;
+}
+
+function getUserTimeZone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  } catch {
+    return 'UTC';
+  }
+}
+
 function parseJwt(token: string) {
   try {
     const payload = token.split('.')[1];
@@ -426,32 +506,7 @@ export default function App() {
     backend: Code2
   };
 
-  const sampleLesson: LessonDefinition = {
-    id: 'js-1',
-    title: 'Creating Variables',
-    content: [
-      {
-        type: 'text',
-        data: 'In JavaScript, variables are containers for storing data values. We use variables to give names to values so we can use them later in our code.'
-      },
-      {
-        type: 'code',
-        data: 'Here\'s how to create a variable in JavaScript:',
-        code: 'let message = "Hello, Code Quest!";\nlet age = 25;\nlet isLearning = true;'
-      },
-      {
-        type: 'text',
-        data: 'The "let" keyword declares a variable that can be changed later. The "=" sign assigns a value to the variable.'
-      },
-      {
-        type: 'quiz',
-        data: 'Which keyword is used to declare a variable in JavaScript?',
-        options: ['var', 'let', 'const', 'All of the above'],
-        correctAnswer: 3
-      }
-    ],
-    xpReward: 50
-  };
+  const sampleLesson: LessonDefinition = javascriptLessonContent['js-1'];
 
   function getLessonContent(courseId: string | null, lessonId: string | null): LessonDefinition {
     if (courseId === 'html' && lessonId && lessonId in htmlLessonContent) {
@@ -460,6 +515,10 @@ export default function App() {
 
     if (courseId === 'css' && lessonId && lessonId in cssLessonContent) {
       return cssLessonContent[lessonId as keyof typeof cssLessonContent];
+    }
+
+    if (courseId === 'javascript' && lessonId && lessonId in javascriptLessonContent) {
+      return javascriptLessonContent[lessonId as keyof typeof javascriptLessonContent];
     }
 
     return {
@@ -474,6 +533,7 @@ export default function App() {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'X-User-Timezone': getUserTimeZone(),
         ...(init?.headers ?? {})
       }
     });
@@ -513,7 +573,11 @@ export default function App() {
   async function loadCourseDetail(token: string, courseId: string) {
     try {
       const payload = await apiFetch<CourseDetail>(`/api/progress/courses/${courseId}`, token);
-      setCourseDetail(payload.sections.length > 0 || payload.course.id !== 'javascript' ? payload : getFallbackCourseDetail(courseId));
+      setCourseDetail(
+        payload.sections.length > 0 || payload.course.id !== 'javascript'
+          ? mergeCourseDetailWithSeeded(courseId, payload)
+          : getFallbackCourseDetail(courseId)
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load course details';
       setDataError(message);
@@ -526,11 +590,11 @@ export default function App() {
     .flatMap((section) => section.lessons)
     .find((lesson) => lesson.id === selectedLesson);
 
-  const activeLessonBase = getLessonContent(selectedCourse, selectedLessonMeta?.id ?? null);
+  const activeLessonBase = getLessonContent(selectedCourse, selectedLesson ?? null);
 
   const activeLesson: LessonDefinition = {
     ...activeLessonBase,
-    id: selectedLessonMeta?.id ?? sampleLesson.id,
+    id: selectedLessonMeta?.id ?? activeLessonBase.id ?? sampleLesson.id,
     title: selectedLessonMeta?.title ?? activeLessonBase.title,
     xpReward: selectedLessonMeta?.xpReward ?? activeLessonBase.xpReward
   };
@@ -657,6 +721,8 @@ export default function App() {
       return;
     }
 
+    const progressLessonId = normalizeTrackLessonId(selectedLesson);
+
     setIsCompletingLesson(true);
     setDataError(null);
 
@@ -667,7 +733,7 @@ export default function App() {
         stats: UserStats;
         courses: CourseSummary[];
         courseDetail: CourseDetail | null;
-      }>(`/api/progress/lessons/${selectedLesson}/complete`, authToken, {
+      }>(`/api/progress/lessons/${progressLessonId}/complete`, authToken, {
         method: 'POST'
       });
 
@@ -918,6 +984,7 @@ export default function App() {
           <CourseView
             courseTitle={courseDetail.course.title}
             sections={courseDetail.sections}
+            lessonTracks={courseDetail.lessonTracks}
             onBack={() => setCurrentView('learn')}
             onStartLesson={handleStartLesson}
             userStats={userStats}

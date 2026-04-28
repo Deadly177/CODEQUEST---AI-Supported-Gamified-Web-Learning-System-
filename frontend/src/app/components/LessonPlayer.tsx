@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, Bot, CheckCircle2, ChevronLeft, ChevronRight, RotateCcw, Sparkles, Trophy, X, Zap } from 'lucide-react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, Bot, Check, CheckCircle2, ChevronLeft, ChevronRight, RotateCcw, Sparkles, Trophy, X, Zap } from 'lucide-react';
+import type { Monaco } from '@monaco-editor/react';
 import type { LessonDefinition, LessonStep } from '../lessonTypes';
+
+const MonacoEditor = lazy(() => import('@monaco-editor/react'));
 
 interface LessonPlayerProps {
   lesson: LessonDefinition;
@@ -31,8 +34,93 @@ function normalizeMarkup(value: string) {
   return value.replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
+function parseCssRules(value: string) {
+  const normalized = value.replace(/\/\*[\s\S]*?\*\//g, '').trim();
+  const ruleRegex = /([^{}]+)\{([^{}]*)\}/g;
+  const rules = new Map<string, Map<string, string>>();
+  let match: RegExpExecArray | null;
+
+  while ((match = ruleRegex.exec(normalized)) !== null) {
+    const selector = match[1].trim().replace(/\s+/g, ' ').toLowerCase();
+    const body = match[2];
+    const declarations = new Map<string, string>();
+
+    for (const rawDeclaration of body.split(';')) {
+      const declaration = rawDeclaration.trim();
+      if (!declaration) continue;
+
+      const colonIndex = declaration.indexOf(':');
+      if (colonIndex === -1) {
+        return null;
+      }
+
+      const property = declaration.slice(0, colonIndex).trim().toLowerCase();
+      const propertyValue = declaration.slice(colonIndex + 1).trim().replace(/\s+/g, ' ').toLowerCase();
+      declarations.set(property, propertyValue);
+    }
+
+    rules.set(selector, declarations);
+  }
+
+  return rules.size > 0 ? rules : null;
+}
+
+function cssSnippetMatches(input: string, expected: string) {
+  const inputRules = parseCssRules(input);
+  const expectedRules = parseCssRules(expected);
+
+  if (!inputRules || !expectedRules) {
+    return false;
+  }
+
+  for (const [selector, expectedDeclarations] of expectedRules.entries()) {
+    const inputDeclarations = inputRules.get(selector);
+    if (!inputDeclarations) {
+      return false;
+    }
+
+    for (const [property, expectedValue] of expectedDeclarations.entries()) {
+      if (inputDeclarations.get(property) !== expectedValue) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 function getLessonStorageKey(lessonId: string) {
   return `codequest_lesson_state:v4:${lessonId}`;
+}
+
+function getLessonStateSignature(lesson: LessonDefinition) {
+  return JSON.stringify(
+    lesson.content.map((step) => ({
+      type: step.type,
+      mode: step.type === 'interactive' ? step.mode ?? 'editor' : null,
+      data: step.data,
+      blankAnswersLength: step.type === 'interactive' ? step.blankAnswers?.length ?? 0 : 0,
+      promptChipsLength: step.type === 'interactive' ? step.promptChips?.length ?? 0 : 0,
+      primaryTemplatePartsLength:
+        step.type === 'interactive' && step.mode === 'fill-blanks'
+          ? step.primaryTemplateParts?.length ?? step.templateParts?.length ?? 0
+          : 0,
+      secondaryTemplatePartsLength:
+        step.type === 'interactive' && step.mode === 'fill-blanks'
+          ? step.secondaryTemplateParts?.length ?? step.templateParts?.length ?? 0
+          : 0,
+      expectedCode: step.type === 'interactive' ? step.expectedCode : null,
+      options: step.type === 'quiz' ? step.options : null
+    }))
+  );
+}
+
+function rebuildCompletedSteps(count: number, maxIndex: number) {
+  const cappedCount = Math.max(0, Math.min(count, maxIndex + 1));
+  return Array.from({ length: cappedCount }).reduce<Record<number, true>>((acc, _, index) => {
+    acc[index] = true;
+    return acc;
+  }, {});
 }
 
 function getChipWidth(value: string) {
@@ -47,6 +135,48 @@ function getChipWidth(value: string) {
 
 function buildChipKey(value: string, index: number) {
   return `${value}::${index}`;
+}
+
+function fillTemplateParts(parts: string[] | undefined, values: string[]) {
+  return (parts ?? ['']).map((part, index) => `${part}${values[index] ?? ''}`).join('');
+}
+
+function mergeHtmlWithCss(html: string, css: string) {
+  const stylesheetLinkRegex = /<link\b[^>]*rel=["']stylesheet["'][^>]*href=["'][^"']+["'][^>]*>/i;
+  const styleTag = `<style>\n${css}\n</style>`;
+
+  if (stylesheetLinkRegex.test(html)) {
+    return html.replace(stylesheetLinkRegex, styleTag);
+  }
+
+  if (html.includes('</head>')) {
+    return html.replace('</head>', `${styleTag}\n</head>`);
+  }
+
+  return `${styleTag}\n${html}`;
+}
+
+function buildInteractivePreviewDocument(step: LessonStep & { type: 'interactive' }, currentCode: string, blankValues: string[]) {
+  if (step.mode !== 'fill-blanks') {
+    return step.solvedPreviewHtml ?? currentCode ?? '<!DOCTYPE html><html><body></body></html>';
+  }
+
+  const editableTab = step.activeCodeTab ?? 'primary';
+  const primaryContent =
+    editableTab === 'primary'
+      ? fillTemplateParts(step.primaryTemplateParts ?? step.templateParts, blankValues)
+      : step.primaryTemplateParts?.join('') ?? step.templateParts?.join('') ?? '';
+  const secondaryContent =
+    editableTab === 'secondary'
+      ? fillTemplateParts(step.secondaryTemplateParts ?? step.templateParts, blankValues)
+      : step.secondaryCode ?? step.secondaryTemplateParts?.join('') ?? '';
+
+  if (primaryContent && secondaryContent) {
+    return mergeHtmlWithCss(primaryContent, secondaryContent);
+  }
+
+  const combinedFallback = primaryContent || secondaryContent || currentCode || '<!DOCTYPE html><html><body></body></html>';
+  return step.solvedPreviewHtml ?? combinedFallback;
 }
 
 function renderHighlightedText(text: string) {
@@ -98,6 +228,147 @@ function renderCodeText(text: string, keyPrefix: string) {
   ));
 }
 
+function renderHtmlCodeText(text: string, keyPrefix: string) {
+  const tagRegex = /(<\/?)([a-zA-Z0-9-]+)([^>]*?)(\/?>)/g;
+  const attrRegex = /([:@a-zA-Z0-9-]+)(=)("[^"]*"|'[^']*')?/g;
+
+  return text.split('\n').map((line, lineIndex, lines) => {
+    const pieces: React.ReactNode[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = tagRegex.exec(line)) !== null) {
+      if (match.index > lastIndex) {
+        pieces.push(
+          <span key={`${keyPrefix}-text-${lineIndex}-${lastIndex}`} className="text-[#f3f6ff]">
+            {line.slice(lastIndex, match.index)}
+          </span>
+        );
+      }
+
+      const [, open, tagName, attrs, close] = match;
+      pieces.push(
+        <span key={`${keyPrefix}-open-${lineIndex}-${match.index}`} className="text-[#89b4ff]">
+          {open}
+        </span>
+      );
+      pieces.push(
+        <span key={`${keyPrefix}-tag-${lineIndex}-${match.index}`} className="text-[#61afef]">
+          {tagName}
+        </span>
+      );
+
+      let attrLastIndex = 0;
+      let attrMatch: RegExpExecArray | null;
+      while ((attrMatch = attrRegex.exec(attrs)) !== null) {
+        if (attrMatch.index > attrLastIndex) {
+          pieces.push(
+            <span key={`${keyPrefix}-attr-space-${lineIndex}-${match.index}-${attrLastIndex}`} className="text-[#c8d2f0]">
+              {attrs.slice(attrLastIndex, attrMatch.index)}
+            </span>
+          );
+        }
+        const [, attrName, equals, attrValue = ''] = attrMatch;
+        pieces.push(
+          <span key={`${keyPrefix}-attr-name-${lineIndex}-${match.index}-${attrMatch.index}`} className="text-[#7dcfff]">
+            {attrName}
+          </span>
+        );
+        pieces.push(
+          <span key={`${keyPrefix}-attr-equals-${lineIndex}-${match.index}-${attrMatch.index}`} className="text-[#c8d2f0]">
+            {equals}
+          </span>
+        );
+        if (attrValue) {
+          pieces.push(
+            <span key={`${keyPrefix}-attr-value-${lineIndex}-${match.index}-${attrMatch.index}`} className="text-[#f6ad55]">
+              {attrValue}
+            </span>
+          );
+        }
+        attrLastIndex = attrMatch.index + attrMatch[0].length;
+      }
+
+      if (attrs.length > attrLastIndex) {
+        pieces.push(
+          <span key={`${keyPrefix}-attr-tail-${lineIndex}-${match.index}`} className="text-[#c8d2f0]">
+            {attrs.slice(attrLastIndex)}
+          </span>
+        );
+      }
+
+      pieces.push(
+        <span key={`${keyPrefix}-close-${lineIndex}-${match.index}`} className="text-[#89b4ff]">
+          {close}
+        </span>
+      );
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < line.length) {
+      pieces.push(
+        <span key={`${keyPrefix}-tail-${lineIndex}`} className="text-[#f3f6ff]">
+          {line.slice(lastIndex)}
+        </span>
+      );
+    }
+
+    return (
+      <span key={`${keyPrefix}-line-${lineIndex}`}>
+        {pieces}
+        {lineIndex < lines.length - 1 ? <br /> : null}
+      </span>
+    );
+  });
+}
+
+function renderCssCodeText(text: string, keyPrefix: string) {
+  return text.split('\n').map((line, lineIndex, lines) => {
+    const tokens = line.split(/(\s+|[{}:;])/g).filter((token) => token.length > 0);
+
+    return (
+      <span key={`${keyPrefix}-line-${lineIndex}`}>
+        {tokens.map((token, tokenIndex) => {
+          if (/^\s+$/.test(token)) {
+            return <span key={`${keyPrefix}-space-${lineIndex}-${tokenIndex}`}>{token}</span>;
+          }
+
+          let className = 'text-[#f3f6ff]';
+
+          if (/^[{}:;]$/.test(token)) {
+            className = 'text-[#c8d2f0]';
+          } else if (/^\d+(px|em|rem|%)?$/.test(token)) {
+            className = 'text-[#c792ea]';
+          } else if (/^(img|body|p|h1|h2|h3|h4|button)$/.test(token)) {
+            className = 'text-[#f6ad55]';
+          } else if (/^(border|radius|width|height|font-size|background-color|color)$/.test(token)) {
+            className = 'text-[#7dcfff]';
+          } else if (/^solid$/.test(token)) {
+            className = 'text-[#c3e88d]';
+          }
+
+          return (
+            <span key={`${keyPrefix}-token-${lineIndex}-${tokenIndex}`} className={className}>
+              {token}
+            </span>
+          );
+        })}
+        {lineIndex < lines.length - 1 ? <br /> : null}
+      </span>
+    );
+  });
+}
+
+function renderConsoleText(text: string, keyPrefix: string) {
+  return text.split('\n').map((line, lineIndex, lines) => (
+    <span key={`${keyPrefix}-line-${lineIndex}`}>
+      <span className="text-[#f3f6ff]">{line || ' '}</span>
+      {lineIndex < lines.length - 1 ? <br /> : null}
+    </span>
+  ));
+}
+
 function getBlankSpacingClass(previousPart: string, nextPart: string) {
   const prevChar = previousPart.slice(-1);
   const nextChar = nextPart.charAt(0);
@@ -120,6 +391,48 @@ function getBlankSpacingClass(previousPart: string, nextPart: string) {
   return 'mx-1';
 }
 
+function configureMonaco(monaco: Monaco) {
+  monaco.editor.defineTheme('codequest-dark', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [
+      { token: 'tag', foreground: '5DB0FF' },
+      { token: 'attribute.name', foreground: '7DCFFF' },
+      { token: 'attribute.value', foreground: 'F6AD55' },
+      { token: 'number', foreground: 'C792EA' },
+      { token: 'string', foreground: 'F6AD55' }
+    ],
+    colors: {
+      'editor.background': '#0d1117',
+      'editor.foreground': '#E5EEFF',
+      'editorLineNumber.foreground': '#6F7AA8',
+      'editorLineNumber.activeForeground': '#D7E1FF',
+      'editorCursor.foreground': '#9bb0ff',
+      'editor.selectionBackground': '#2A355A',
+      'editor.inactiveSelectionBackground': '#212A45',
+      'editorSuggestWidget.background': '#1A1F2B',
+      'editorSuggestWidget.border': '#2A355A',
+      'editorSuggestWidget.foreground': '#E5EEFF',
+      'editorSuggestWidget.selectedBackground': '#0F4C75',
+      'editorHoverWidget.background': '#1A1F2B',
+      'editorHoverWidget.border': '#2A355A'
+    }
+  });
+}
+
+function MonacoLoadingShell({ height = '19rem' }: { height?: string }) {
+  return (
+    <div
+      className="overflow-hidden rounded-2xl border border-white/5 bg-[#0d1117]"
+      style={{ height }}
+    >
+      <div className="flex h-full items-center justify-center text-sm text-slate-400">
+        Loading editor...
+      </div>
+    </div>
+  );
+}
+
 export function LessonPlayer({
   lesson,
   onComplete,
@@ -129,6 +442,7 @@ export function LessonPlayer({
   onExplainRequest,
   onQuizEvaluated
 }: LessonPlayerProps) {
+  const lessonStateSignature = useMemo(() => getLessonStateSignature(lesson), [lesson]);
   const [currentStep, setCurrentStep] = useState(0);
   const [furthestStep, setFurthestStep] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
@@ -192,11 +506,15 @@ export function LessonPlayer({
 
   const step = lesson.content[currentStep];
   const currentVisibleCodeTab =
-    (step.type === 'interactive' && step.mode === 'fill-blanks') || step.type === 'code'
+    step.type === 'code' || (step.type === 'interactive' && (step.mode === 'fill-blanks' || step.secondaryCodeTitle))
       ? visibleCodeTabByStep[currentStep] ?? step.activeCodeTab ?? 'primary'
       : 'primary';
   const editableCodeTab =
-    step.type === 'interactive' && step.mode === 'fill-blanks' ? step.activeCodeTab ?? 'primary' : 'primary';
+    step.type === 'interactive'
+      ? step.mode === 'fill-blanks' || step.secondaryCodeTitle
+        ? step.activeCodeTab ?? 'primary'
+        : 'primary'
+      : 'primary';
   const editableTemplateParts =
     step.type === 'interactive' && step.mode === 'fill-blanks'
       ? editableCodeTab === 'secondary'
@@ -221,6 +539,36 @@ export function LessonPlayer({
       : codeByStep[currentStep] ?? step.initialCode ?? ''
     : '';
   const currentBrowserChoice = step.type === 'browser-demo' ? browserChoices[currentStep] ?? '' : '';
+  const interactivePreviewDocument = step.type === 'interactive'
+    ? buildInteractivePreviewDocument(step, currentCode, currentBlankValues)
+    : '<!DOCTYPE html><html><body></body></html>';
+  const hasSecondaryEditorTab = step.type === 'interactive' && step.mode !== 'fill-blanks' && Boolean(step.secondaryCodeTitle);
+  const editorOptions = useMemo(
+    () => ({
+      minimap: { enabled: false },
+      scrollBeyondLastLine: false,
+      wordWrap: 'off' as const,
+      fontSize: 18,
+      lineHeight: 30,
+      fontFamily: 'JetBrains Mono, Fira Code, Menlo, Monaco, Consolas, monospace',
+      padding: { top: 18, bottom: 18 },
+      roundedSelection: false,
+      overviewRulerBorder: false,
+      hideCursorInOverviewRuler: true,
+      quickSuggestions: true,
+      suggestOnTriggerCharacters: true,
+      acceptSuggestionOnEnter: 'smart' as const,
+      tabSize: 2,
+      automaticLayout: true,
+      contextmenu: false,
+      bracketPairColorization: { enabled: true },
+      guides: {
+        indentation: true,
+        bracketPairs: true
+      }
+    }),
+    []
+  );
 
   const gatedStepIndices = useMemo(
     () => lesson.content.flatMap((item, index) => (item.type === 'quiz' || item.type === 'interactive' || item.type === 'browser-demo' ? [index] : [])),
@@ -237,6 +585,7 @@ export function LessonPlayer({
       }
 
       const saved = JSON.parse(raw) as {
+        lessonStateSignature?: string;
         currentStep?: number;
         furthestStep?: number;
         completedSteps?: Record<number, true>;
@@ -247,6 +596,32 @@ export function LessonPlayer({
         browserChoices?: Record<number, string>;
         revealedCodePreviewByStep?: Record<number, true>;
       };
+
+      if (saved.lessonStateSignature !== lessonStateSignature) {
+        const savedCompletedCount = Object.keys(saved.completedSteps ?? {}).length;
+        const restoredCompletedSteps = rebuildCompletedSteps(savedCompletedCount, lesson.content.length - 1);
+        const restoredCurrentStep = Math.max(0, Math.min(savedCompletedCount, lesson.content.length - 1));
+        const restoredFurthestStep = Math.max(
+          restoredCurrentStep,
+          Math.min(savedCompletedCount, lesson.content.length - 1)
+        );
+
+        setCurrentStep(restoredCurrentStep);
+        setFurthestStep(restoredFurthestStep);
+        setCompletedSteps(restoredCompletedSteps);
+        setCodeByStep({});
+        setBlankValuesByStep({});
+        setActiveBlankByStep({});
+        setChipAssignmentsByStep({});
+        setBrowserChoices({});
+        setRevealedCodePreviewByStep({});
+        setSelectedAnswer(null);
+        setShowFeedback(false);
+        setShowCompletionScreen(false);
+        setCompletionStage('xp');
+        setIsClaimingReward(false);
+        return;
+      }
 
       setCurrentStep(Math.max(0, Math.min(saved.currentStep ?? 0, lesson.content.length - 1)));
       setFurthestStep(Math.max(0, Math.min(saved.furthestStep ?? 0, lesson.content.length - 1)));
@@ -265,10 +640,11 @@ export function LessonPlayer({
     } catch {
       window.localStorage.removeItem(getLessonStorageKey(lesson.id));
     }
-  }, [lesson.id, lesson.content.length]);
+  }, [lesson.id, lesson.content.length, lessonStateSignature]);
 
   useEffect(() => {
     const payload = {
+      lessonStateSignature,
       currentStep,
       furthestStep,
       completedSteps,
@@ -281,11 +657,15 @@ export function LessonPlayer({
     };
 
     window.localStorage.setItem(getLessonStorageKey(lesson.id), JSON.stringify(payload));
-  }, [activeBlankByStep, blankValuesByStep, browserChoices, chipAssignmentsByStep, codeByStep, completedSteps, currentStep, furthestStep, lesson.id, revealedCodePreviewByStep]);
+  }, [activeBlankByStep, blankValuesByStep, browserChoices, chipAssignmentsByStep, codeByStep, completedSteps, currentStep, furthestStep, lesson.id, lessonStateSignature, revealedCodePreviewByStep]);
 
   const interactiveSolved = useMemo(() => {
     if (step.type !== 'interactive') {
       return false;
+    }
+
+    if (step.mode !== 'fill-blanks' && step.secondaryCodeTitle === 'style.css') {
+      return step.expectedCode.every((snippet) => cssSnippetMatches(currentCode, snippet));
     }
 
     const normalizedInput = normalizeMarkup(currentCode);
@@ -335,7 +715,7 @@ export function LessonPlayer({
       return;
     }
 
-    if (step.type === 'code' && step.previewHtml && !revealedCodePreviewByStep[currentStep]) {
+    if (step.type === 'code' && (step.previewHtml || step.solvedConsoleOutput) && !revealedCodePreviewByStep[currentStep]) {
       setRevealedCodePreviewByStep((prev) => ({
         ...prev,
         [currentStep]: true
@@ -375,6 +755,7 @@ export function LessonPlayer({
 
     try {
       const completedLessonState = {
+        lessonStateSignature,
         currentStep: 0,
         furthestStep: Math.max(0, lesson.content.length - 1),
         completedSteps,
@@ -602,12 +983,107 @@ export function LessonPlayer({
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_35%,rgba(148,170,255,0.1),transparent_28%),radial-gradient(circle_at_78%_70%,rgba(92,253,128,0.04),transparent_24%)]" />
           <div className="grid md:grid-cols-2">
             <div className="relative flex flex-col items-center justify-center border-r border-white/5 bg-[#20262f]/35 p-14">
-              <div className="relative">
-                <div className="absolute inset-0 scale-125 rounded-full bg-[#94aaff]/14 blur-[70px]" />
-                <div className="relative flex h-56 w-56 items-center justify-center rounded-full border border-[#94aaff]/15 bg-[#161b24] shadow-[0_0_40px_rgba(148,170,255,0.12)]">
-                  <Bot className="h-24 w-24 text-[#8ea2ff]" />
+              {current.illustration === 'padding-box-model' ? (
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-[2rem] bg-[#94aaff]/16 blur-[60px]" />
+                  <div className="relative rounded-[2rem] bg-[#d9dceb] p-8 shadow-[0_28px_60px_rgba(12,16,38,0.2)]">
+                    <div className="relative rounded-[1.25rem] bg-[#6a6ea7] px-7 py-8">
+                      <span className="absolute -right-8 -top-8 font-['Space_Grotesk'] text-[2.8rem] font-bold tracking-tight text-[#2c3157]">
+                        M
+                      </span>
+                      <span className="absolute right-2 top-1 font-['Space_Grotesk'] text-[2.8rem] font-bold tracking-tight text-white">
+                        B
+                      </span>
+                      <div className="relative rounded-[1rem] bg-[#eff0f7] px-8 py-7">
+                        <span className="absolute right-3 top-2 font-['Space_Grotesk'] text-[2.8rem] font-bold tracking-tight text-[#ff5d79]">
+                          P
+                        </span>
+                        <div className="rounded-[0.85rem] border-[4px] border-dashed border-[#a5abd1] px-7 py-4">
+                          <span className="font-['Space_Grotesk'] text-[3rem] font-bold tracking-tight text-[#2c3157]">C</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : current.illustration === 'padding-clockwise' ? (
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-[2rem] bg-[#5ba0ff]/18 blur-[70px]" />
+                  <div className="relative flex items-center justify-center">
+                    <div className="relative h-[17rem] w-[19rem]">
+                      <div className="absolute left-[3.6rem] top-[3.9rem] h-[10.2rem] w-[11.8rem] rounded-[1.4rem] bg-[#fff0bf] shadow-[0_28px_50px_rgba(13,16,34,0.18)]">
+                        <div className="absolute left-[1.45rem] top-[4.2rem] h-[4rem] w-[3.4rem] rounded-t-[2rem] bg-[#ffcd1f]" />
+                        <div className="absolute left-[4.05rem] top-[2.5rem] h-[2.05rem] w-[2.05rem] rounded-full bg-[#ffcd1f]" />
+                        <div className="absolute left-[4.2rem] top-[2.2rem] h-[6.25rem] w-[5.7rem] rotate-45 rounded-[1rem] bg-[#ffcd1f]" />
+                        <div className="absolute bottom-0 left-0 h-[3.75rem] w-full bg-[#ffcd1f]" />
+                      </div>
+
+                      <div className="absolute left-[7.9rem] top-[1.5rem] flex h-[3.2rem] w-[3.2rem] items-center justify-center rounded-full bg-[#4391ff] font-['Space_Grotesk'] text-[1.9rem] font-bold text-white shadow-[0_10px_24px_rgba(67,145,255,0.35)]">
+                        1
+                      </div>
+                      <div className="absolute right-[0.9rem] top-[6.2rem] flex h-[3.2rem] w-[3.2rem] items-center justify-center rounded-full bg-[#4391ff] font-['Space_Grotesk'] text-[1.9rem] font-bold text-white shadow-[0_10px_24px_rgba(67,145,255,0.35)]">
+                        2
+                      </div>
+                      <div className="absolute bottom-[0.95rem] left-[7.95rem] flex h-[3.2rem] w-[3.2rem] items-center justify-center rounded-full bg-[#4391ff] font-['Space_Grotesk'] text-[1.9rem] font-bold text-white shadow-[0_10px_24px_rgba(67,145,255,0.35)]">
+                        3
+                      </div>
+                      <div className="absolute left-[1rem] top-[6.15rem] flex h-[3.2rem] w-[3.2rem] items-center justify-center rounded-full bg-[#4391ff] font-['Space_Grotesk'] text-[1.9rem] font-bold text-white shadow-[0_10px_24px_rgba(67,145,255,0.35)]">
+                        4
+                      </div>
+
+                      <div className="absolute left-[11.1rem] top-[1.95rem] h-[0.45rem] w-[3.85rem] rounded-full bg-[#4391ff]" />
+                      <div className="absolute left-[14.45rem] top-[1.95rem] h-[2rem] w-[2rem] rotate-45 border-b-[0.45rem] border-r-[0.45rem] border-[#4391ff]" />
+
+                      <div className="absolute right-[1.55rem] top-[9rem] h-[3.75rem] w-[0.45rem] rounded-full bg-[#4391ff]" />
+                      <div className="absolute right-[3.05rem] top-[11.7rem] h-[2rem] w-[2rem] rotate-45 border-b-[0.45rem] border-r-[0.45rem] border-[#4391ff]" />
+
+                      <div className="absolute left-[4.25rem] bottom-[1.65rem] h-[0.45rem] w-[3.8rem] rounded-full bg-[#4391ff]" />
+                      <div className="absolute left-[8.2rem] bottom-[0.95rem] h-[2rem] w-[2rem] rotate-45 border-b-[0.45rem] border-r-[0.45rem] border-[#4391ff]" />
+
+                      <div className="absolute left-[2.1rem] top-[9.1rem] h-[3.75rem] w-[0.45rem] rounded-full bg-[#4391ff]" />
+                      <div className="absolute left-[1.25rem] top-[10.6rem] h-[2rem] w-[2rem] rotate-45 border-l-[0.45rem] border-t-[0.45rem] border-[#4391ff]" />
+                    </div>
+                  </div>
+                </div>
+              ) : current.illustration === 'boolean-true' ? (
+                <div className="relative h-[18rem] w-[22rem]">
+                  <div className="absolute inset-x-8 bottom-8 h-[8.7rem] rounded-[1.35rem] bg-[#e2b417] shadow-[0_26px_45px_rgba(12,16,38,0.24)]" />
+                  <div className="absolute bottom-[8.15rem] left-6 h-[4.6rem] w-[8.8rem] skew-x-[-22deg] rounded-[1.1rem] bg-[#f1c51e] shadow-[0_18px_35px_rgba(12,16,38,0.16)]" />
+                  <div className="absolute bottom-[8.15rem] right-[5.7rem] h-[4.6rem] w-[8.8rem] skew-x-[22deg] rounded-[1.1rem] bg-[#f1c51e] shadow-[0_18px_35px_rgba(12,16,38,0.16)]" />
+                  <div className="absolute bottom-[8.15rem] left-[9.8rem] h-[8.7rem] w-5 bg-[#d5a915]" />
+
+                  <div className="absolute left-[10.3rem] top-0 flex h-[7rem] w-[7rem] items-center justify-center rounded-full bg-[#76dc66] shadow-[inset_-18px_0_0_rgba(42,130,47,0.25),0_18px_36px_rgba(12,16,38,0.2)]">
+                    <Check className="h-[4.2rem] w-[4.2rem] stroke-[4] text-white" />
+                  </div>
+
+                  <div className="absolute left-[2.4rem] top-[2.3rem] h-[1.3rem] w-[4.6rem]">
+                    <div className="absolute left-[1.65rem] top-0 h-full w-[1.3rem] bg-[#ffd84d]" />
+                    <div className="absolute left-0 top-[0.45rem] h-[0.45rem] w-full bg-[#ffd84d]" />
+                  </div>
+
+                  <div className="absolute bottom-7 right-0 h-[14.5rem] w-[12.8rem]">
+                    <div className="absolute left-[0.65rem] top-[0.9rem] h-[11.4rem] w-[11.4rem] rounded-[3.2rem] bg-[#eef0ff]" />
+                    <div className="absolute left-[1.8rem] top-[2.15rem] h-[7.75rem] w-[9.2rem] rounded-[2.25rem] border-[0.75rem] border-[#aeb6d7] bg-[#25294f]">
+                      <div className="absolute left-[1.7rem] top-[2rem] h-[1.55rem] w-[1.55rem] rounded-t-full bg-[#18c7f3]" />
+                      <div className="absolute right-[1.7rem] top-[2rem] h-[1.55rem] w-[1.55rem] rounded-t-full bg-[#18c7f3]" />
+                      <div className="absolute bottom-[1.6rem] left-[3.1rem] h-[1.25rem] w-[3.6rem] rounded-b-[0.25rem] bg-[#18c7f3]" />
+                    </div>
+                    <div className="absolute bottom-0 left-[3.3rem] h-[3rem] w-[4.15rem] rounded-[1rem] bg-[#aeb6d7]" />
+                    <div className="absolute bottom-0 right-[0.8rem] h-[3rem] w-[4.15rem] rounded-[1rem] bg-[#aeb6d7]" />
+                    <div className="absolute bottom-[3.7rem] left-[7.1rem] flex gap-2">
+                      <span className="h-4 w-4 rounded-full bg-[#aeb6d7]" />
+                      <span className="h-4 w-4 rounded-full bg-[#aeb6d7]" />
+                      <span className="h-3.5 w-3.5 rounded-full bg-[#5cfd80]" />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative">
+                  <div className="absolute inset-0 scale-125 rounded-full bg-[#94aaff]/14 blur-[70px]" />
+                  <div className="relative flex h-56 w-56 items-center justify-center rounded-full border border-[#94aaff]/15 bg-[#161b24] shadow-[0_0_40px_rgba(148,170,255,0.12)]">
+                    <Bot className="h-24 w-24 text-[#8ea2ff]" />
+                  </div>
+                </div>
+              )}
               <div className="mt-8 flex gap-3">
                 <span className="rounded-full bg-[#94aaff]/12 px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#94aaff]">
                   Level 01
@@ -751,7 +1227,7 @@ export function LessonPlayer({
 
     if (current.type === 'code') {
       const visibleCode = currentVisibleCodeTab === 'secondary' && current.secondaryCode ? current.secondaryCode : current.code;
-      const showCodePreview = Boolean(current.previewHtml && revealedCodePreviewByStep[currentStep]);
+      const showCodePreview = Boolean((current.previewHtml || current.solvedConsoleOutput) && revealedCodePreviewByStep[currentStep]);
       return (
         <div className="mx-auto flex max-w-6xl flex-col justify-center">
           <p className="mb-7 text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
@@ -801,14 +1277,22 @@ export function LessonPlayer({
             {showCodePreview ? (
               <div className="self-start overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
                 <div className="border-b border-white/5 bg-[#151a21] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
-                  {current.previewTitle ?? 'Browser'}
+                  {current.previewTitle ?? (current.solvedConsoleOutput ? 'Console output' : 'Browser')}
                 </div>
-                <iframe
-                  title={current.previewTitle ?? 'Browser'}
-                  sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
-                  srcDoc={current.previewHtml}
-                  className="h-[24rem] w-full bg-white"
-                />
+                {current.solvedConsoleOutput ? (
+                  <div className="h-[24rem] overflow-auto bg-[rgba(49,51,92,0.88)] p-5 font-mono text-[1.05rem] leading-8">
+                    <pre className="whitespace-pre-wrap text-[#f3f6ff]">
+                      <code>{renderConsoleText(current.solvedConsoleOutput, 'code-console')}</code>
+                    </pre>
+                  </div>
+                ) : (
+                  <iframe
+                    title={current.previewTitle ?? 'Browser'}
+                    sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
+                    srcDoc={current.previewHtml}
+                    className="h-[24rem] w-full bg-white"
+                  />
+                )}
               </div>
             ) : null}
           </div>
@@ -818,6 +1302,10 @@ export function LessonPlayer({
 
     if (current.type === 'interactive') {
       if (current.mode === 'fill-blanks') {
+        const useMonacoLikeBlankEditor = current.editorStyle !== 'default';
+        const visibleTemplateLineCount = Math.max(1, visibleTemplateParts.join('').split('\n').length);
+        const isEditableVisibleTab = currentVisibleCodeTab === editableCodeTab;
+        const visibleLanguage = currentVisibleCodeTab === 'secondary' ? 'css' : 'html';
         return (
           <div className="mx-auto flex max-w-5xl flex-col">
             <p className="mb-4 text-center text-[15px] leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
@@ -892,52 +1380,121 @@ export function LessonPlayer({
                   </div>
                 </div>
                 <div className="p-4 sm:p-5">
-                  <div className="h-[19rem] rounded-2xl border border-white/5 bg-[#0d1117] p-4 font-mono text-sm leading-6 text-slate-100 sm:h-[21rem] sm:p-4 sm:text-[15px] sm:leading-6">
-                    <div className="lesson-code-scrollbar h-full overflow-x-auto overflow-y-auto pr-2">
-                      <div className="min-w-max whitespace-pre-wrap break-words text-[14px] leading-[1.4] text-[#94aaff] sm:text-[15px] sm:leading-[1.45]">
-                        {visibleTemplateParts.map((part, index) => (
-                          <span key={`template-${index}`}>
-                            {renderCodeText(part, `part-${index}`)}
-                            {currentVisibleCodeTab === editableCodeTab && index < (current.blankAnswers?.length ?? 0) ? (
-                              <input
-                                value={currentBlankValues[index] ?? ''}
-                                onChange={(event) => handleBlankValueChange(index, event.target.value)}
-                                onFocus={() =>
-                                  setActiveBlankByStep((prev) => ({
-                                    ...prev,
-                                    [currentStep]: index
-                                  }))
-                                }
-                                placeholder=""
-                                style={{ width: getChipWidth(currentBlankValues[index] ?? '') }}
-                                className={`${getBlankSpacingClass(part, visibleTemplateParts[index + 1] ?? '')} inline-block h-7 rounded-[0.75rem] border px-2 py-0.5 align-middle text-center text-[11px] font-semibold outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 focus:ring-2 sm:h-8 sm:rounded-[0.8rem] sm:text-xs ${
-                                  !(currentBlankValues[index] ?? '').trim()
-                                    ? 'border-[#9bb0ff]/45 bg-[#4c4a86] text-[#d8ddff] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_0_0_1px_rgba(119,147,255,0.18)] focus:border-[#b7c7ff]/70 focus:bg-[#5a58a0] focus:ring-[#9bb0ff]/25'
-                                    : isHtmlLikeSnippet(currentBlankValues[index] ?? '') || ['<', '>', '/', 'h1', 'h2', 'h3', 'h4', 'button', 'strong', 'em', 'br', 'p'].includes((currentBlankValues[index] ?? '').trim())
-                                    ? 'border-[#66d9ff]/35 bg-[#24536a] text-[#d9f6ff] focus:border-[#66d9ff]/55 focus:bg-[#2b627d] focus:ring-[#66d9ff]/20'
-                                    : 'border-[#94aaff]/35 bg-[#5a5898] text-white focus:border-[#b5c4ff]/55 focus:bg-[#6461aa] focus:ring-[#94aaff]/18'
-                                }`}
-                              />
-                            ) : null}
-                          </span>
-                        ))}
+                  {useMonacoLikeBlankEditor && !isEditableVisibleTab ? (
+                    <Suspense fallback={<MonacoLoadingShell height="21rem" />}>
+                      <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#0d1117]">
+                        <MonacoEditor
+                          beforeMount={configureMonaco}
+                          theme="codequest-dark"
+                          height="21rem"
+                          defaultLanguage={visibleLanguage}
+                          language={visibleLanguage}
+                          path={`lesson-${lesson.id}-step-${currentStep}-fill-${currentVisibleCodeTab}.${visibleLanguage}`}
+                          value={visibleTemplateParts.join('')}
+                          options={{
+                            ...editorOptions,
+                            readOnly: true,
+                            domReadOnly: true
+                          }}
+                        />
+                      </div>
+                    </Suspense>
+                  ) : (
+                    <div className={`h-[19rem] rounded-2xl border border-white/5 bg-[#0d1117] font-mono text-sm leading-6 text-slate-100 sm:h-[21rem] sm:text-[15px] sm:leading-6 ${useMonacoLikeBlankEditor ? 'overflow-hidden p-0' : 'p-4 sm:p-4'}`}>
+                      <div className={`lesson-code-scrollbar h-full overflow-x-auto overflow-y-auto ${useMonacoLikeBlankEditor ? '' : 'pr-2'}`}>
+                        {useMonacoLikeBlankEditor ? (
+                          <div className="flex min-w-max text-[14px] leading-[1.8] sm:text-[15px]">
+                            <div className="select-none border-r border-white/5 bg-[#10151d] px-4 py-5 text-right text-[#6f7aa8]">
+                              {Array.from({ length: visibleTemplateLineCount }, (_, index) => (
+                                <div key={`line-number-${index + 1}`} className="h-[32px]">
+                                  {index + 1}
+                                </div>
+                              ))}
+                            </div>
+                            <div className="whitespace-pre-wrap break-words px-5 py-5">
+                              {visibleTemplateParts.map((part, index) => (
+                                <span key={`template-${index}`}>
+                                  {currentVisibleCodeTab === 'secondary'
+                                    ? renderCssCodeText(part, `css-part-${index}`)
+                                    : renderHtmlCodeText(part, `html-part-${index}`)}
+                                  {isEditableVisibleTab && index < (current.blankAnswers?.length ?? 0) ? (
+                                    <input
+                                      value={currentBlankValues[index] ?? ''}
+                                      onChange={(event) => handleBlankValueChange(index, event.target.value)}
+                                      onFocus={() =>
+                                        setActiveBlankByStep((prev) => ({
+                                          ...prev,
+                                          [currentStep]: index
+                                        }))
+                                      }
+                                      placeholder=""
+                                      style={{ width: getChipWidth(currentBlankValues[index] ?? '') }}
+                                      className={`${getBlankSpacingClass(part, visibleTemplateParts[index + 1] ?? '')} inline-block h-7 rounded-[0.75rem] border px-2 py-0.5 align-middle text-center text-[11px] font-semibold outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 focus:ring-2 sm:h-8 sm:rounded-[0.8rem] sm:text-xs ${
+                                        !(currentBlankValues[index] ?? '').trim()
+                                          ? 'border-[#9bb0ff]/45 bg-[#4c4a86] text-[#d8ddff] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_0_0_1px_rgba(119,147,255,0.18)] focus:border-[#b7c7ff]/70 focus:bg-[#5a58a0] focus:ring-[#9bb0ff]/25'
+                                          : 'border-[#5cfd80]/45 bg-[#1f4d33] text-[#d8ffe4] focus:border-[#7dff9a]/65 focus:bg-[#25603f] focus:ring-[#5cfd80]/25'
+                                      }`}
+                                    />
+                                  ) : null}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="min-w-max whitespace-pre-wrap break-words text-[14px] leading-[1.4] text-[#94aaff] sm:text-[15px] sm:leading-[1.45]">
+                            {visibleTemplateParts.map((part, index) => (
+                              <span key={`template-${index}`}>
+                                {renderCodeText(part, `part-${index}`)}
+                                {currentVisibleCodeTab === editableCodeTab && index < (current.blankAnswers?.length ?? 0) ? (
+                                  <input
+                                    value={currentBlankValues[index] ?? ''}
+                                    onChange={(event) => handleBlankValueChange(index, event.target.value)}
+                                    onFocus={() =>
+                                      setActiveBlankByStep((prev) => ({
+                                        ...prev,
+                                        [currentStep]: index
+                                      }))
+                                    }
+                                    placeholder=""
+                                    style={{ width: getChipWidth(currentBlankValues[index] ?? '') }}
+                                    className={`${getBlankSpacingClass(part, visibleTemplateParts[index + 1] ?? '')} inline-block h-7 rounded-[0.75rem] border px-2 py-0.5 align-middle text-center text-[11px] font-semibold outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 focus:ring-2 sm:h-8 sm:rounded-[0.8rem] sm:text-xs ${
+                                      !(currentBlankValues[index] ?? '').trim()
+                                        ? 'border-[#9bb0ff]/45 bg-[#4c4a86] text-[#d8ddff] shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_0_0_1px_rgba(119,147,255,0.18)] focus:border-[#b7c7ff]/70 focus:bg-[#5a58a0] focus:ring-[#9bb0ff]/25'
+                                        : isHtmlLikeSnippet(currentBlankValues[index] ?? '') || ['<', '>', '/', 'h1', 'h2', 'h3', 'h4', 'button', 'strong', 'em', 'br', 'p'].includes((currentBlankValues[index] ?? '').trim())
+                                        ? 'border-[#66d9ff]/35 bg-[#24536a] text-[#d9f6ff] focus:border-[#66d9ff]/55 focus:bg-[#2b627d] focus:ring-[#66d9ff]/20'
+                                        : 'border-[#94aaff]/35 bg-[#5a5898] text-white focus:border-[#b5c4ff]/55 focus:bg-[#6461aa] focus:ring-[#94aaff]/18'
+                                    }`}
+                                  />
+                                ) : null}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
               {showFeedback && interactiveSolved && (
-                <div className="self-start overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+                <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
                   <div className="border-b border-white/5 bg-[#151a21] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
-                    {current.previewTitle ?? 'Browser'}
+                    {current.previewTitle ?? (current.solvedConsoleOutput ? 'Console output' : 'Browser')}
                   </div>
-                  <iframe
-                    title="Live Preview"
-                    sandbox="allow-scripts"
-                    srcDoc={current.solvedPreviewHtml ?? currentCode ?? '<!DOCTYPE html><html><body></body></html>'}
-                    className="h-[16rem] w-full bg-white"
-                  />
+                  {current.solvedConsoleOutput ? (
+                    <div className="h-[19rem] overflow-auto bg-[rgba(49,51,92,0.88)] p-5 font-mono text-[1.05rem] leading-8 sm:h-[21rem]">
+                      <pre className="whitespace-pre-wrap text-[#f3f6ff]">
+                        <code>{renderConsoleText(current.solvedConsoleOutput, 'interactive-console-fill')}</code>
+                      </pre>
+                    </div>
+                  ) : (
+                    <iframe
+                      title="Live Preview"
+                      sandbox="allow-scripts"
+                      srcDoc={interactivePreviewDocument}
+                      className="h-[19rem] w-full bg-white sm:h-[21rem]"
+                    />
+                  )}
                 </div>
               )}
             </div>
@@ -984,7 +1541,38 @@ export function LessonPlayer({
           <div className={`grid gap-6 ${showFeedback && interactiveSolved ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'lg:grid-cols-1'}`}>
             <div className={`overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-3xl'}`}>
               <div className="flex items-center justify-between border-b border-white/5 bg-[#151a21] px-6 py-3">
-                <p className="text-sm font-semibold text-slate-100">index.html</p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setVisibleCodeTabByStep((prev) => ({
+                        ...prev,
+                        [currentStep]: 'primary'
+                      }))
+                    }
+                    className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                      currentVisibleCodeTab === 'primary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {current.codeTitle ?? 'index.html'}
+                  </button>
+                  {current.secondaryCodeTitle && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setVisibleCodeTabByStep((prev) => ({
+                          ...prev,
+                          [currentStep]: 'secondary'
+                        }))
+                      }
+                      className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+                        currentVisibleCodeTab === 'secondary' ? 'bg-[#262d4d] text-slate-100' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {current.secondaryCodeTitle}
+                    </button>
+                  )}
+                </div>
                 <button
                   type="button"
                   onClick={() => {
@@ -1001,33 +1589,73 @@ export function LessonPlayer({
                 </button>
               </div>
               <div className="p-6">
-                <textarea
-                  value={currentCode}
-                  onChange={(event) => {
-                    setCodeByStep((prev) => ({
-                      ...prev,
-                      [currentStep]: event.target.value
-                    }));
-                    setShowFeedback(false);
-                  }}
-                  spellCheck={false}
-                  placeholder={current.placeholder ?? '<button>Like</button>'}
-                  className="min-h-[12rem] w-full resize-none rounded-2xl border border-white/5 bg-[#0d1117] p-5 font-mono text-base leading-7 text-slate-100 outline-none transition-colors placeholder:text-[#94aaff]/25 focus:border-[#94aaff]/30"
-                />
+                {!hasSecondaryEditorTab || currentVisibleCodeTab === 'secondary' ? (
+                  <Suspense fallback={<MonacoLoadingShell height="19rem" />}>
+                    <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#0d1117]">
+                      <MonacoEditor
+                        beforeMount={configureMonaco}
+                        theme="codequest-dark"
+                        height="19rem"
+                        defaultLanguage={hasSecondaryEditorTab ? 'css' : 'html'}
+                        language={hasSecondaryEditorTab ? 'css' : 'html'}
+                        path={`lesson-${lesson.id}-step-${currentStep}.${hasSecondaryEditorTab ? 'css' : 'html'}`}
+                        value={currentCode}
+                        onChange={(value) => {
+                          setCodeByStep((prev) => ({
+                            ...prev,
+                            [currentStep]: value ?? ''
+                          }));
+                          setShowFeedback(false);
+                        }}
+                        options={{
+                          ...editorOptions,
+                          readOnly: false
+                        }}
+                      />
+                    </div>
+                  </Suspense>
+                ) : (
+                  <Suspense fallback={<MonacoLoadingShell height="19rem" />}>
+                    <div className="overflow-hidden rounded-2xl border border-white/5 bg-[#0d1117]">
+                      <MonacoEditor
+                        beforeMount={configureMonaco}
+                        theme="codequest-dark"
+                        height="19rem"
+                        defaultLanguage="html"
+                        language="html"
+                        path={`lesson-${lesson.id}-step-${currentStep}.html`}
+                        value={current.code ?? ''}
+                        options={{
+                          ...editorOptions,
+                          readOnly: true,
+                          domReadOnly: true
+                        }}
+                      />
+                    </div>
+                  </Suspense>
+                )}
               </div>
             </div>
 
             {showFeedback && interactiveSolved && (
               <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
                 <div className="border-b border-white/5 bg-[#151a21] px-5 py-3 text-sm font-semibold text-slate-100">
-                  {current.previewTitle ?? 'Browser'}
+                  {current.previewTitle ?? (current.solvedConsoleOutput ? 'Console output' : 'Browser')}
                 </div>
-                <iframe
-                  title="Live Preview"
-                  sandbox="allow-scripts"
-                  srcDoc={currentCode || '<!DOCTYPE html><html><body></body></html>'}
-                  className="h-[16rem] w-full bg-white"
-                />
+                {current.solvedConsoleOutput ? (
+                  <div className="h-[16rem] overflow-auto bg-[rgba(49,51,92,0.88)] p-5 font-mono text-[1.05rem] leading-8">
+                    <pre className="whitespace-pre-wrap text-[#f3f6ff]">
+                      <code>{renderConsoleText(current.solvedConsoleOutput, 'interactive-console-editor')}</code>
+                    </pre>
+                  </div>
+                ) : (
+                  <iframe
+                    title="Live Preview"
+                    sandbox="allow-scripts"
+                    srcDoc={(current.solvedPreviewHtml ?? currentCode) || '<!DOCTYPE html><html><body></body></html>'}
+                    className="h-[16rem] w-full bg-white"
+                  />
+                )}
               </div>
             )}
           </div>
@@ -1037,13 +1665,15 @@ export function LessonPlayer({
               {current.helperText && !showFeedback && <p className="text-center text-sm text-[#a8abb3]">{current.helperText}</p>}
               {showFeedback && !interactiveSolved && (
                 <p className="mt-2 text-center text-sm text-rose-300">
-                  Not quite yet. Match the target HTML and try again.
+                  Not quite yet. Match the target code and try again.
                 </p>
               )}
             </div>
-            <div className="rounded-full border border-[#94aaff]/20 bg-[#94aaff]/10 px-4 py-2 font-mono text-sm text-[#94aaff]">
-              {current.expectedCode[0]}
-            </div>
+            {current.mode !== 'editor' && current.showExpectedCode !== false && (
+              <div className="rounded-full border border-[#94aaff]/20 bg-[#94aaff]/10 px-4 py-2 font-mono text-sm text-[#94aaff]">
+                {current.expectedCode[0]}
+              </div>
+            )}
           </div>
         </div>
       );
@@ -1052,8 +1682,15 @@ export function LessonPlayer({
     return (
       <div className="mx-auto max-w-3xl">
         <p className="mb-8 text-center text-lg leading-relaxed text-white sm:text-xl">{renderHighlightedText(current.data)}</p>
-        {(current.code || (showFeedback && selectedAnswer === current.correctAnswer && current.solvedPreviewHtml)) && (
-          <div className={`mb-6 grid gap-6 ${showFeedback && selectedAnswer === current.correctAnswer && current.solvedPreviewHtml ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'grid-cols-1'}`}>
+        {(current.code ||
+          (showFeedback && selectedAnswer === current.correctAnswer && (current.solvedPreviewHtml || current.solvedConsoleOutput))) && (
+          <div
+            className={`mb-6 grid gap-6 ${
+              showFeedback && selectedAnswer === current.correctAnswer && (current.solvedPreviewHtml || current.solvedConsoleOutput)
+                ? 'lg:grid-cols-[1.2fr_0.72fr]'
+                : 'grid-cols-1'
+            }`}
+          >
             {current.code && (
               <div className="overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
                 <div className="border-b border-white/5 bg-[#151a21] px-6 py-4 text-sm font-semibold text-slate-100">
@@ -1062,6 +1699,19 @@ export function LessonPlayer({
                 <div className="p-6">
                   <pre className="overflow-x-auto whitespace-pre-wrap text-base leading-7 text-[#94aaff]">
                     <code>{renderCodeText(current.code, 'quiz-code')}</code>
+                  </pre>
+                </div>
+              </div>
+            )}
+
+            {showFeedback && selectedAnswer === current.correctAnswer && current.solvedConsoleOutput && (
+              <div className="self-start overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+                <div className="border-b border-white/5 bg-[#151a21] px-5 py-3 text-sm font-semibold text-slate-100">
+                  {current.previewTitle ?? 'Console output'}
+                </div>
+                <div className="h-[16rem] overflow-auto bg-[rgba(49,51,92,0.88)] p-5 font-mono text-[1.05rem] leading-8">
+                  <pre className="whitespace-pre-wrap text-[#f3f6ff]">
+                    <code>{renderConsoleText(current.solvedConsoleOutput, 'quiz-console')}</code>
                   </pre>
                 </div>
               </div>
@@ -1128,7 +1778,17 @@ export function LessonPlayer({
     );
   };
 
+  const canContinueReviewedStep = Boolean(completedSteps[currentStep]) || currentStep < furthestStep;
+
   const primaryAction = () => {
+    if (canContinueReviewedStep) {
+      return {
+        label: isLastStep ? 'Complete Lesson' : 'Continue',
+        disabled: false,
+        onClick: handleHeaderNext
+      };
+    }
+
     if (step.type === 'quiz') {
       return showFeedback
         ? {
@@ -1166,7 +1826,7 @@ export function LessonPlayer({
     }
 
     return {
-      label: isLastStep ? 'Complete Lesson' : 'Continue',
+      label: step.type === 'code' && step.actionLabel ? step.actionLabel : isLastStep ? 'Complete Lesson' : 'Continue',
       disabled: false,
       onClick: handleNext
     };
@@ -1176,7 +1836,8 @@ export function LessonPlayer({
   const showExplainPrompt =
     (step.type === 'quiz' && showFeedback && selectedAnswer === step.correctAnswer) ||
     (step.type === 'interactive' && showFeedback && interactiveSolved) ||
-    (step.type === 'browser-demo' && showFeedback && browserSolved);
+    (step.type === 'browser-demo' && showFeedback && browserSolved) ||
+    (step.type === 'code' && Boolean(step.solvedConsoleOutput && revealedCodePreviewByStep[currentStep]));
 
   const explainPrompt = (() => {
     if (step.type === 'quiz') {
@@ -1189,6 +1850,10 @@ export function LessonPlayer({
 
     if (step.type === 'browser-demo') {
       return `Explain this browser demo simply. Lesson: ${lesson.title}. Step: ${step.data}. Correct choice: ${step.correctChoice}.`;
+    }
+
+    if (step.type === 'code') {
+      return `Explain this code result simply. Lesson: ${lesson.title}. Step: ${step.data}. Code: ${step.code}. Output: ${step.solvedConsoleOutput ?? 'No output'}.`;
     }
 
     return `Explain this lesson step simply: ${lesson.title}`;

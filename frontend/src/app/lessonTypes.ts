@@ -4,6 +4,7 @@ export type LessonStep =
       data: string;
       secondaryText?: string;
       accentText?: string;
+      illustration?: 'default' | 'padding-box-model' | 'padding-clockwise' | 'boolean-true';
     }
   | {
       type: 'text';
@@ -41,6 +42,8 @@ export type LessonStep =
       secondaryCode?: string;
       previewTitle?: string;
       previewHtml?: string;
+      solvedConsoleOutput?: string;
+      actionLabel?: string;
     }
   | {
       type: 'quiz';
@@ -50,12 +53,15 @@ export type LessonStep =
       code?: string;
       codeTitle?: string;
       previewTitle?: string;
+      solvedConsoleOutput?: string;
       solvedPreviewHtml?: string;
     }
   | {
       type: 'interactive';
       data: string;
+      code?: string;
       codeTitle?: string;
+      secondaryCode?: string;
       secondaryCodeTitle?: string;
       activeCodeTab?: 'primary' | 'secondary';
       primaryTemplateParts?: string[];
@@ -64,8 +70,11 @@ export type LessonStep =
       expectedCode: string[];
       previewTitle?: string;
       solvedPreviewHtml?: string;
+      solvedConsoleOutput?: string;
       helperText?: string;
       placeholder?: string;
+      showExpectedCode?: boolean;
+      editorStyle?: 'default' | 'monaco-like';
       successMessage?: string;
       mode?: 'editor' | 'fill-blanks';
       templateParts?: string[];

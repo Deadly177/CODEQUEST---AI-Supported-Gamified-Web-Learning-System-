@@ -129,6 +129,37 @@ export const courseSections = {
   ]
 };
 
+export const courseLessonTracks = {
+  javascript: {
+    'js-1': {
+      label: 'Variables Track',
+      lessons: [
+        { id: 'js-track-1', number: 1, title: 'What Variables Do', type: 'learn', xpReward: 50 },
+        { id: 'js-track-2', number: 2, title: 'Creating String Variables', type: 'learn', xpReward: 50 },
+        { id: 'js-track-3', number: 3, title: 'Creating Number Variables', type: 'learn', xpReward: 50 },
+        { id: 'js-track-4', number: 4, title: 'Boolean Variables Practice', type: 'learn', xpReward: 50 }
+      ]
+    },
+    'js-2': {
+      label: 'Using Variables Track',
+      lessons: [
+        { id: 'js-2-track-1', number: 1, title: 'Reading Variables', type: 'learn', xpReward: 50 },
+        { id: 'js-2-track-2', number: 2, title: 'Console Output', type: 'learn', xpReward: 50 },
+        { id: 'js-2-track-3', number: 3, title: 'Using Variables Practice', type: 'learn', xpReward: 50 }
+      ]
+    }
+  }
+};
+
+const lessonAliases = {
+  'css-track-1': 'css-1',
+  'css-track-2': 'css-1',
+  'css-track-3': 'css-1',
+  'css-track-4': 'css-1',
+  'css-track-5': 'css-3',
+  'css-track-6': 'css-3'
+};
+
 export function getCourseCatalog() {
   return courses;
 }
@@ -141,12 +172,31 @@ export function getSectionsByCourseId(courseId) {
   return courseSections[courseId] ?? [];
 }
 
+export function getLessonTracksByCourseId(courseId) {
+  return courseLessonTracks[courseId] ?? {};
+}
+
+export function normalizeLessonId(lessonId) {
+  return lessonAliases[lessonId] ?? lessonId;
+}
+
 export function findLesson(lessonId) {
+  const normalizedLessonId = normalizeLessonId(lessonId);
+
   for (const [courseId, sections] of Object.entries(courseSections)) {
     for (const section of sections) {
-      const lesson = section.lessons.find((entry) => entry.id === lessonId);
+      const lesson = section.lessons.find((entry) => entry.id === normalizedLessonId);
       if (lesson) {
         return { courseId, sectionId: section.id, lesson };
+      }
+    }
+  }
+
+  for (const [courseId, tracksByLessonId] of Object.entries(courseLessonTracks)) {
+    for (const [parentLessonId, track] of Object.entries(tracksByLessonId)) {
+      const lesson = track.lessons.find((entry) => entry.id === normalizedLessonId);
+      if (lesson) {
+        return { courseId, sectionId: `${parentLessonId}-track`, lesson };
       }
     }
   }

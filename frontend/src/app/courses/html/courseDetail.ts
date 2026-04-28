@@ -26,6 +26,7 @@ export const htmlCourseDetail = {
       id: 'html-intermediate',
       number: 2,
       title: 'HTML Intermediate',
+      description: 'Link multiple HTML files to create a website',
       progress: '0/6',
       icon: '🚀',
       lessons: [

@@ -14,6 +14,11 @@ const router = express.Router();
 
 router.use(requireAuth);
 
+function getRequestTimeZone(req) {
+  const header = req.headers['x-user-timezone'];
+  return typeof header === 'string' && header.trim() ? header.trim() : 'UTC';
+}
+
 router.get('/', async (req, res) => {
   try {
     const user = await User.findById(req.user.id).lean();
@@ -24,7 +29,7 @@ router.get('/', async (req, res) => {
     const progress = await getOrCreateProgress(req.user.id);
 
     return res.json({
-      stats: buildStats(user.name, progress),
+      stats: buildStats(user.name, progress, getRequestTimeZone(req)),
       courses: buildCourseSummaries(progress)
     });
   } catch (error) {
@@ -49,7 +54,8 @@ router.get('/courses/:courseId', async (req, res) => {
 
 router.post('/lessons/:lessonId/complete', async (req, res) => {
   try {
-    const result = await completeLessonForUser(req.user.id, req.params.lessonId);
+    const timeZone = getRequestTimeZone(req);
+    const result = await completeLessonForUser(req.user.id, req.params.lessonId, timeZone);
     if (result.error) {
       return res.status(result.status).json({ error: result.error });
     }
@@ -59,7 +65,7 @@ router.post('/lessons/:lessonId/complete', async (req, res) => {
     return res.json({
       awardedPoints: result.awardedPoints,
       alreadyCompleted: result.alreadyCompleted,
-      stats: buildStats(user?.name ?? req.user.name ?? 'Learner', result.progress),
+      stats: buildStats(user?.name ?? req.user.name ?? 'Learner', result.progress, timeZone),
       courses: buildCourseSummaries(result.progress),
       courseDetail: buildCourseDetail(result.progress, result.courseId)
     });
