@@ -311,7 +311,7 @@ export function buildCourseDetail(progress, courseId) {
   };
 }
 
-export async function completeLessonForUser(userId, lessonId, timeZone = 'UTC') {
+export async function completeLessonForUser(userId, lessonId, timeZone = 'UTC', options = {}) {
   const normalizedLessonId = normalizeLessonId(lessonId);
   const lessonInfo = findLesson(normalizedLessonId);
   if (!lessonInfo) {
@@ -331,7 +331,7 @@ export async function completeLessonForUser(userId, lessonId, timeZone = 'UTC') 
   const safeTimeZone = getSafeTimeZone(timeZone);
   const completedLessonIds = new Set(courseEntry.completedLessonIds);
 
-  if (!alreadyCompleted && !isLessonUnlocked(lessonInfo, completedLessonIds)) {
+  if (!alreadyCompleted && !options.unlockLockedLessons && !isLessonUnlocked(lessonInfo, completedLessonIds)) {
     return { error: 'lesson is locked', status: 423 };
   }
 

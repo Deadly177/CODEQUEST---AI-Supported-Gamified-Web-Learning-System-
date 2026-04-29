@@ -824,7 +824,7 @@ export default function App() {
             <GraduationCap className="h-5 w-5 text-[#001b61]" />
           </div>
           <div>
-            <h2 className="font-['Space_Grotesk'] text-sm font-black uppercase tracking-wide text-blue-500">Code Quest</h2>
+            <h2 className="font-['Inter'] text-sm font-extrabold uppercase tracking-[0.12em] text-blue-500">Code Quest</h2>
             <p className="font-['Inter'] text-[10px] uppercase tracking-[0.28em] text-[#a8abb3]">
               Level {userStats.level} Learner
             </p>
@@ -835,7 +835,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setCurrentView('home')}
-            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+            className={`flex w-full items-center px-4 py-3 font-['Inter'] text-[13px] font-semibold uppercase tracking-[0.08em] transition-all ${
               currentView === 'home'
                 ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
                 : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
@@ -847,19 +847,19 @@ export default function App() {
           <button
             type="button"
             onClick={() => setCurrentView('learn')}
-            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+            className={`flex w-full items-center px-4 py-3 font-['Inter'] text-[13px] font-semibold uppercase tracking-[0.08em] transition-all ${
               currentView === 'learn' || currentView === 'frontend-path'
                 ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
                 : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
             }`}
           >
             <LibraryBig className="mr-3 h-4 w-4" />
-            Lessons
+            Learn
           </button>
           <button
             type="button"
             onClick={() => setCurrentView('lessons')}
-            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+            className={`flex w-full items-center px-4 py-3 font-['Inter'] text-[13px] font-semibold uppercase tracking-[0.08em] transition-all ${
               currentView === 'lessons' || currentView === 'course-view' || currentView === 'lesson'
                 ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
                 : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
@@ -871,7 +871,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setCurrentView('build')}
-            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+            className={`flex w-full items-center px-4 py-3 font-['Inter'] text-[13px] font-semibold uppercase tracking-[0.08em] transition-all ${
               currentView === 'build'
                 ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
                 : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
@@ -883,7 +883,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setCurrentView('achievements')}
-            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+            className={`flex w-full items-center px-4 py-3 font-['Inter'] text-[13px] font-semibold uppercase tracking-[0.08em] transition-all ${
               currentView === 'achievements'
                 ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
                 : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
@@ -895,7 +895,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setCurrentView('leaderboard')}
-            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+            className={`flex w-full items-center px-4 py-3 font-['Inter'] text-[13px] font-semibold uppercase tracking-[0.08em] transition-all ${
               currentView === 'leaderboard'
                 ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
                 : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
@@ -907,7 +907,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setCurrentView('performance')}
-            className={`flex w-full items-center px-4 py-3 font-['Space_Grotesk'] text-sm font-bold uppercase tracking-wide transition-all ${
+            className={`flex w-full items-center px-4 py-3 font-['Inter'] text-[13px] font-semibold uppercase tracking-[0.08em] transition-all ${
               currentView === 'performance'
                 ? 'border-r-4 border-[#5cfd80] bg-gradient-to-r from-[#5cfd80]/10 to-transparent text-[#5cfd80]'
                 : 'text-[#f1f3fc]/50 hover:bg-[#20262f] hover:pl-6 hover:text-[#f1f3fc]'
@@ -933,7 +933,7 @@ export default function App() {
           <button
             type="button"
             onClick={() => setCurrentView('settings')}
-            className="flex w-full items-center px-4 py-2 font-['Space_Grotesk'] text-xs uppercase text-[#f1f3fc]/60 transition-colors hover:text-[#f1f3fc]"
+            className="flex w-full items-center px-4 py-2 font-['Inter'] text-xs font-medium uppercase tracking-[0.08em] text-[#f1f3fc]/60 transition-colors hover:text-[#f1f3fc]"
           >
             <Settings className="mr-3 h-4 w-4" />
             Settings
@@ -945,7 +945,7 @@ export default function App() {
               window.sessionStorage.removeItem('auth_token');
               setAuthToken(null);
             }}
-            className="flex w-full items-center px-4 py-2 font-['Space_Grotesk'] text-xs uppercase text-[#ff6e84] transition-colors hover:text-[#d73357]"
+            className="flex w-full items-center px-4 py-2 font-['Inter'] text-xs font-medium uppercase tracking-[0.08em] text-[#ff6e84] transition-colors hover:text-[#d73357]"
           >
             <LogOut className="mr-3 h-4 w-4" />
             Logout
@@ -1034,6 +1034,7 @@ export default function App() {
             courseTitle={courseDetail.course.title}
             sections={courseDetail.sections}
             lessonTracks={courseDetail.lessonTracks}
+            unlockAllLessons={unlockAllCourses}
             onBack={() => setCurrentView('learn')}
             onStartLesson={handleStartLesson}
             userStats={userStats}

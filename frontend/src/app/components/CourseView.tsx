@@ -1,5 +1,5 @@
 import { ArrowLeft, CheckCircle2, Flame, Lock, LogOut, PlayCircle, X, Zap } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 interface Lesson {
   id: string;
@@ -35,6 +35,7 @@ interface CourseViewProps {
   courseTitle: string;
   sections: Section[];
   lessonTracks?: Record<string, { label: string; lessons: TrackLesson[] }>;
+  unlockAllLessons?: boolean;
   onBack: () => void;
   onStartLesson: (lessonId: string) => void;
   userStats: {
@@ -49,7 +50,16 @@ interface CourseViewProps {
   };
 }
 
-export function CourseView({ courseTitle, sections, lessonTracks, onBack, onStartLesson, userStats, certificate }: CourseViewProps) {
+export function CourseView({
+  courseTitle,
+  sections,
+  lessonTracks,
+  unlockAllLessons = false,
+  onBack,
+  onStartLesson,
+  userStats,
+  certificate
+}: CourseViewProps) {
   const fallbackTrackLessonsByLessonId: Record<string, { label: string; lessons: TrackLesson[] }> = {
     'css-1': {
       label: 'Stylesheet Track',
@@ -85,23 +95,40 @@ export function CourseView({ courseTitle, sections, lessonTracks, onBack, onStar
       ]
     }
   };
-  const trackLessonsByLessonId = {
+  const rawTrackLessonsByLessonId = {
     ...fallbackTrackLessonsByLessonId,
     ...(lessonTracks ?? {})
   };
+  const displaySections = useMemo(() => unlockAllLessons
+    ? sections.map((section) => ({
+        ...section,
+        lessons: section.lessons.map((lesson) => ({ ...lesson, locked: false }))
+      }))
+    : sections, [sections, unlockAllLessons]);
+  const trackLessonsByLessonId = useMemo(() => unlockAllLessons
+    ? Object.fromEntries(
+        Object.entries(rawTrackLessonsByLessonId).map(([lessonId, track]) => [
+          lessonId,
+          {
+            ...track,
+            lessons: track.lessons.map((lesson) => ({ ...lesson, locked: false }))
+          }
+        ])
+      )
+    : rawTrackLessonsByLessonId, [rawTrackLessonsByLessonId, unlockAllLessons]);
   const [selectedSection, setSelectedSection] = useState<string>(sections[0]?.id ?? '');
   const [isLessonPopupOpen, setIsLessonPopupOpen] = useState(false);
   const [activePopupLessonId, setActivePopupLessonId] = useState<string | null>(null);
 
   useEffect(() => {
-    setSelectedSection(sections[0]?.id ?? '');
+    setSelectedSection(displaySections[0]?.id ?? '');
     setIsLessonPopupOpen(false);
     setActivePopupLessonId(null);
-  }, [sections]);
+  }, [displaySections]);
 
-  const currentSection = sections.find(s => s.id === selectedSection);
-  const currentSectionIndex = sections.findIndex((section) => section.id === selectedSection);
-  const nextSection = currentSectionIndex >= 0 ? sections[currentSectionIndex + 1] : undefined;
+  const currentSection = displaySections.find(s => s.id === selectedSection);
+  const currentSectionIndex = displaySections.findIndex((section) => section.id === selectedSection);
+  const nextSection = currentSectionIndex >= 0 ? displaySections[currentSectionIndex + 1] : undefined;
   const nextSectionUnlocked = Boolean(nextSection?.lessons.some((lesson) => !lesson.locked));
   const completedLessons = currentSection?.lessons.filter(lesson => lesson.completed).length ?? 0;
   const totalLessons = currentSection?.lessons.length ?? 0;
