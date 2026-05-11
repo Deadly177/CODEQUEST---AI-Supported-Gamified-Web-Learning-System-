@@ -1,0 +1,11 @@
+✔ requireAuth rejects requests with no authorization header (2.540334ms)
+✔ requireAuth rejects requests with an invalid token (0.728509ms)
+✔ requireAuth accepts a valid token and attaches the authenticated user to the request (7.886449ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 218.832848

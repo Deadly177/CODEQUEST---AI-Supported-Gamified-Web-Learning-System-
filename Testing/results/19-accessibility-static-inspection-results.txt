@@ -1,0 +1,480 @@
+frontend/src/app/components/Performance.tsx:122:          <button className="rounded-full bg-[#20262f] px-6 py-3 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-[0.18em] text-[#94aaff] transition-colors hover:bg-[#262c36]">
+frontend/src/app/components/Performance.tsx:124:          </button>
+frontend/src/app/components/Performance.tsx:125:          <button className="rounded-full bg-gradient-to-r from-[#94aaff] to-[#3367ff] px-6 py-3 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-[0.18em] text-[#00257b] shadow-lg shadow-[#94aaff]/20 transition-opacity hover:opacity-90">
+frontend/src/app/components/Performance.tsx:127:          </button>
+frontend/src/app/components/Performance.tsx:251:          <button className="mt-10 w-full rounded-xl border border-[#44484f]/20 py-4 font-['Space_Grotesk'] text-xs font-bold uppercase tracking-[0.2em] text-[#a8abb3] transition-all hover:border-[#94aaff]/40 hover:text-[#94aaff]">
+frontend/src/app/components/Performance.tsx:253:          </button>
+frontend/src/app/components/LessonsOverview.tsx:57:            <button
+frontend/src/app/components/LessonsOverview.tsx:59:              type="button"
+frontend/src/app/components/LessonsOverview.tsx:60:              disabled={!unlocked}
+frontend/src/app/components/LessonsOverview.tsx:92:            </button>
+frontend/src/app/components/Leaderboard.tsx:78:            <button
+frontend/src/app/components/Leaderboard.tsx:79:              type="button"
+frontend/src/app/components/Leaderboard.tsx:88:            </button>
+frontend/src/app/components/Leaderboard.tsx:89:            <button
+frontend/src/app/components/Leaderboard.tsx:90:              type="button"
+frontend/src/app/components/Leaderboard.tsx:99:            </button>
+frontend/src/app/components/Leaderboard.tsx:154:                          alt={`${entry.name} avatar`}
+frontend/src/app/components/Leaderboard.tsx:227:            <input
+frontend/src/app/components/Leaderboard.tsx:260:          <button
+frontend/src/app/components/Leaderboard.tsx:261:            type="button"
+frontend/src/app/components/Leaderboard.tsx:265:          </button>
+frontend/src/app/components/Leaderboard.tsx:267:            <button type="button" className="h-10 w-10 rounded-xl bg-[#94aaff] font-['Space_Grotesk'] font-bold text-[#00257b]">
+frontend/src/app/components/Leaderboard.tsx:269:            </button>
+frontend/src/app/components/Leaderboard.tsx:270:            <button type="button" className="h-10 w-10 rounded-xl font-['Space_Grotesk'] font-bold text-[#f1f3fc] transition-colors hover:bg-[#20262f]">
+frontend/src/app/components/Leaderboard.tsx:272:            </button>
+frontend/src/app/components/Leaderboard.tsx:273:            <button type="button" className="h-10 w-10 rounded-xl font-['Space_Grotesk'] font-bold text-[#f1f3fc] transition-colors hover:bg-[#20262f]">
+frontend/src/app/components/Leaderboard.tsx:275:            </button>
+frontend/src/app/components/Leaderboard.tsx:277:          <button
+frontend/src/app/components/Leaderboard.tsx:278:            type="button"
+frontend/src/app/components/Leaderboard.tsx:282:          </button>
+frontend/src/app/components/UserSettings.tsx:131:        <button
+frontend/src/app/components/UserSettings.tsx:132:          type="button"
+frontend/src/app/components/UserSettings.tsx:138:        </button>
+frontend/src/app/components/UserSettings.tsx:160:                <button
+frontend/src/app/components/UserSettings.tsx:161:                  type="button"
+frontend/src/app/components/UserSettings.tsx:165:                </button>
+frontend/src/app/components/UserSettings.tsx:173:                <input
+frontend/src/app/components/UserSettings.tsx:182:                <textarea
+frontend/src/app/components/UserSettings.tsx:210:                <button
+frontend/src/app/components/UserSettings.tsx:211:                  type="button"
+frontend/src/app/components/UserSettings.tsx:216:                </button>
+frontend/src/app/components/UserSettings.tsx:217:                <button
+frontend/src/app/components/UserSettings.tsx:218:                  type="button"
+frontend/src/app/components/UserSettings.tsx:223:                </button>
+frontend/src/app/components/UserSettings.tsx:230:                <input
+frontend/src/app/components/UserSettings.tsx:262:              <button
+frontend/src/app/components/UserSettings.tsx:263:                type="button"
+frontend/src/app/components/UserSettings.tsx:268:              </button>
+frontend/src/app/components/UserSettings.tsx:273:              <input
+frontend/src/app/components/UserSettings.tsx:283:              <input
+frontend/src/app/components/UserSettings.tsx:293:              <input
+frontend/src/app/components/UserSettings.tsx:309:                <button
+frontend/src/app/components/UserSettings.tsx:310:                  type="button"
+frontend/src/app/components/UserSettings.tsx:319:                </button>
+frontend/src/app/components/UserSettings.tsx:338:              title="Quest Reminders"
+frontend/src/app/components/UserSettings.tsx:344:              title="XP Milestones"
+frontend/src/app/components/UserSettings.tsx:350:              title="Marketplace Updates"
+frontend/src/app/components/UserSettings.tsx:361:        <button
+frontend/src/app/components/UserSettings.tsx:362:          type="button"
+frontend/src/app/components/UserSettings.tsx:367:        </button>
+frontend/src/app/components/UserSettings.tsx:368:        <button
+frontend/src/app/components/UserSettings.tsx:369:          type="button"
+frontend/src/app/components/UserSettings.tsx:374:        </button>
+frontend/src/app/components/UserSettings.tsx:399:      <button
+frontend/src/app/components/UserSettings.tsx:400:        type="button"
+frontend/src/app/components/UserSettings.tsx:409:      </button>
+frontend/src/app/components/BuildWorkspace.tsx:12:  <button id="action">Click me</button>
+frontend/src/app/components/BuildWorkspace.tsx:46:button {
+frontend/src/app/components/BuildWorkspace.tsx:56:const starterJs = `const button = document.querySelector('#action');
+frontend/src/app/components/BuildWorkspace.tsx:58:button.addEventListener('click', () => {
+frontend/src/app/components/BuildWorkspace.tsx:59:  button.textContent = 'Built with JavaScript!';
+frontend/src/app/components/BuildWorkspace.tsx:129:          <button
+frontend/src/app/components/BuildWorkspace.tsx:130:            type="button"
+frontend/src/app/components/BuildWorkspace.tsx:135:          </button>
+frontend/src/app/components/BuildWorkspace.tsx:145:          <button
+frontend/src/app/components/BuildWorkspace.tsx:146:            type="button"
+frontend/src/app/components/BuildWorkspace.tsx:152:          </button>
+frontend/src/app/components/BuildWorkspace.tsx:153:          <button
+frontend/src/app/components/BuildWorkspace.tsx:154:            type="button"
+frontend/src/app/components/BuildWorkspace.tsx:160:          </button>
+frontend/src/app/components/BuildWorkspace.tsx:175:                <button
+frontend/src/app/components/BuildWorkspace.tsx:177:                  type="button"
+frontend/src/app/components/BuildWorkspace.tsx:187:                </button>
+frontend/src/app/components/BuildWorkspace.tsx:201:                <button
+frontend/src/app/components/BuildWorkspace.tsx:203:                  type="button"
+frontend/src/app/components/BuildWorkspace.tsx:205:                  title={filename}
+frontend/src/app/components/BuildWorkspace.tsx:214:                </button>
+frontend/src/app/components/BuildWorkspace.tsx:247:              <button
+frontend/src/app/components/BuildWorkspace.tsx:248:                type="button"
+frontend/src/app/components/BuildWorkspace.tsx:254:              </button>
+frontend/src/app/components/BuildWorkspace.tsx:255:              <button
+frontend/src/app/components/BuildWorkspace.tsx:256:                type="button"
+frontend/src/app/components/BuildWorkspace.tsx:261:              </button>
+frontend/src/app/components/BuildWorkspace.tsx:266:            title="Live build preview"
+frontend/src/app/components/Achievements.tsx:258:            <button className="text-xs font-bold uppercase tracking-widest text-[#94aaff] hover:underline">
+frontend/src/app/components/Achievements.tsx:260:            </button>
+frontend/src/app/components/Achievements.tsx:365:          <button className="text-[#a8abb3] transition-colors hover:text-[#94aaff]">
+frontend/src/app/components/Achievements.tsx:367:          </button>
+frontend/src/app/components/Achievements.tsx:401:              <button className="w-full rounded-lg bg-[#ffbd5c] py-2.5 text-xs font-bold uppercase tracking-widest text-[#5c3b00] transition-all hover:scale-[1.02]">
+frontend/src/app/components/Achievements.tsx:403:              </button>
+frontend/src/app/components/CourseSelection.tsx:124:          <button
+frontend/src/app/components/CourseSelection.tsx:125:            type="button"
+frontend/src/app/components/CourseSelection.tsx:131:          </button>
+frontend/src/app/components/CourseSelection.tsx:176:              <button
+frontend/src/app/components/CourseSelection.tsx:177:                disabled={!isCourseUnlocked(course)}
+frontend/src/app/components/CourseSelection.tsx:178:                className="w-full rounded-xl border border-blue-500/30 bg-blue-500/10 py-4 text-xs font-black uppercase tracking-widest text-blue-400 transition-all enabled:hover:bg-blue-500/20 disabled:cursor-not-allowed"
+frontend/src/app/components/CourseSelection.tsx:181:              </button>
+frontend/src/app/components/CourseSelection.tsx:202:            <button
+frontend/src/app/components/CourseSelection.tsx:203:              type="button"
+frontend/src/app/components/CourseSelection.tsx:233:            </button>
+frontend/src/app/components/CourseSelection.tsx:235:            <button
+frontend/src/app/components/CourseSelection.tsx:236:              type="button"
+frontend/src/app/components/CourseSelection.tsx:260:            </button>
+frontend/src/app/components/CourseSelection.tsx:262:            <button
+frontend/src/app/components/CourseSelection.tsx:263:              type="button"
+frontend/src/app/components/CourseSelection.tsx:287:            </button>
+frontend/src/app/components/CourseSelection.tsx:300:          <button
+frontend/src/app/components/CourseSelection.tsx:301:            type="button"
+frontend/src/app/components/CourseSelection.tsx:310:          </button>
+frontend/src/app/components/CourseSelection.tsx:311:          <button
+frontend/src/app/components/CourseSelection.tsx:312:            type="button"
+frontend/src/app/components/CourseSelection.tsx:321:          </button>
+frontend/src/app/components/CourseSelection.tsx:322:          <button
+frontend/src/app/components/CourseSelection.tsx:323:            type="button"
+frontend/src/app/components/CourseSelection.tsx:332:          </button>
+frontend/src/app/components/CourseSelection.tsx:340:            <button
+frontend/src/app/components/CourseSelection.tsx:342:              type="button"
+frontend/src/app/components/CourseSelection.tsx:348:              disabled={!unlocked}
+frontend/src/app/components/CourseSelection.tsx:378:            </button>
+frontend/src/app/components/DashboardAssistant.tsx:49:  const [input, setInput] = useState('');
+frontend/src/app/components/DashboardAssistant.tsx:157:    const trimmed = (prefilledMessage ?? input).trim();
+frontend/src/app/components/DashboardAssistant.tsx:285:                        <button
+frontend/src/app/components/DashboardAssistant.tsx:286:                          type="button"
+frontend/src/app/components/DashboardAssistant.tsx:289:                          title="Next path"
+frontend/src/app/components/DashboardAssistant.tsx:292:                        </button>
+frontend/src/app/components/DashboardAssistant.tsx:300:                            <button
+frontend/src/app/components/DashboardAssistant.tsx:302:                              type="button"
+frontend/src/app/components/DashboardAssistant.tsx:307:                              title={course.title}
+frontend/src/app/components/DashboardAssistant.tsx:308:                              aria-label={`Show ${course.title}`}
+frontend/src/app/components/DashboardAssistant.tsx:342:              <button
+frontend/src/app/components/DashboardAssistant.tsx:343:                type="button"
+frontend/src/app/components/DashboardAssistant.tsx:346:                title="Clear chat"
+frontend/src/app/components/DashboardAssistant.tsx:349:              </button>
+frontend/src/app/components/DashboardAssistant.tsx:355:              <button
+frontend/src/app/components/DashboardAssistant.tsx:356:                type="button"
+frontend/src/app/components/DashboardAssistant.tsx:365:              </button>
+frontend/src/app/components/DashboardAssistant.tsx:366:              <button
+frontend/src/app/components/DashboardAssistant.tsx:367:                type="button"
+frontend/src/app/components/DashboardAssistant.tsx:376:              </button>
+frontend/src/app/components/DashboardAssistant.tsx:384:                  <button
+frontend/src/app/components/DashboardAssistant.tsx:386:                    type="button"
+frontend/src/app/components/DashboardAssistant.tsx:391:                  </button>
+frontend/src/app/components/DashboardAssistant.tsx:456:                <textarea
+frontend/src/app/components/DashboardAssistant.tsx:457:                  value={input}
+frontend/src/app/components/DashboardAssistant.tsx:469:                <button
+frontend/src/app/components/DashboardAssistant.tsx:470:                  type="button"
+frontend/src/app/components/DashboardAssistant.tsx:472:                  disabled={isLoading || !input.trim()}
+frontend/src/app/components/DashboardAssistant.tsx:473:                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-r from-[#94aaff] to-[#3367ff] text-[#001b61] shadow-lg shadow-[#3367ff]/25 transition-all disabled:cursor-not-allowed disabled:opacity-50"
+frontend/src/app/components/DashboardAssistant.tsx:476:                </button>
+frontend/src/app/components/CourseCard.tsx:55:        <button
+frontend/src/app/components/CourseCard.tsx:60:        </button>
+frontend/src/app/components/CourseView.tsx:150:        <button
+frontend/src/app/components/CourseView.tsx:156:        </button>
+frontend/src/app/components/CourseView.tsx:183:            <button className="text-[#a8abb3] transition-colors hover:text-[#f1f3fc]">
+frontend/src/app/components/CourseView.tsx:185:            </button>
+frontend/src/app/components/CourseView.tsx:245:                      role={shouldOpenTrackPopup(lesson) ? 'button' : undefined}
+frontend/src/app/components/CourseView.tsx:297:                        <button
+frontend/src/app/components/CourseView.tsx:306:                        </button>
+frontend/src/app/components/CourseView.tsx:308:                        <button
+frontend/src/app/components/CourseView.tsx:316:                        </button>
+frontend/src/app/components/CourseView.tsx:318:                        <button
+frontend/src/app/components/CourseView.tsx:327:                        </button>
+frontend/src/app/components/CourseView.tsx:342:                    <button
+frontend/src/app/components/CourseView.tsx:344:                      disabled={!nextSectionUnlocked}
+frontend/src/app/components/CourseView.tsx:352:                    </button>
+frontend/src/app/components/CourseView.tsx:376:              <button
+frontend/src/app/components/CourseView.tsx:377:                type="button"
+frontend/src/app/components/CourseView.tsx:385:              </button>
+frontend/src/app/components/CourseView.tsx:419:                    <button
+frontend/src/app/components/CourseView.tsx:420:                      type="button"
+frontend/src/app/components/CourseView.tsx:433:                    </button>
+frontend/src/app/components/Quiz.tsx:100:              <button
+frontend/src/app/components/Quiz.tsx:103:                disabled={showFeedback}
+frontend/src/app/components/Quiz.tsx:119:              </button>
+frontend/src/app/components/Quiz.tsx:131:          <button
+frontend/src/app/components/Quiz.tsx:133:            disabled={selectedAnswer === null}
+frontend/src/app/components/Quiz.tsx:134:            className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 font-semibold rounded-lg hover:from-yellow-300 hover:to-yellow-400 transition-all shadow-lg shadow-yellow-500/30 hover:shadow-yellow-500/50 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+frontend/src/app/components/Quiz.tsx:137:          </button>
+frontend/src/app/components/Quiz.tsx:139:          <button
+frontend/src/app/components/Quiz.tsx:144:          </button>
+frontend/src/app/components/AuthScreen.tsx:101:              <input
+frontend/src/app/components/AuthScreen.tsx:105:                required
+frontend/src/app/components/AuthScreen.tsx:112:              <input
+frontend/src/app/components/AuthScreen.tsx:116:                required
+frontend/src/app/components/AuthScreen.tsx:119:              <button
+frontend/src/app/components/AuthScreen.tsx:120:                type="button"
+frontend/src/app/components/AuthScreen.tsx:123:                aria-label={showLoginPassword ? 'Hide password' : 'Show password'}
+frontend/src/app/components/AuthScreen.tsx:126:              </button>
+frontend/src/app/components/AuthScreen.tsx:130:              <button className="submit-button" type="submit" disabled={isSubmitting}>
+frontend/src/app/components/AuthScreen.tsx:132:              </button>
+frontend/src/app/components/AuthScreen.tsx:136:              <input
+frontend/src/app/components/AuthScreen.tsx:151:                <button
+frontend/src/app/components/AuthScreen.tsx:152:                  type="button"
+frontend/src/app/components/AuthScreen.tsx:160:                </button>
+frontend/src/app/components/AuthScreen.tsx:174:              <input
+frontend/src/app/components/AuthScreen.tsx:178:                required
+frontend/src/app/components/AuthScreen.tsx:185:              <input
+frontend/src/app/components/AuthScreen.tsx:189:                required
+frontend/src/app/components/AuthScreen.tsx:196:              <input
+frontend/src/app/components/AuthScreen.tsx:200:                required
+frontend/src/app/components/AuthScreen.tsx:203:              <button
+frontend/src/app/components/AuthScreen.tsx:204:                type="button"
+frontend/src/app/components/AuthScreen.tsx:207:                aria-label={showSignupPassword ? 'Hide password' : 'Show password'}
+frontend/src/app/components/AuthScreen.tsx:210:              </button>
+frontend/src/app/components/AuthScreen.tsx:214:              <button className="submit-button" type="submit" disabled={isSubmitting}>
+frontend/src/app/components/AuthScreen.tsx:216:              </button>
+frontend/src/app/components/AuthScreen.tsx:226:                <button
+frontend/src/app/components/AuthScreen.tsx:227:                  type="button"
+frontend/src/app/components/AuthScreen.tsx:235:                </button>
+frontend/src/app/components/AuthScreen.css:253:.field-wrapper input {
+frontend/src/app/components/AuthScreen.css:267:.field-wrapper input:focus,
+frontend/src/app/components/AuthScreen.css:268:.field-wrapper input:valid {
+frontend/src/app/components/AuthScreen.css:282:.field-wrapper input:focus~label,
+frontend/src/app/components/AuthScreen.css:283:.field-wrapper input:valid~label {
+frontend/src/app/components/AuthScreen.css:298:.field-wrapper input:focus~.field-icon,
+frontend/src/app/components/AuthScreen.css:299:.field-wrapper input:valid~.field-icon {
+frontend/src/app/components/AuthScreen.css:320:.field-wrapper input:focus~.password-toggle,
+frontend/src/app/components/AuthScreen.css:321:.field-wrapper input:valid~.password-toggle {
+frontend/src/app/components/AuthScreen.css:325:.submit-button {
+frontend/src/app/components/AuthScreen.css:339:.submit-button::before {
+frontend/src/app/components/AuthScreen.css:351:.submit-button:hover:before {
+frontend/src/app/components/AuthScreen.css:390:.remember-row input {
+frontend/src/app/components/AuthScreen.css:678:    .field-wrapper input,
+frontend/src/app/components/AuthScreen.css:683:    .submit-button {
+frontend/src/app/components/Dashboard.tsx:125:                <button
+frontend/src/app/components/Dashboard.tsx:126:                  type="button"
+frontend/src/app/components/Dashboard.tsx:132:                </button>
+frontend/src/app/components/Dashboard.tsx:228:              <button
+frontend/src/app/components/Dashboard.tsx:230:                type="button"
+frontend/src/app/components/Dashboard.tsx:267:              </button>
+frontend/src/app/components/StudyAssistant.tsx:48:  const [input, setInput] = useState('');
+frontend/src/app/components/StudyAssistant.tsx:152:    const trimmed = (prefilledMessage ?? input).trim();
+frontend/src/app/components/StudyAssistant.tsx:250:                  <button
+frontend/src/app/components/StudyAssistant.tsx:251:                    type="button"
+frontend/src/app/components/StudyAssistant.tsx:254:                    title="Clear chat"
+frontend/src/app/components/StudyAssistant.tsx:257:                  </button>
+frontend/src/app/components/StudyAssistant.tsx:259:                <button
+frontend/src/app/components/StudyAssistant.tsx:260:                  type="button"
+frontend/src/app/components/StudyAssistant.tsx:272:                </button>
+frontend/src/app/components/StudyAssistant.tsx:280:              <button
+frontend/src/app/components/StudyAssistant.tsx:281:                type="button"
+frontend/src/app/components/StudyAssistant.tsx:290:              </button>
+frontend/src/app/components/StudyAssistant.tsx:291:              <button
+frontend/src/app/components/StudyAssistant.tsx:292:                type="button"
+frontend/src/app/components/StudyAssistant.tsx:301:              </button>
+frontend/src/app/components/StudyAssistant.tsx:310:                  <button
+frontend/src/app/components/StudyAssistant.tsx:312:                    type="button"
+frontend/src/app/components/StudyAssistant.tsx:317:                  </button>
+frontend/src/app/components/StudyAssistant.tsx:416:                <textarea
+frontend/src/app/components/StudyAssistant.tsx:417:                  value={input}
+frontend/src/app/components/StudyAssistant.tsx:431:                <button
+frontend/src/app/components/StudyAssistant.tsx:432:                  type="button"
+frontend/src/app/components/StudyAssistant.tsx:434:                  disabled={isLoading || !input.trim()}
+frontend/src/app/components/StudyAssistant.tsx:435:                  className={`flex h-11 w-11 items-center justify-center transition-all disabled:cursor-not-allowed disabled:opacity-50 ${
+frontend/src/app/components/StudyAssistant.tsx:442:                </button>
+frontend/src/app/components/StudyAssistant.tsx:449:      <button
+frontend/src/app/components/StudyAssistant.tsx:450:        type="button"
+frontend/src/app/components/StudyAssistant.tsx:457:        title={isOpen ? (isLessonVariant ? 'Close AI Chat' : 'Close QUEST AI') : (isLessonVariant ? 'Open AI Chat' : 'Open QUEST AI')}
+frontend/src/app/components/StudyAssistant.tsx:471:      </button>
+frontend/src/app/components/ui/slider.tsx:34:        "relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50 data-[orientation=vertical]:h-full data-[orientation=vertical]:min-h-44 data-[orientation=vertical]:w-auto data-[orientation=vertical]:flex-col",
+frontend/src/app/components/ui/slider.tsx:56:          className="border-primary bg-background ring-ring/50 block size-4 shrink-0 rounded-full border shadow-sm transition-[color,box-shadow] hover:ring-4 focus-visible:ring-4 focus-visible:outline-hidden disabled:pointer-events-none disabled:opacity-50"
+frontend/src/app/components/ui/switch.tsx:16:        "peer data-[state=checked]:bg-primary data-[state=unchecked]:bg-switch-background focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/80 inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+frontend/src/app/components/ui/carousel.tsx:10:import { Button } from "./button";
+frontend/src/app/components/ui/carousel.tsx:124:        role="region"
+frontend/src/app/components/ui/carousel.tsx:161:      role="group"
+frontend/src/app/components/ui/carousel.tsx:194:      disabled={!canScrollPrev}
+frontend/src/app/components/ui/carousel.tsx:224:      disabled={!canScrollNext}
+frontend/src/app/components/ui/input-otp.tsx:4:import { OTPInput, OTPInputContext } from "input-otp";
+frontend/src/app/components/ui/input-otp.tsx:18:      data-slot="input-otp"
+frontend/src/app/components/ui/input-otp.tsx:20:        "flex items-center gap-2 has-disabled:opacity-50",
+frontend/src/app/components/ui/input-otp.tsx:23:      className={cn("disabled:cursor-not-allowed", className)}
+frontend/src/app/components/ui/input-otp.tsx:32:      data-slot="input-otp-group"
+frontend/src/app/components/ui/input-otp.tsx:46:  const inputOTPContext = React.useContext(OTPInputContext);
+frontend/src/app/components/ui/input-otp.tsx:47:  const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {};
+frontend/src/app/components/ui/input-otp.tsx:51:      data-slot="input-otp-slot"
+frontend/src/app/components/ui/input-otp.tsx:54:        "data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive dark:bg-input/30 border-input relative flex h-9 w-9 items-center justify-center border-y border-r text-sm bg-input-background transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:z-10 data-[active=true]:ring-[3px]",
+frontend/src/app/components/ui/input-otp.tsx:71:    <div data-slot="input-otp-separator" role="separator" {...props}>
+frontend/src/app/components/ui/alert.tsx:30:      role="alert"
+frontend/src/app/components/ui/sheet.tsx:75:        <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
+frontend/src/app/components/LessonPlayer.tsx:70:function cssSnippetMatches(input: string, expected: string) {
+frontend/src/app/components/LessonPlayer.tsx:71:  const inputRules = parseCssRules(input);
+frontend/src/app/components/LessonPlayer.tsx:74:  if (!inputRules || !expectedRules) {
+frontend/src/app/components/LessonPlayer.tsx:79:    const inputDeclarations = inputRules.get(selector);
+frontend/src/app/components/LessonPlayer.tsx:80:    if (!inputDeclarations) {
+frontend/src/app/components/LessonPlayer.tsx:85:      if (inputDeclarations.get(property) !== expectedValue) {
+frontend/src/app/components/LessonPlayer.tsx:350:          } else if (/^(img|body|p|h1|h2|h3|h4|button)$/.test(token)) {
+frontend/src/app/components/LessonPlayer.tsx:1185:                      alt={current.imageAlt ?? current.revealWord}
+frontend/src/app/components/LessonPlayer.tsx:1194:                  <button
+frontend/src/app/components/LessonPlayer.tsx:1196:                    type="button"
+frontend/src/app/components/LessonPlayer.tsx:1207:                  </button>
+frontend/src/app/components/LessonPlayer.tsx:1234:              title={current.browserTitle}
+frontend/src/app/components/LessonPlayer.tsx:1265:                  <button
+frontend/src/app/components/LessonPlayer.tsx:1266:                    type="button"
+frontend/src/app/components/LessonPlayer.tsx:1278:                  </button>
+frontend/src/app/components/LessonPlayer.tsx:1280:                    <button
+frontend/src/app/components/LessonPlayer.tsx:1281:                      type="button"
+frontend/src/app/components/LessonPlayer.tsx:1293:                    </button>
+frontend/src/app/components/LessonPlayer.tsx:1317:                    title={current.previewTitle ?? 'Browser'}
+frontend/src/app/components/LessonPlayer.tsx:1344:                    <button
+frontend/src/app/components/LessonPlayer.tsx:1345:                      type="button"
+frontend/src/app/components/LessonPlayer.tsx:1357:                    </button>
+frontend/src/app/components/LessonPlayer.tsx:1359:                      <button
+frontend/src/app/components/LessonPlayer.tsx:1360:                        type="button"
+frontend/src/app/components/LessonPlayer.tsx:1372:                      </button>
+frontend/src/app/components/LessonPlayer.tsx:1376:                    <button
+frontend/src/app/components/LessonPlayer.tsx:1377:                      type="button"
+frontend/src/app/components/LessonPlayer.tsx:1380:                      aria-label="Clear blank"
+frontend/src/app/components/LessonPlayer.tsx:1384:                    </button>
+frontend/src/app/components/LessonPlayer.tsx:1385:                    <button
+frontend/src/app/components/LessonPlayer.tsx:1386:                      type="button"
+frontend/src/app/components/LessonPlayer.tsx:1406:                    </button>
+frontend/src/app/components/LessonPlayer.tsx:1448:                                    <input
+frontend/src/app/components/LessonPlayer.tsx:1476:                                  <input
+frontend/src/app/components/LessonPlayer.tsx:1490:                                        : isHtmlLikeSnippet(currentBlankValues[index] ?? '') || ['<', '>', '/', 'h1', 'h2', 'h3', 'h4', 'button', 'strong', 'em', 'br', 'p'].includes((currentBlankValues[index] ?? '').trim())
+frontend/src/app/components/LessonPlayer.tsx:1519:                      title="Live Preview"
+frontend/src/app/components/LessonPlayer.tsx:1544:                    <button
+frontend/src/app/components/LessonPlayer.tsx:1546:                      type="button"
+frontend/src/app/components/LessonPlayer.tsx:1555:                    </button>
+frontend/src/app/components/LessonPlayer.tsx:1572:                  <button
+frontend/src/app/components/LessonPlayer.tsx:1573:                    type="button"
+frontend/src/app/components/LessonPlayer.tsx:1585:                  </button>
+frontend/src/app/components/LessonPlayer.tsx:1587:                    <button
+frontend/src/app/components/LessonPlayer.tsx:1588:                      type="button"
+frontend/src/app/components/LessonPlayer.tsx:1600:                    </button>
+frontend/src/app/components/LessonPlayer.tsx:1603:                <button
+frontend/src/app/components/LessonPlayer.tsx:1604:                  type="button"
+frontend/src/app/components/LessonPlayer.tsx:1616:                </button>
+frontend/src/app/components/LessonPlayer.tsx:1680:                    title="Live Preview"
+frontend/src/app/components/LessonPlayer.tsx:1753:                  title={current.previewTitle ?? 'Browser'}
+frontend/src/app/components/LessonPlayer.tsx:1770:              <button
+frontend/src/app/components/LessonPlayer.tsx:1773:                disabled={showFeedback}
+frontend/src/app/components/LessonPlayer.tsx:1788:              </button>
+frontend/src/app/components/LessonPlayer.tsx:1814:        disabled: false,
+frontend/src/app/components/LessonPlayer.tsx:1823:            disabled: selectedAnswer !== step.correctAnswer,
+frontend/src/app/components/LessonPlayer.tsx:1828:            disabled: selectedAnswer === null,
+frontend/src/app/components/LessonPlayer.tsx:1837:            disabled: !interactiveSolved,
+frontend/src/app/components/LessonPlayer.tsx:1842:            disabled: !currentCode.trim(),
+frontend/src/app/components/LessonPlayer.tsx:1850:        disabled: !browserSolved,
+frontend/src/app/components/LessonPlayer.tsx:1857:      disabled: false,
+frontend/src/app/components/LessonPlayer.tsx:1996:          <button
+frontend/src/app/components/LessonPlayer.tsx:1997:            type="button"
+frontend/src/app/components/LessonPlayer.tsx:1999:            disabled={isClaimingReward}
+frontend/src/app/components/LessonPlayer.tsx:2000:            className="rounded-[1.35rem] bg-[#5cfd80] px-10 py-5 font-['Space_Grotesk'] text-xl font-black text-[#005d22] shadow-[0_20px_50px_rgba(92,253,128,0.25)] transition-all hover:brightness-110 disabled:cursor-wait disabled:opacity-70"
+frontend/src/app/components/LessonPlayer.tsx:2003:          </button>
+frontend/src/app/components/LessonPlayer.tsx:2012:        <button
+frontend/src/app/components/LessonPlayer.tsx:2018:        </button>
+frontend/src/app/components/LessonPlayer.tsx:2021:          <button
+frontend/src/app/components/LessonPlayer.tsx:2022:            type="button"
+frontend/src/app/components/LessonPlayer.tsx:2024:            disabled={currentStep === 0}
+frontend/src/app/components/LessonPlayer.tsx:2025:            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#94aaff]/18 bg-[#121b2a] text-slate-200 transition-all hover:border-[#94aaff]/45 hover:bg-[#18243a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+frontend/src/app/components/LessonPlayer.tsx:2028:          </button>
+frontend/src/app/components/LessonPlayer.tsx:2032:              <button
+frontend/src/app/components/LessonPlayer.tsx:2034:                type="button"
+frontend/src/app/components/LessonPlayer.tsx:2036:                disabled={index > furthestStep}
+frontend/src/app/components/LessonPlayer.tsx:2044:          <button
+frontend/src/app/components/LessonPlayer.tsx:2045:            type="button"
+frontend/src/app/components/LessonPlayer.tsx:2047:            disabled={currentStep === lesson.content.length - 1 ? !canAdvanceCurrentStep() : !(currentStep < furthestStep || canAdvanceCurrentStep())}
+frontend/src/app/components/LessonPlayer.tsx:2048:            className="flex h-10 w-10 items-center justify-center rounded-full border border-[#94aaff]/18 bg-[#121b2a] text-slate-200 transition-all hover:border-[#94aaff]/45 hover:bg-[#18243a] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+frontend/src/app/components/LessonPlayer.tsx:2051:          </button>
+frontend/src/app/components/LessonPlayer.tsx:2075:                  <button
+frontend/src/app/components/LessonPlayer.tsx:2076:                    type="button"
+frontend/src/app/components/LessonPlayer.tsx:2082:                  </button>
+frontend/src/app/components/LessonPlayer.tsx:2090:        <button
+frontend/src/app/components/LessonPlayer.tsx:2092:          disabled={action.disabled}
+frontend/src/app/components/LessonPlayer.tsx:2093:          className="rounded-2xl bg-gradient-to-r from-[#94aaff] to-[#3367ff] px-6 py-3 text-base font-semibold text-[#001b61] shadow-[0_18px_40px_rgba(148,170,255,0.24)] transition-all hover:from-[#a7b9ff] hover:to-[#4d7dff] disabled:cursor-not-allowed disabled:opacity-50 sm:px-8 sm:text-lg"
+frontend/src/app/components/LessonPlayer.tsx:2096:        </button>
+frontend/src/app/components/ui/utils.ts:4:export function cn(...inputs: ClassValue[]) {
+frontend/src/app/components/ui/utils.ts:5:  return twMerge(clsx(inputs));
+frontend/src/app/components/ui/context-menu.tsx:129:        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/context-menu.tsx:147:        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/context-menu.tsx:172:        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/tabs.tsx:45:        "data-[state=active]:bg-card dark:data-[state=active]:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring dark:data-[state=active]:border-input dark:data-[state=active]:bg-input/30 text-foreground dark:text-muted-foreground inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-xl border border-transparent px-2 py-1 text-sm font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/accordion.tsx:38:          "focus-visible:border-ring focus-visible:ring-ring/50 flex flex-1 items-start justify-between gap-4 rounded-md py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-50 [&[data-state=open]>svg]:rotate-180",
+frontend/src/app/components/ui/navigation-menu.tsx:62:  "group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=open]:hover:bg-accent data-[state=open]:text-accent-foreground data-[state=open]:focus:bg-accent data-[state=open]:bg-accent/50 focus-visible:ring-ring/50 outline-none transition-[color,box-shadow] focus-visible:ring-[3px] focus-visible:outline-1",
+frontend/src/app/components/ui/table.tsx:73:        "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+frontend/src/app/components/ui/table.tsx:86:        "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+frontend/src/app/components/ui/breadcrumb.tsx:8:  return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;
+frontend/src/app/components/ui/breadcrumb.tsx:56:      role="link"
+frontend/src/app/components/ui/breadcrumb.tsx:57:      aria-disabled="true"
+frontend/src/app/components/ui/breadcrumb.tsx:73:      role="presentation"
+frontend/src/app/components/ui/breadcrumb.tsx:90:      role="presentation"
+frontend/src/app/components/ui/label.tsx:16:        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
+frontend/src/app/components/ui/input.tsx:5:function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+frontend/src/app/components/ui/input.tsx:7:    <input
+frontend/src/app/components/ui/input.tsx:9:      data-slot="input"
+frontend/src/app/components/ui/input.tsx:11:        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+frontend/src/app/components/ui/command.tsx:48:        <Command className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+frontend/src/app/components/ui/command.tsx:62:      data-slot="command-input-wrapper"
+frontend/src/app/components/ui/command.tsx:67:        data-slot="command-input"
+frontend/src/app/components/ui/command.tsx:69:          "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
+frontend/src/app/components/ui/command.tsx:143:        "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/radio-group.tsx:30:        "border-input text-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 aspect-square size-4 shrink-0 rounded-full border shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+frontend/src/app/components/ui/pagination.tsx:9:import { Button, buttonVariants } from "./button";
+frontend/src/app/components/ui/pagination.tsx:14:      role="navigation"
+frontend/src/app/components/ui/pagination.tsx:15:      aria-label="pagination"
+frontend/src/app/components/ui/pagination.tsx:57:        buttonVariants({
+frontend/src/app/components/ui/pagination.tsx:74:      aria-label="Go to previous page"
+frontend/src/app/components/ui/pagination.tsx:91:      aria-label="Go to next page"
+frontend/src/app/components/ui/calendar.tsx:8:import { buttonVariants } from "./button";
+frontend/src/app/components/ui/calendar.tsx:26:        nav_button: cn(
+frontend/src/app/components/ui/calendar.tsx:27:          buttonVariants({ variant: "outline" }),
+frontend/src/app/components/ui/calendar.tsx:30:        nav_button_previous: "absolute left-1",
+frontend/src/app/components/ui/calendar.tsx:31:        nav_button_next: "absolute right-1",
+frontend/src/app/components/ui/calendar.tsx:44:          buttonVariants({ variant: "ghost" }),
+frontend/src/app/components/ui/calendar.tsx:56:        day_disabled: "text-muted-foreground opacity-50",
+frontend/src/app/components/ui/menubar.tsx:106:        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/menubar.tsx:124:        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/menubar.tsx:149:        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-xs py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/sidebar.tsx:10:import { Button } from "./button";
+frontend/src/app/components/ui/sidebar.tsx:11:import { Input } from "./input";
+frontend/src/app/components/ui/sidebar.tsx:190:          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+frontend/src/app/components/ui/sidebar.tsx:282:function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
+frontend/src/app/components/ui/sidebar.tsx:286:    <button
+frontend/src/app/components/ui/sidebar.tsx:289:      aria-label="Toggle Sidebar"
+frontend/src/app/components/ui/sidebar.tsx:292:      title="Toggle Sidebar"
+frontend/src/app/components/ui/sidebar.tsx:327:      data-slot="sidebar-input"
+frontend/src/app/components/ui/sidebar.tsx:328:      data-sidebar="input"
+frontend/src/app/components/ui/sidebar.tsx:421:}: React.ComponentProps<"button"> & { asChild?: boolean }) {
+frontend/src/app/components/ui/sidebar.tsx:422:  const Comp = asChild ? Slot : "button";
+frontend/src/app/components/ui/sidebar.tsx:430:        // Increases the hit area of the button on mobile.
+frontend/src/app/components/ui/sidebar.tsx:477:  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+frontend/src/app/components/ui/sidebar.tsx:506:}: React.ComponentProps<"button"> & {
+frontend/src/app/components/ui/sidebar.tsx:511:  const Comp = asChild ? Slot : "button";
+frontend/src/app/components/ui/sidebar.tsx:514:  const button = (
+frontend/src/app/components/ui/sidebar.tsx:516:      data-slot="sidebar-menu-button"
+frontend/src/app/components/ui/sidebar.tsx:517:      data-sidebar="menu-button"
+frontend/src/app/components/ui/sidebar.tsx:526:    return button;
+frontend/src/app/components/ui/sidebar.tsx:537:      <TooltipTrigger asChild>{button}</TooltipTrigger>
+frontend/src/app/components/ui/sidebar.tsx:553:}: React.ComponentProps<"button"> & {
+frontend/src/app/components/ui/sidebar.tsx:557:  const Comp = asChild ? Slot : "button";
+frontend/src/app/components/ui/sidebar.tsx:564:        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 flex aspect-square w-5 items-center justify-center rounded-md p-0 outline-hidden transition-transform focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
+frontend/src/app/components/ui/sidebar.tsx:565:        // Increases the hit area of the button on mobile.
+frontend/src/app/components/ui/sidebar.tsx:567:        "peer-data-[size=sm]/menu-button:top-1",
+frontend/src/app/components/ui/sidebar.tsx:568:        "peer-data-[size=default]/menu-button:top-1.5",
+frontend/src/app/components/ui/sidebar.tsx:569:        "peer-data-[size=lg]/menu-button:top-2.5",
+frontend/src/app/components/ui/sidebar.tsx:572:          "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
+frontend/src/app/components/ui/sidebar.tsx:590:        "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
+frontend/src/app/components/ui/sidebar.tsx:591:        "peer-data-[size=sm]/menu-button:top-1",
+frontend/src/app/components/ui/sidebar.tsx:592:        "peer-data-[size=default]/menu-button:top-1.5",
+frontend/src/app/components/ui/sidebar.tsx:593:        "peer-data-[size=lg]/menu-button:top-2.5",
+frontend/src/app/components/ui/sidebar.tsx:684:      data-slot="sidebar-menu-sub-button"
+frontend/src/app/components/ui/sidebar.tsx:685:      data-sidebar="menu-sub-button"
+frontend/src/app/components/ui/sidebar.tsx:689:        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+frontend/src/app/components/ui/textarea.tsx:5:function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
+frontend/src/app/components/ui/textarea.tsx:7:    <textarea
+frontend/src/app/components/ui/textarea.tsx:8:      data-slot="textarea"
+frontend/src/app/components/ui/textarea.tsx:10:        "resize-none border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-input-background px-3 py-2 text-base transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+frontend/src/app/components/ui/dialog.tsx:66:        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+frontend/src/app/components/ui/alert-dialog.tsx:7:import { buttonVariants } from "./button";
+frontend/src/app/components/ui/alert-dialog.tsx:127:      className={cn(buttonVariants(), className)}
+frontend/src/app/components/ui/alert-dialog.tsx:139:      className={cn(buttonVariants({ variant: "outline" }), className)}
+frontend/src/app/components/ui/checkbox.tsx:17:        "peer border bg-input-background dark:bg-input/30 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground dark:data-[state=checked]:bg-primary data-[state=checked]:border-primary focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive size-4 shrink-0 rounded-[4px] border shadow-xs transition-shadow outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
+frontend/src/app/components/ui/button.tsx:7:const buttonVariants = cva(
+frontend/src/app/components/ui/button.tsx:8:  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+frontend/src/app/components/ui/button.tsx:16:          "border bg-background text-foreground hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
+frontend/src/app/components/ui/button.tsx:43:}: React.ComponentProps<"button"> &
+frontend/src/app/components/ui/button.tsx:44:  VariantProps<typeof buttonVariants> & {
+frontend/src/app/components/ui/button.tsx:47:  const Comp = asChild ? Slot : "button";
+frontend/src/app/components/ui/button.tsx:51:      data-slot="button"
+frontend/src/app/components/ui/button.tsx:52:      className={cn(buttonVariants({ variant, size, className }))}
+frontend/src/app/components/ui/button.tsx:58:export { Button, buttonVariants };
+frontend/src/app/components/ui/dropdown-menu.tsx:77:        "focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/dropdown-menu.tsx:95:        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/dropdown-menu.tsx:131:        "focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/toggle.tsx:10:  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium hover:bg-muted hover:text-muted-foreground disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none transition-[color,box-shadow] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive whitespace-nowrap",
+frontend/src/app/components/ui/toggle.tsx:16:          "border border-input bg-transparent hover:bg-accent hover:text-accent-foreground",
+frontend/src/app/components/ui/select.tsx:44:        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-full items-center justify-between gap-2 rounded-md border bg-input-background px-3 py-2 text-sm whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+frontend/src/app/components/ui/select.tsx:114:        "focus:bg-accent focus:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2",
+frontend/src/app/components/ui/select.tsx:148:      data-slot="select-scroll-up-button"
+frontend/src/app/components/ui/select.tsx:166:      data-slot="select-scroll-down-button"

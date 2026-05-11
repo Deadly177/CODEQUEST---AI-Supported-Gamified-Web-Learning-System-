@@ -1,0 +1,41 @@
+Duplicate XP Regression Retest - CodeQuest
+
+Status: Completed and passed.
+
+Original Failed Test:
+- Testing/tests/backend-progress-api.test.mjs
+- Test case: POST /api/progress/lessons/:lessonId/complete does not award duplicate XP
+
+Original Bug Summary:
+- Completing the same lesson twice awarded XP again.
+
+Fix Applied:
+- Updated back end/src/lib/progress.js.
+- Newly created course progress entries are now modified through the Mongoose subdocument stored in progress.courseProgress.
+
+Retest Command:
+node --test Testing/tests/backend-progress-api.test.mjs
+
+Retest Result:
+tests 8
+pass 8
+fail 0
+duration_ms 7533.591621
+
+Full Automated Retest Command:
+node --test Testing/tests/*.mjs
+
+Full Automated Retest Result:
+tests 78
+pass 78
+fail 0
+duration_ms 14231.124588
+
+Expected second-completion response after fix:
+awardedPoints: 0
+alreadyCompleted: true
+totalPoints: 50
+
+Final Status:
+The duplicate XP issue is fixed and verified.
+

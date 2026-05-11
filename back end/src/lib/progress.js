@@ -322,8 +322,8 @@ export async function completeLessonForUser(userId, lessonId, timeZone = 'UTC', 
   let courseEntry = progress.courseProgress.find((item) => item.courseId === lessonInfo.courseId);
 
   if (!courseEntry) {
-    courseEntry = { courseId: lessonInfo.courseId, completedLessonIds: [] };
-    progress.courseProgress.push(courseEntry);
+    progress.courseProgress.push({ courseId: lessonInfo.courseId, completedLessonIds: [] });
+    courseEntry = progress.courseProgress[progress.courseProgress.length - 1];
   }
 
   const alreadyCompleted = courseEntry.completedLessonIds.includes(normalizedLessonId);

@@ -1,0 +1,15 @@
+✔ AuthScreen uses the backend API base URL with localhost fallback (1.171393ms)
+✔ AuthScreen login submits identifier and password to the login endpoint (0.214481ms)
+✔ AuthScreen registration submits name, email, and password to the register endpoint (0.154605ms)
+✔ AuthScreen passes token, remember flag, and user data to onSuccess after authentication (0.157782ms)
+✔ AuthScreen displays API error messages for failed login or registration (1.320137ms)
+✔ AuthScreen supports password visibility toggles for login and registration (0.158264ms)
+✔ AuthScreen includes required form fields and submit buttons (0.149704ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 148.691848

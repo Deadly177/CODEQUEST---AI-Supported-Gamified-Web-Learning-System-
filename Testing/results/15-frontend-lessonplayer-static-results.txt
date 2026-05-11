@@ -1,0 +1,14 @@
+✔ LessonPlayer receives an onComplete callback with earned lesson XP (2.330553ms)
+✔ LessonPlayer persists and restores lesson state with localStorage (0.235322ms)
+✔ LessonPlayer tracks completed gated lesson steps (0.171023ms)
+✔ LessonPlayer supports quiz validation and feedback (0.17123ms)
+✔ LessonPlayer renders lesson previews in iframes with srcDoc (0.234179ms)
+✔ LessonPlayer computes earned XP from completed gated steps (0.159943ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 139.520575

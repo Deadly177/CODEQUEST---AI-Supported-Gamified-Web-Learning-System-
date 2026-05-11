@@ -1,0 +1,13 @@
+✔ BuildWorkspace creates a complete preview document with HTML, CSS, and JavaScript sections (1.188991ms)
+✔ BuildWorkspace preview iframe uses srcDoc for the generated preview document (0.171594ms)
+✔ BuildWorkspace preview iframe allows scripts but does not allow same-origin access (0.224059ms)
+✔ BuildWorkspace supports reset and create-new project workflows (0.215909ms)
+✔ BuildWorkspace provides separate editor tabs for HTML, CSS, and JavaScript (0.161903ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 119.046788

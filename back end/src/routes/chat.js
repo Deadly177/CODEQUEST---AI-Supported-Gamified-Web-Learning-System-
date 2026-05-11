@@ -1,34 +1,16 @@
 import express from 'express';
+import { OpenRouter } from '@openrouter/sdk';
 import { ChatSession } from '../../database/ChatSession.js';
 
 const router = express.Router();
+const defaultOpenRouterModel = 'meta-llama/llama-3.3-70b-instruct:free';
 
 function getProviderConfig() {
-  const provider = (process.env.AI_PROVIDER || 'openai').toLowerCase();
-
-  if (provider === 'deepseek') {
-    return {
-      provider,
-      apiKey: process.env.DEEPSEEK_API_KEY || process.env.AI_API_KEY,
-      model: process.env.DEEPSEEK_MODEL || 'deepseek-chat',
-      baseUrl: 'https://api.deepseek.com/chat/completions'
-    };
-  }
-
-  if (provider === 'openrouter') {
-    return {
-      provider,
-      apiKey: process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY,
-      model: process.env.OPENROUTER_MODEL || 'openai/gpt-oss-120b:free',
-      baseUrl: 'https://openrouter.ai/api/v1/chat/completions'
-    };
-  }
-
   return {
-    provider: 'openai',
-    apiKey: process.env.OPENAI_API_KEY || process.env.AI_API_KEY,
-    model: process.env.OPENAI_MODEL || 'gpt-5-mini',
-    baseUrl: 'https://api.openai.com/v1/responses'
+    apiKey: process.env.OPENROUTER_API_KEY || process.env.AI_API_KEY,
+    model: process.env.OPENROUTER_MODEL || defaultOpenRouterModel,
+    httpReferer: process.env.OPENROUTER_SITE_URL || 'http://localhost:5173',
+    appTitle: process.env.OPENROUTER_APP_NAME || 'Code Quest'
   };
 }
 
@@ -45,6 +27,36 @@ async function getOrCreateSession(userId, threadKey) {
     session = await ChatSession.create({ userId, threadKey, messages: [] });
   }
   return session;
+}
+
+async function getOpenRouterReply(providerConfig, systemPrompt, userPrompt) {
+  const openrouter = new OpenRouter({
+    apiKey: providerConfig.apiKey,
+    httpReferer: providerConfig.httpReferer,
+    appTitle: providerConfig.appTitle
+  });
+
+  const stream = await openrouter.chat.send({
+    chatRequest: {
+      model: providerConfig.model,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      temperature: 0.7,
+      stream: true
+    }
+  });
+
+  let reply = '';
+  for await (const chunk of stream) {
+    const content = chunk.choices?.[0]?.delta?.content;
+    if (content) {
+      reply += content;
+    }
+  }
+
+  return reply.trim() || 'No reply returned.';
 }
 
 router.get('/history', async (req, res) => {
@@ -77,11 +89,7 @@ router.post('/', async (req, res) => {
   const providerConfig = getProviderConfig();
   if (!providerConfig.apiKey) {
     return res.status(500).json({
-      error: providerConfig.provider === 'deepseek'
-        ? 'Missing DEEPSEEK_API_KEY on the backend server'
-        : providerConfig.provider === 'openrouter'
-        ? 'Missing OPENROUTER_API_KEY on the backend server'
-        : 'Missing OPENAI_API_KEY on the backend server'
+      error: 'Missing OPENROUTER_API_KEY on the backend server'
     });
   }
 
@@ -108,68 +116,7 @@ router.post('/', async (req, res) => {
       ? `Learning context:\n${context}\n\nRecent conversation:\n${historyText || 'None'}\n\nStudent question: ${String(message).trim()}`
       : `Recent conversation:\n${historyText || 'None'}\n\nStudent question: ${String(message).trim()}`;
 
-    const openRouterReasoning =
-      providerConfig.provider === 'openrouter' && providerConfig.model.startsWith('openai/gpt-oss')
-        ? { reasoning: { enabled: true } }
-        : {};
-
-    const response = providerConfig.provider === 'deepseek' || providerConfig.provider === 'openrouter'
-      ? await fetch(providerConfig.baseUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${providerConfig.apiKey}`,
-            ...(providerConfig.provider === 'openrouter'
-              ? {
-                  'HTTP-Referer': process.env.OPENROUTER_SITE_URL || 'http://localhost:5173',
-                  'X-Title': process.env.OPENROUTER_APP_NAME || 'Code Quest'
-                }
-              : {})
-          },
-          body: JSON.stringify({
-            model: providerConfig.model,
-            temperature: 0.7,
-            ...openRouterReasoning,
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt }
-            ]
-          })
-        })
-      : await fetch('https://api.openai.com/v1/responses', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${providerConfig.apiKey}`
-          },
-          body: JSON.stringify({
-            model: providerConfig.model,
-            instructions: systemPrompt,
-            input: [
-              {
-                role: 'user',
-                content: [
-                  {
-                    type: 'input_text',
-                    text: userPrompt
-                  }
-                ]
-              }
-            ]
-          })
-        });
-
-    const payload = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: payload?.error?.message || 'AI provider request failed'
-      });
-    }
-
-    const reply = providerConfig.provider === 'deepseek' || providerConfig.provider === 'openrouter'
-      ? payload?.choices?.[0]?.message?.content || 'No reply returned.'
-      : payload.output_text || 'No reply returned.';
+    const reply = await getOpenRouterReply(providerConfig, systemPrompt, userPrompt);
 
     session.messages.push(
       { role: 'user', text: String(message).trim() },

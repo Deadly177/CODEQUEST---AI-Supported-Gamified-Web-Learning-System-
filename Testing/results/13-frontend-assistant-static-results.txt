@@ -1,0 +1,18 @@
+✔ StudyAssistant loads chat history from the backend with authentication (2.048026ms)
+✔ StudyAssistant clears chat history with DELETE (0.178819ms)
+✔ StudyAssistant sends chat messages to the backend with context and thread key (0.172783ms)
+✔ StudyAssistant prevents empty or duplicate loading sends (0.148319ms)
+✔ StudyAssistant normalizes assistant markdown-like text (0.15494ms)
+✔ DashboardAssistant loads chat history from the backend with authentication (0.110312ms)
+✔ DashboardAssistant clears chat history with DELETE (0.126418ms)
+✔ DashboardAssistant sends chat messages to the backend with context and thread key (0.119113ms)
+✔ DashboardAssistant prevents empty or duplicate loading sends (0.174182ms)
+✔ DashboardAssistant normalizes assistant markdown-like text (0.187095ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 125.070983

@@ -1,0 +1,14 @@
+✔ buildStats calculates level, current XP, total points, and badges (61.03162ms)
+✔ getDisplayStreak returns zero when the last activity is too old (2.562866ms)
+✔ buildCourseSummaries calculates completed lessons and percentage progress (1.287845ms)
+✔ buildCourseDetail marks only the first course lesson as unlocked for new progress (1.405139ms)
+✔ buildCourseDetail treats a completed lesson track as parent lesson completion (0.636274ms)
+✔ buildCourseDetail returns null for an unknown course (0.253602ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 723.540971

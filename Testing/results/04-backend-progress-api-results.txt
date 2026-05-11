@@ -1,0 +1,16 @@
+✔ GET /api/progress rejects requests without a token (2369.054948ms)
+✔ GET /api/progress returns user stats and course summaries for an authenticated user (460.417968ms)
+✔ GET /api/progress/courses/:courseId returns course detail for a valid course (278.442655ms)
+✔ GET /api/progress/courses/:courseId rejects an unknown course (258.074928ms)
+✔ POST /api/progress/lessons/:lessonId/complete awards XP for an unlocked lesson (294.51776ms)
+✔ POST /api/progress/lessons/:lessonId/complete does not award duplicate XP (370.021083ms)
+✔ POST /api/progress/lessons/:lessonId/complete rejects locked lessons (355.302217ms)
+✔ GET /api/progress/leaderboard returns ranked users by XP (387.165004ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7533.591621

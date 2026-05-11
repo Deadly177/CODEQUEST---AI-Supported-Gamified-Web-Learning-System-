@@ -1,0 +1,15 @@
+✔ App reads authentication tokens from persistent and session storage (2.416735ms)
+✔ App stores and removes authentication tokens for remember-me and logout flows (0.229891ms)
+✔ App API helper sends JSON requests with bearer authentication (0.187328ms)
+✔ App loads authenticated profile, progress, and leaderboard data (0.183382ms)
+✔ App completes lessons through the progress API (0.19051ms)
+✔ App supports core navigation views including build workspace and assistant (0.17286ms)
+✔ App remembers the recently opened course (0.139324ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 139.527244

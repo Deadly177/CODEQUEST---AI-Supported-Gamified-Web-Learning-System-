@@ -1,0 +1,15 @@
+✔ GET /api/users/me rejects requests without a token (2527.101103ms)
+✔ GET /api/users/me returns profile and stats for an authenticated user (482.969894ms)
+✔ PATCH /api/users/me updates the authenticated user name (300.78234ms)
+✔ PATCH /api/users/me rejects an empty name (183.370313ms)
+✔ PATCH /api/users/me/password rejects an incorrect current password (268.43034ms)
+✔ PATCH /api/users/me/password rejects a short new password (173.489442ms)
+✔ PATCH /api/users/me/password updates password and allows login with the new password (430.28118ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6438.698415

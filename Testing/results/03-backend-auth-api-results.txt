@@ -1,0 +1,45 @@
+Downloading MongoDB "8.2.6": 0% (0mb / 83.7mb)
+Downloading MongoDB "8.2.6": 3.8% (3.2mb / 83.7mb)
+Downloading MongoDB "8.2.6": 12% (10.1mb / 83.7mb)
+Downloading MongoDB "8.2.6": 19% (15.9mb / 83.7mb)
+Downloading MongoDB "8.2.6": 25.1% (21mb / 83.7mb)
+Downloading MongoDB "8.2.6": 30.8% (25.8mb / 83.7mb)
+Downloading MongoDB "8.2.6": 35.8% (29.9mb / 83.7mb)
+Downloading MongoDB "8.2.6": 40.4% (33.8mb / 83.7mb)
+Downloading MongoDB "8.2.6": 45.4% (38mb / 83.7mb)
+Downloading MongoDB "8.2.6": 49.5% (41.4mb / 83.7mb)
+Downloading MongoDB "8.2.6": 54.2% (45.4mb / 83.7mb)
+Downloading MongoDB "8.2.6": 57.9% (48.5mb / 83.7mb)
+Downloading MongoDB "8.2.6": 62% (51.9mb / 83.7mb)
+Downloading MongoDB "8.2.6": 66.5% (55.7mb / 83.7mb)
+Downloading MongoDB "8.2.6": 69.2% (57.9mb / 83.7mb)
+Downloading MongoDB "8.2.6": 72.9% (61mb / 83.7mb)
+Downloading MongoDB "8.2.6": 75.9% (63.5mb / 83.7mb)
+Downloading MongoDB "8.2.6": 79.7% (66.7mb / 83.7mb)
+Downloading MongoDB "8.2.6": 82% (68.6mb / 83.7mb)
+Downloading MongoDB "8.2.6": 84.6% (70.8mb / 83.7mb)
+Downloading MongoDB "8.2.6": 86.9% (72.8mb / 83.7mb)
+Downloading MongoDB "8.2.6": 88.8% (74.4mb / 83.7mb)
+Downloading MongoDB "8.2.6": 90.8% (76mb / 83.7mb)
+Downloading MongoDB "8.2.6": 92.5% (77.4mb / 83.7mb)
+Downloading MongoDB "8.2.6": 94.5% (79.1mb / 83.7mb)
+Downloading MongoDB "8.2.6": 95.9% (80.3mb / 83.7mb)
+Downloading MongoDB "8.2.6": 97.3% (81.5mb / 83.7mb)
+Downloading MongoDB "8.2.6": 98.5% (82.4mb / 83.7mb)
+Downloading MongoDB "8.2.6": 99.7% (83.4mb / 83.7mb)
+Downloading MongoDB "8.2.6": 100% (83.7mb / 83.7mb)
+Downloading MongoDB "8.2.6": 100% (0mb / 0mb)
+✔ POST /api/auth/register creates a user and returns a token (68312.387716ms)
+✔ POST /api/auth/register rejects missing required fields (7.201437ms)
+✔ POST /api/auth/register rejects duplicate email addresses (266.574833ms)
+✔ POST /api/auth/login accepts valid credentials (273.940669ms)
+✔ POST /api/auth/login rejects invalid credentials (274.046096ms)
+✔ POST /api/auth/login rejects missing required fields (4.05613ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 70968.775619

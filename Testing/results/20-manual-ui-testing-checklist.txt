@@ -1,0 +1,36 @@
+Manual UI Testing Checklist - CodeQuest
+
+Status: Prepared for manual execution.
+
+Test Cases:
+
+TC-01 Register a new account.
+Expected: User account is created and dashboard opens.
+
+TC-02 Log in with valid credentials.
+Expected: Dashboard opens and user data loads.
+
+TC-03 Log in with invalid credentials.
+Expected: Error message is displayed.
+
+TC-04 Navigate between dashboard, learn, lessons, build, achievements, leaderboard, performance, assistant, and settings.
+Expected: Each view opens without crashing.
+
+TC-05 Open a course and view lesson list.
+Expected: Course detail and lesson lock states display correctly.
+
+TC-06 Open a lesson and complete a lesson step.
+Expected: Progress advances and completion state is saved.
+
+TC-07 Open Build Workspace and edit HTML, CSS, and JavaScript.
+Expected: Preview updates with edited content.
+
+TC-08 Open AI Assistant and send a question.
+Expected: Assistant handles the message or shows clear backend configuration/API error.
+
+TC-09 Open leaderboard.
+Expected: Leaderboard entries display and ranking order is understandable.
+
+TC-10 Open settings and update profile fields.
+Expected: Profile update behavior is clear and errors are shown when needed.
+

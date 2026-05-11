@@ -1,0 +1,22 @@
+
+> codequest-frontend@0.0.1 build
+> vite build
+
+vite v6.4.2 building for production...
+transforming...
+✓ 1633 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                    0.43 kB │ gzip:   0.27 kB
+dist/assets/Third-CWyS2ddp.png   869.19 kB
+dist/assets/First-Dbh08Z8s.png   891.36 kB
+dist/assets/Second-C_0qmNKq.png  905.71 kB
+dist/assets/index-U_pvJfl6.css   200.56 kB │ gzip:  29.62 kB
+dist/assets/index-ChuYNf3a.js     15.14 kB │ gzip:   5.22 kB
+dist/assets/index-CoRUPl8P.js    668.05 kB │ gzip: 137.69 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 3.58s

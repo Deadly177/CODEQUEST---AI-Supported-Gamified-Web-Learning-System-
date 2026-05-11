@@ -1,0 +1,13 @@
+✔ GET /api/chat/history rejects requests without a token (2325.183251ms)
+✔ GET /api/chat/history creates and returns empty history for an authenticated user (409.925793ms)
+✔ DELETE /api/chat/history clears an authenticated user chat thread (503.974255ms)
+✔ POST /api/chat rejects an empty message (216.494953ms)
+✔ POST /api/chat returns a configuration error when no AI API key is configured (181.818474ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6688.176482

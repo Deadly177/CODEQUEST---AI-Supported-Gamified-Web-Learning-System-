@@ -1,0 +1,16 @@
+✔ course catalog exposes the expected points per level value (1.353115ms)
+✔ getCourseCatalog returns available courses (0.365429ms)
+✔ getCourseById returns a known course and null for unknown courses (0.199385ms)
+✔ getSectionsByCourseId returns lessons for known courses and empty array for unknown courses (1.23352ms)
+✔ getLessonTracksByCourseId returns lesson tracks for courses that have tracks (0.195273ms)
+✔ normalizeLessonId returns the original lesson ID when no alias exists (0.15639ms)
+✔ findLesson locates catalog lessons and track lessons (0.362354ms)
+✔ findLesson returns null for unknown lesson IDs (0.159937ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 157.303852

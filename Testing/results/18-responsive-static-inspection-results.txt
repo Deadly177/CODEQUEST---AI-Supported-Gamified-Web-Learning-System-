@@ -1,0 +1,264 @@
+frontend/src/styles/theme.css:108:  --radius-sm: calc(var(--radius) - 4px);
+frontend/src/styles/theme.css:109:  --radius-md: calc(var(--radius) - 2px);
+frontend/src/styles/theme.css:110:  --radius-lg: var(--radius);
+frontend/src/styles/theme.css:111:  --radius-xl: calc(var(--radius) + 4px);
+frontend/src/app/components/CourseSelection.tsx:121:    <div className="mx-auto max-w-[1600px] space-y-16">
+frontend/src/app/components/CourseSelection.tsx:137:        <div className="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+frontend/src/app/components/CourseSelection.tsx:146:              className={`group relative max-w-md overflow-hidden rounded-[2rem] border border-blue-500/20 bg-[#0f141a] p-8 transition-all ${
+frontend/src/app/components/CourseSelection.tsx:168:                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#20262f]">
+frontend/src/app/components/CourseSelection.tsx:201:          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+frontend/src/app/components/CourseSelection.tsx:335:        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
+frontend/src/app/components/DashboardAssistant.tsx:219:      <div className="grid gap-8 xl:grid-cols-[0.95fr_1.05fr]">
+frontend/src/app/components/DashboardAssistant.tsx:220:        <section className="overflow-hidden rounded-[2rem] border border-[#94aaff]/12 bg-[#151a21] p-6 shadow-2xl shadow-black/30 xl:h-[calc(100vh-8rem)]">
+frontend/src/app/components/DashboardAssistant.tsx:229:              <h2 className="max-w-xl font-['Space_Grotesk'] text-4xl font-bold tracking-tight text-[#f1f3fc]">
+frontend/src/app/components/DashboardAssistant.tsx:232:              <p className="mt-4 max-w-xl text-sm leading-7 text-[#a8abb3]">
+frontend/src/app/components/DashboardAssistant.tsx:236:              <div className="mt-6 grid gap-4 md:grid-cols-2">
+frontend/src/app/components/DashboardAssistant.tsx:325:        <section className="flex min-h-[680px] flex-col overflow-hidden rounded-[2rem] border border-[#94aaff]/16 bg-[#111722] shadow-[0_28px_90px_rgba(51,103,255,0.14)] xl:sticky xl:top-8 xl:h-[calc(100vh-8rem)] xl:max-h-[860px]">
+frontend/src/app/components/DashboardAssistant.tsx:397:          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-[linear-gradient(180deg,rgba(17,23,34,0.94),rgba(13,18,26,0.98))] px-5 py-4">
+frontend/src/app/components/DashboardAssistant.tsx:403:                <div className="max-w-[88%] text-sm leading-7">
+frontend/src/app/components/DashboardAssistant.tsx:425:                <div className="max-w-[15rem] text-center">
+frontend/src/app/components/Performance.tsx:91:      <section className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+frontend/src/app/components/Performance.tsx:131:      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+frontend/src/app/components/Performance.tsx:132:        <div className="overflow-hidden rounded-lg bg-[#151a21] p-8 lg:col-span-8">
+frontend/src/app/components/Performance.tsx:178:        <div className="flex flex-col items-center justify-center rounded-lg bg-[#151a21] p-8 lg:col-span-4">
+frontend/src/app/components/Performance.tsx:188:          <div className="relative aspect-square w-full max-w-[240px]">
+frontend/src/app/components/Performance.tsx:221:        <div className="rounded-lg bg-[#151a21] p-8 lg:col-span-6">
+frontend/src/app/components/Performance.tsx:243:                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#20262f]">
+frontend/src/app/components/Performance.tsx:256:        <div className="rounded-lg bg-[#151a21] p-8 lg:col-span-6">
+frontend/src/app/components/AuthScreen.css:3:.auth-screen {
+frontend/src/app/components/AuthScreen.css:16:.auth-screen * {
+frontend/src/app/components/AuthScreen.css:40:    max-width: 800px;
+frontend/src/app/components/AuthScreen.css:45:    overflow: hidden;
+frontend/src/app/components/AuthScreen.css:335:    overflow: hidden;
+frontend/src/app/components/AuthScreen.css:522:@media (max-width: 768px) {
+frontend/src/app/components/AuthScreen.css:523:    .auth-screen {
+frontend/src/app/components/AuthScreen.css:668:@media (max-width: 480px) {
+frontend/src/app/components/LessonsOverview.tsx:51:      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+frontend/src/app/components/AuthScreen.tsx:86:    <div className="auth-screen">
+frontend/src/app/components/Quiz.tsx:61:    <div className="bg-slate-900 border border-cyan-500/30 rounded-xl shadow-2xl shadow-cyan-500/20 p-6 md:p-8 max-w-3xl mx-auto">
+frontend/src/app/components/Achievements.tsx:159:    <div className="flex gap-8 xl:items-start">
+frontend/src/app/components/Achievements.tsx:162:          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+frontend/src/app/components/Achievements.tsx:205:          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+frontend/src/app/components/Achievements.tsx:248:              <div className="hidden h-4 w-px bg-[#44484f]/30 sm:block" />
+frontend/src/app/components/Achievements.tsx:263:          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
+frontend/src/app/components/Achievements.tsx:267:                className={`badge-card glass-panel relative overflow-hidden rounded-xl p-5 text-center ${
+frontend/src/app/components/Achievements.tsx:304:          <div className="grid grid-cols-1 gap-4">
+frontend/src/app/components/Achievements.tsx:326:                <div key={milestone.id} className={`glass-panel relative overflow-hidden rounded-2xl border-l-4 p-6 ${tintClasses.border}`}>
+frontend/src/app/components/Achievements.tsx:327:                  <div className="relative z-10 flex flex-col gap-8 md:flex-row md:items-center">
+frontend/src/app/components/Achievements.tsx:333:                      <p className="max-w-lg text-sm text-[#a8abb3]">{milestone.description}</p>
+frontend/src/app/components/Achievements.tsx:335:                    <div className="w-full md:w-64">
+frontend/src/app/components/Achievements.tsx:342:                      <div className="h-2 w-full overflow-hidden rounded-full bg-[#20262f]">
+frontend/src/app/components/Achievements.tsx:359:      <aside className="hidden w-80 shrink-0 xl:flex xl:flex-col xl:border-l xl:border-[#44484f]/10 xl:bg-[#0f141a] xl:p-6">
+frontend/src/app/components/Achievements.tsx:390:          <div className="relative overflow-hidden rounded-2xl border border-[#ffbd5c]/20 bg-gradient-to-br from-[#1b2028] to-[#151a21] p-6">
+frontend/src/app/components/BuildWorkspace.tsx:26:  width: min(420px, calc(100vw - 32px));
+frontend/src/app/components/BuildWorkspace.tsx:126:    <div className="flex h-screen flex-col overflow-hidden bg-[#0a0e14] text-[#f1f3fc]">
+frontend/src/app/components/BuildWorkspace.tsx:164:      <div className={`grid min-h-0 flex-1 ${previewExpanded ? 'grid-cols-1' : 'grid-cols-[14rem_minmax(0,0.95fr)_minmax(28rem,1.05fr)]'}`}>
+frontend/src/app/components/Dashboard.tsx:87:      <div className="grid grid-cols-12 gap-8">
+frontend/src/app/components/Dashboard.tsx:88:        <div className="col-span-12 lg:col-span-8 overflow-hidden rounded-[2rem] bg-[#151a21] p-8 shadow-2xl shadow-black/30">
+frontend/src/app/components/Dashboard.tsx:91:            <div className="relative z-10 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+frontend/src/app/components/Dashboard.tsx:103:                <p className="mt-3 max-w-xl text-sm leading-7 text-[#a8abb3]">
+frontend/src/app/components/Dashboard.tsx:108:                <div className="mt-8 max-w-md space-y-4">
+frontend/src/app/components/Dashboard.tsx:115:                  <div className="h-3 overflow-hidden rounded-full bg-[#20262f]">
+frontend/src/app/components/Dashboard.tsx:138:        <div className="col-span-12 lg:col-span-4 rounded-[2rem] bg-[#151a21] p-8">
+frontend/src/app/components/Dashboard.tsx:168:            <div className="mt-6 grid w-full grid-cols-2 gap-3">
+frontend/src/app/components/Dashboard.tsx:186:      <div className="grid grid-cols-12 gap-8">
+frontend/src/app/components/Dashboard.tsx:187:        <div className="col-span-12 lg:col-span-7 space-y-5">
+frontend/src/app/components/Dashboard.tsx:219:        <div className="col-span-12 lg:col-span-5 space-y-5">
+frontend/src/app/components/Dashboard.tsx:232:                className="w-full overflow-hidden rounded-[2rem] bg-[#151a21] text-left transition-transform hover:scale-[1.01]"
+frontend/src/app/components/Dashboard.tsx:234:                <div className="relative h-28 w-full overflow-hidden">
+frontend/src/app/components/Dashboard.tsx:255:                    <div className="h-2 overflow-hidden rounded-full bg-[#20262f]">
+frontend/src/app/components/StudyAssistant.tsx:215:        <div className={`mb-4 flex max-w-[calc(100vw-1.5rem)] flex-col overflow-hidden backdrop-blur-xl ${
+frontend/src/app/components/StudyAssistant.tsx:218:            : 'h-[min(68vh,600px)] w-[390px] rounded-[28px] border border-cyan-400/25 bg-slate-950/95 shadow-[0_28px_90px_rgba(6,182,212,0.18)] sm:h-[min(72vh,620px)]'
+frontend/src/app/components/StudyAssistant.tsx:323:          <div className={`min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-4 ${
+frontend/src/app/components/StudyAssistant.tsx:333:                <div className="max-w-[85%]">
+frontend/src/app/components/StudyAssistant.tsx:367:                <div className="max-w-[15rem] text-center">
+frontend/src/app/App.tsx:819:    <div className="min-h-screen bg-[#0a0e14] text-[#f1f3fc]">
+frontend/src/app/App.tsx:821:      <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-[#0f141a] py-8 shadow-2xl shadow-black/40">
+frontend/src/app/App.tsx:957:      <main className={useFullscreenLayout ? 'min-h-screen overflow-hidden' : 'ml-64 min-h-screen overflow-y-auto'}>
+frontend/src/app/App.tsx:993:        <div className={useFullscreenLayout ? '' : useCourseLayout ? '' : 'mx-auto max-w-7xl px-8 py-8'}>
+frontend/src/app/App.tsx:1132:          <div className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-[#ffbd5c]/40 bg-[#121821]/95 p-5 text-center shadow-[0_0_45px_rgba(255,189,92,0.24)] backdrop-blur-xl animate-pulse">
+frontend/src/app/components/CourseCard.tsx:20:    <div className="bg-slate-900 border border-cyan-500/20 rounded-xl shadow-xl shadow-cyan-500/10 overflow-hidden hover:shadow-2xl hover:shadow-cyan-500/20 hover:border-cyan-500/40 transition-all cursor-pointer">
+frontend/src/app/components/CourseCard.tsx:22:        className={`h-32 ${course.color} flex items-center justify-center relative overflow-hidden`}
+frontend/src/app/components/CourseCard.tsx:47:          <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+frontend/src/app/components/Leaderboard.tsx:67:        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+frontend/src/app/components/Leaderboard.tsx:72:            <p className="mt-2 max-w-2xl text-lg text-[#a8abb3]">
+frontend/src/app/components/Leaderboard.tsx:104:      <section className="grid grid-cols-1 items-end gap-6 md:grid-cols-3">
+frontend/src/app/components/Leaderboard.tsx:134:                index === 0 ? 'order-2 md:order-1' : index === 1 ? 'order-1 md:order-2' : 'order-3'
+frontend/src/app/components/Leaderboard.tsx:138:                className={`relative overflow-hidden rounded-lg border-b-4 text-center transition-colors hover:bg-[#1b2028] ${cardClasses} ${cardHeight} ${
+frontend/src/app/components/Leaderboard.tsx:149:                      className={`flex h-full w-full items-center justify-center overflow-hidden rounded-full border-[4px] bg-[#1a171a] ${isChampion ? 'text-5xl' : 'text-3xl'} ${ringClasses}`}
+frontend/src/app/components/Leaderboard.tsx:185:                  <div className={`${isChampion ? 'h-2' : 'h-1'} overflow-hidden rounded-full ${isChampion ? 'bg-[#2b3240]' : 'bg-[#232a35]'}`}>
+frontend/src/app/components/Leaderboard.tsx:215:        <div className="flex flex-col gap-4 rounded-2xl bg-[#151a21] px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+frontend/src/app/components/Leaderboard.tsx:217:            <div className="grid grid-cols-[4rem_minmax(0,1fr)_8rem_7rem] gap-4">
+frontend/src/app/components/Leaderboard.tsx:220:              <span className="hidden text-center sm:block">Streak</span>
+frontend/src/app/components/Leaderboard.tsx:225:          <div className="relative w-full sm:max-w-xs">
+frontend/src/app/components/Leaderboard.tsx:238:          <div className="rounded-2xl border-l-4 border-[#94aaff] bg-[#94aaff]/10 p-4 shadow-[0_0_15px_rgba(148,170,255,0.16)] sm:px-8">
+frontend/src/app/components/Leaderboard.tsx:247:              className="rounded-2xl bg-[#151a21] p-4 transition-colors hover:bg-[#1b2028] sm:px-8"
+frontend/src/app/components/Leaderboard.tsx:255:      <footer className="mt-12 flex flex-col items-center justify-between gap-6 sm:flex-row">
+frontend/src/app/components/Leaderboard.tsx:310:        <div className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border ${highlight ? 'border-[#94aaff]/30 bg-[#20262f]' : 'border-[#44484f]/30 bg-[#20262f]'}`}>
+frontend/src/app/components/Leaderboard.tsx:328:      <div className={`hidden w-32 items-center justify-center gap-1 sm:flex ${streakActive ? 'text-[#ffbd5c]' : 'text-[#a8abb3]'}`}>
+frontend/src/app/components/CourseView.tsx:148:    <div className="min-h-screen bg-[#0a0e14] text-[#f1f3fc]">
+frontend/src/app/components/CourseView.tsx:191:        <div className="mx-auto max-w-5xl space-y-12">
+frontend/src/app/components/CourseView.tsx:206:                    <p className="max-w-lg text-sm font-medium text-[#a8abb3]">{sectionDescription}</p>
+frontend/src/app/components/CourseView.tsx:241:                <div className="grid grid-cols-1 gap-3">
+frontend/src/app/components/CourseView.tsx:334:                  <div className={`mt-6 overflow-hidden rounded-2xl border p-5 shadow-[0_10px_30px_rgba(0,0,0,0.3)] ${
+frontend/src/app/components/CourseView.tsx:370:          <div className="w-full max-w-md rounded-[1.8rem] border border-[#94aaff]/18 bg-[#151a21] p-6 shadow-[0_28px_80px_rgba(0,0,0,0.45)]">
+frontend/src/app/components/UserSettings.tsx:116:      <div className="absolute inset-0 -z-10 overflow-hidden">
+frontend/src/app/components/UserSettings.tsx:123:          <h1 className="mb-1 font-['Space_Grotesk'] text-[2rem] font-bold tracking-tight text-[#f1f3fc] md:text-[2.25rem]">
+frontend/src/app/components/UserSettings.tsx:126:          <p className="font-['Inter'] text-sm text-[#a8abb3] md:text-[15px]">
+frontend/src/app/components/UserSettings.tsx:141:      <div className="grid grid-cols-12 gap-6">
+frontend/src/app/components/UserSettings.tsx:142:        <section className="group relative col-span-12 overflow-hidden rounded-lg bg-[#0f141a] p-6 lg:col-span-8">
+frontend/src/app/components/UserSettings.tsx:152:          <form onSubmit={handleProfileSubmit} className="flex flex-col gap-8 md:flex-row">
+frontend/src/app/components/UserSettings.tsx:155:                <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-[#94aaff] shadow-[0_0_15px_rgba(148,170,255,0.3)]">
+frontend/src/app/components/UserSettings.tsx:200:        <section className="col-span-12 rounded-lg bg-[#0f141a] p-6 lg:col-span-4">
+frontend/src/app/components/UserSettings.tsx:245:        <section className="col-span-12 rounded-lg bg-[#0f141a] p-6 lg:col-span-7">
+frontend/src/app/components/UserSettings.tsx:251:          <form onSubmit={handlePasswordSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
+frontend/src/app/components/UserSettings.tsx:271:            <div className="space-y-2 md:col-span-2">
+frontend/src/app/components/UserSettings.tsx:330:        <section className="col-span-12 rounded-lg bg-[#0f141a] p-6 lg:col-span-5">
+frontend/src/app/components/LessonPlayer.tsx:433:      className="overflow-hidden rounded-2xl border border-white/5 bg-[#0d1117]"
+frontend/src/app/components/LessonPlayer.tsx:1009:        <div className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-[2.5rem] border border-white/5 bg-[linear-gradient(135deg,rgba(21,26,33,0.88),rgba(24,30,38,0.94))] shadow-[0_24px_60px_rgba(0,0,0,0.42)]">
+frontend/src/app/components/LessonPlayer.tsx:1011:          <div className="grid md:grid-cols-2">
+frontend/src/app/components/LessonPlayer.tsx:1162:        <div className="mx-auto flex max-w-4xl flex-col items-center">
+frontend/src/app/components/LessonPlayer.tsx:1163:          <p className="mb-5 max-w-3xl text-center text-sm leading-relaxed text-white sm:text-base">{renderHighlightedText(current.data)}</p>
+frontend/src/app/components/LessonPlayer.tsx:1165:            <p className="mb-5 max-w-3xl text-center text-sm leading-6 text-slate-300">{current.secondaryText}</p>
+frontend/src/app/components/LessonPlayer.tsx:1168:          <div className="w-full max-w-[32rem] overflow-hidden rounded-[1.25rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1222:        <div className="mx-auto flex max-w-4xl flex-col items-center">
+frontend/src/app/components/LessonPlayer.tsx:1223:          <p className="mb-4 max-w-3xl text-center text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
+frontend/src/app/components/LessonPlayer.tsx:1225:            <p className="mb-4 max-w-3xl text-center text-sm leading-6 text-slate-300 sm:text-base">{current.secondaryText}</p>
+frontend/src/app/components/LessonPlayer.tsx:1228:          <div className="w-full max-w-[42rem] overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.35)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1237:              className="h-[19rem] w-full bg-white sm:h-[23rem]"
+frontend/src/app/components/LessonPlayer.tsx:1246:        <div className="mx-auto flex min-h-[18rem] max-w-4xl flex-col items-center justify-center text-center">
+frontend/src/app/components/LessonPlayer.tsx:1247:          <p className="text-base leading-relaxed text-white sm:text-lg">{renderHighlightedText(current.data)}</p>
+frontend/src/app/components/LessonPlayer.tsx:1249:            <p className="mt-6 max-w-3xl text-base leading-7 text-slate-300">{current.secondaryText}</p>
+frontend/src/app/components/LessonPlayer.tsx:1259:          <div className="mx-auto flex max-w-6xl flex-col justify-center">
+frontend/src/app/components/LessonPlayer.tsx:1260:          <p className="mb-7 text-center text-base font-semibold leading-relaxed text-[#f1f3fc] sm:text-lg">{renderHighlightedText(current.data)}</p>
+frontend/src/app/components/LessonPlayer.tsx:1261:          <div className={`grid gap-6 ${showCodePreview ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'grid-cols-1'}`}>
+frontend/src/app/components/LessonPlayer.tsx:1262:            <div className="overflow-hidden rounded-[1.75rem] border border-[#94aaff]/22 bg-[linear-gradient(180deg,rgba(24,31,44,0.94),rgba(13,18,29,0.96))] shadow-[0_24px_80px_rgba(0,0,0,0.34),0_0_0_1px_rgba(148,170,255,0.06)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1263:              <div className="border-b border-[#94aaff]/16 bg-[#111927] px-4 py-2.5 shadow-[inset_0_-1px_0_rgba(148,170,255,0.06)] sm:px-6 sm:py-3">
+frontend/src/app/components/LessonPlayer.tsx:1273:                    className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+frontend/src/app/components/LessonPlayer.tsx:1288:                      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+frontend/src/app/components/LessonPlayer.tsx:1297:              <div className="p-4 sm:p-6">
+frontend/src/app/components/LessonPlayer.tsx:1298:                <pre className="overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-[#94aaff] sm:text-base sm:leading-7">
+frontend/src/app/components/LessonPlayer.tsx:1305:              <div className="self-start overflow-hidden rounded-[1.75rem] border border-[#5cfd80]/18 bg-[linear-gradient(180deg,rgba(20,34,31,0.9),rgba(13,18,29,0.96))] shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1306:                <div className="border-b border-[#5cfd80]/14 bg-[#101b20] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
+frontend/src/app/components/LessonPlayer.tsx:1310:                  <div className="h-[24rem] overflow-auto bg-[rgba(49,51,92,0.88)] p-5 font-mono text-[1.05rem] leading-8">
+frontend/src/app/components/LessonPlayer.tsx:1337:          <div className="mx-auto flex max-w-5xl flex-col">
+frontend/src/app/components/LessonPlayer.tsx:1338:            <p className="mb-4 text-center text-[15px] font-semibold leading-relaxed text-[#f1f3fc] sm:text-lg">{renderHighlightedText(current.data)}</p>
+frontend/src/app/components/LessonPlayer.tsx:1340:            <div className={`grid gap-6 ${showFeedback && interactiveSolved ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'lg:grid-cols-1'}`}>
+frontend/src/app/components/LessonPlayer.tsx:1341:              <div className={`overflow-hidden rounded-[1.75rem] border border-[#94aaff]/24 bg-[linear-gradient(180deg,rgba(24,31,44,0.96),rgba(12,17,28,0.98))] shadow-[0_28px_90px_rgba(0,0,0,0.38),0_0_0_1px_rgba(148,170,255,0.08)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-[920px]'}`}>
+frontend/src/app/components/LessonPlayer.tsx:1342:                <div className="flex items-center justify-between border-b border-[#94aaff]/16 bg-[#111927] px-4 py-2.5 shadow-[inset_0_-1px_0_rgba(148,170,255,0.06)] sm:px-6 sm:py-3">
+frontend/src/app/components/LessonPlayer.tsx:1352:                      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+frontend/src/app/components/LessonPlayer.tsx:1367:                        className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+frontend/src/app/components/LessonPlayer.tsx:1379:                      className="flex items-center gap-1.5 rounded-full border border-[#ff6e84]/24 bg-[#21131a] px-2.5 py-1 text-[11px] text-[#ffc6d0] transition-colors hover:border-[#ff6e84]/45 hover:text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
+frontend/src/app/components/LessonPlayer.tsx:1402:                      className="flex items-center gap-1.5 rounded-full border border-[#94aaff]/22 bg-[#111827] px-2.5 py-1 text-[11px] text-[#d8e0ff] transition-colors hover:border-[#94aaff]/45 hover:bg-[#17213a] hover:text-white sm:gap-2 sm:px-3 sm:py-1.5 sm:text-xs"
+frontend/src/app/components/LessonPlayer.tsx:1409:                <div className="p-4 sm:p-5">
+frontend/src/app/components/LessonPlayer.tsx:1412:                      <div className="overflow-hidden rounded-2xl border border-[#94aaff]/18 bg-[#080d16] shadow-[inset_0_1px_0_rgba(148,170,255,0.05)]">
+frontend/src/app/components/LessonPlayer.tsx:1430:                    <div className={`h-[19rem] rounded-2xl border border-[#94aaff]/18 bg-[#080d16] font-mono text-sm leading-6 text-slate-100 shadow-[inset_0_1px_0_rgba(148,170,255,0.05)] sm:h-[21rem] sm:text-[15px] sm:leading-6 ${useMonacoLikeBlankEditor ? 'overflow-hidden p-0' : 'p-4 sm:p-4'}`}>
+frontend/src/app/components/LessonPlayer.tsx:1431:                      <div className={`lesson-code-scrollbar h-full overflow-x-auto overflow-y-auto ${useMonacoLikeBlankEditor ? '' : 'pr-2'}`}>
+frontend/src/app/components/LessonPlayer.tsx:1433:                          <div className="flex min-w-max text-[14px] leading-[1.8] sm:text-[15px]">
+frontend/src/app/components/LessonPlayer.tsx:1459:                                      className={`${getBlankSpacingClass(part, visibleTemplateParts[index + 1] ?? '')} inline-block h-7 rounded-[0.75rem] border px-2 py-0.5 align-middle text-center text-[11px] font-semibold outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 focus:ring-2 sm:h-8 sm:rounded-[0.8rem] sm:text-xs ${
+frontend/src/app/components/LessonPlayer.tsx:1471:                          <div className="min-w-max whitespace-pre-wrap break-words text-[14px] leading-[1.4] text-[#94aaff] sm:text-[15px] sm:leading-[1.45]">
+frontend/src/app/components/LessonPlayer.tsx:1487:                                    className={`${getBlankSpacingClass(part, visibleTemplateParts[index + 1] ?? '')} inline-block h-7 rounded-[0.75rem] border px-2 py-0.5 align-middle text-center text-[11px] font-semibold outline-none shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-all duration-200 focus:ring-2 sm:h-8 sm:rounded-[0.8rem] sm:text-xs ${
+frontend/src/app/components/LessonPlayer.tsx:1507:                <div className="overflow-hidden rounded-[1.75rem] border border-[#5cfd80]/20 bg-[linear-gradient(180deg,rgba(20,34,31,0.9),rgba(13,18,29,0.96))] shadow-[0_24px_80px_rgba(0,0,0,0.34)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1508:                  <div className="border-b border-[#5cfd80]/14 bg-[#101b20] px-4 py-2.5 text-xs font-semibold text-slate-100 sm:px-5 sm:py-3 sm:text-sm">
+frontend/src/app/components/LessonPlayer.tsx:1512:                    <div className="h-[19rem] overflow-auto bg-[#08100f] p-5 font-mono text-[1.05rem] leading-8 sm:h-[21rem]">
+frontend/src/app/components/LessonPlayer.tsx:1522:                      className="h-[19rem] w-full bg-white sm:h-[21rem]"
+frontend/src/app/components/LessonPlayer.tsx:1538:              <div className="flex max-w-[920px] flex-wrap items-center justify-center gap-2 sm:gap-3">
+frontend/src/app/components/LessonPlayer.tsx:1548:                      className={`rounded-full border px-2.5 py-1.5 font-mono text-[10px] transition-all sm:px-3 sm:text-[11px] ${
+frontend/src/app/components/LessonPlayer.tsx:1565:          <div className="mx-auto flex max-w-6xl flex-col">
+frontend/src/app/components/LessonPlayer.tsx:1566:          <p className="mb-5 text-center text-base font-semibold leading-relaxed text-[#f1f3fc] sm:text-lg">{renderHighlightedText(current.data)}</p>
+frontend/src/app/components/LessonPlayer.tsx:1568:          <div className={`grid gap-6 ${showFeedback && interactiveSolved ? 'lg:grid-cols-[1.2fr_0.72fr]' : 'lg:grid-cols-1'}`}>
+frontend/src/app/components/LessonPlayer.tsx:1569:            <div className={`overflow-hidden rounded-[1.75rem] border border-[#94aaff]/24 bg-[linear-gradient(180deg,rgba(24,31,44,0.96),rgba(12,17,28,0.98))] shadow-[0_28px_90px_rgba(0,0,0,0.38),0_0_0_1px_rgba(148,170,255,0.08)] backdrop-blur-[20px] ${showFeedback && interactiveSolved ? '' : 'mx-auto w-full max-w-3xl'}`}>
+frontend/src/app/components/LessonPlayer.tsx:1580:                    className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+frontend/src/app/components/LessonPlayer.tsx:1595:                      className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors sm:px-3 sm:text-sm ${
+frontend/src/app/components/LessonPlayer.tsx:1621:                    <div className="overflow-hidden rounded-2xl border border-[#94aaff]/18 bg-[#080d16] shadow-[inset_0_1px_0_rgba(148,170,255,0.05)]">
+frontend/src/app/components/LessonPlayer.tsx:1646:                    <div className="overflow-hidden rounded-2xl border border-[#94aaff]/18 bg-[#080d16] shadow-[inset_0_1px_0_rgba(148,170,255,0.05)]">
+frontend/src/app/components/LessonPlayer.tsx:1668:              <div className="overflow-hidden rounded-[1.75rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_24px_80px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1673:                  <div className="h-[16rem] overflow-auto bg-[rgba(49,51,92,0.88)] p-5 font-mono text-[1.05rem] leading-8">
+frontend/src/app/components/LessonPlayer.tsx:1710:      <div className="mx-auto max-w-3xl">
+frontend/src/app/components/LessonPlayer.tsx:1711:        <p className="mb-8 text-center text-lg leading-relaxed text-white sm:text-xl">{renderHighlightedText(current.data)}</p>
+frontend/src/app/components/LessonPlayer.tsx:1717:                ? 'lg:grid-cols-[1.2fr_0.72fr]'
+frontend/src/app/components/LessonPlayer.tsx:1718:                : 'grid-cols-1'
+frontend/src/app/components/LessonPlayer.tsx:1722:              <div className="overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1727:                  <pre className="overflow-x-auto whitespace-pre-wrap text-base leading-7 text-[#94aaff]">
+frontend/src/app/components/LessonPlayer.tsx:1735:              <div className="self-start overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1739:                <div className="h-[16rem] overflow-auto bg-[rgba(49,51,92,0.88)] p-5 font-mono text-[1.05rem] leading-8">
+frontend/src/app/components/LessonPlayer.tsx:1748:              <div className="self-start overflow-hidden rounded-[1.5rem] border border-white/5 bg-[rgba(21,26,33,0.68)] shadow-[0_20px_40px_rgba(0,0,0,0.24)] backdrop-blur-[20px]">
+frontend/src/app/components/LessonPlayer.tsx:1785:                  <span className="text-base text-white sm:text-lg">{renderHighlightedText(option)}</span>
+frontend/src/app/components/LessonPlayer.tsx:1891:      <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#151a21_0%,#10141b_100%)] px-6 py-16 text-[#f1f3fc]">
+frontend/src/app/components/LessonPlayer.tsx:1892:        <div className="flex w-full max-w-4xl flex-col items-center text-center">
+frontend/src/app/components/LessonPlayer.tsx:1917:              <p className="mb-10 max-w-2xl text-lg text-[#a8abb3]">Great job finishing this lesson. Collect your XP reward to keep going.</p>
+frontend/src/app/components/LessonPlayer.tsx:1931:              <div className="mb-10 w-full max-w-3xl rounded-[2rem] border border-[#5cfd80]/20 bg-[#5cfd80]/10 px-6 py-7 text-left shadow-[0_24px_80px_rgba(0,0,0,0.22)]">
+frontend/src/app/components/LessonPlayer.tsx:1946:                <p className="mb-6 max-w-2xl text-base leading-7 text-[#c1c6db]">
+frontend/src/app/components/LessonPlayer.tsx:1952:                <div className="mb-5 grid gap-4 md:grid-cols-2">
+frontend/src/app/components/LessonPlayer.tsx:1963:                <div className="overflow-hidden rounded-[1.5rem] border border-white/8 bg-[rgba(255,255,255,0.04)] p-4">
+frontend/src/app/components/LessonPlayer.tsx:1964:                  <div className="overflow-hidden rounded-[1.25rem] border border-white/8 bg-[rgba(16,20,27,0.3)]">
+frontend/src/app/components/LessonPlayer.tsx:2010:    <div className="flex h-screen flex-col overflow-hidden bg-[radial-gradient(circle_at_50%_0%,rgba(148,170,255,0.10),transparent_28%),linear-gradient(180deg,#111821_0%,#080d14_100%)]">
+frontend/src/app/components/LessonPlayer.tsx:2017:          <span className="hidden text-sm font-medium sm:inline">Back to course</span>
+frontend/src/app/components/LessonPlayer.tsx:2020:        <div className="flex w-full max-w-5xl items-center gap-3 px-4">
+frontend/src/app/components/LessonPlayer.tsx:2060:      <div className={`min-h-0 flex-1 overflow-y-auto px-6 py-6 sm:px-8 ${step.type === 'intro' ? 'flex items-center justify-center' : ''}`}>
+frontend/src/app/components/LessonPlayer.tsx:2064:      <div className="flex items-end justify-between border-t border-[#94aaff]/12 bg-[#0d131d]/92 px-6 py-4 shadow-[0_-10px_30px_rgba(0,0,0,0.22)] backdrop-blur-xl sm:px-8">
+frontend/src/app/components/LessonPlayer.tsx:2093:          className="rounded-2xl bg-gradient-to-r from-[#94aaff] to-[#3367ff] px-6 py-3 text-base font-semibold text-[#001b61] shadow-[0_18px_40px_rgba(148,170,255,0.24)] transition-all hover:from-[#a7b9ff] hover:to-[#4d7dff] disabled:cursor-not-allowed disabled:opacity-50 sm:px-8 sm:text-lg"
+frontend/src/app/components/ui/pagination.tsx:76:      className={cn("gap-1 px-2.5 sm:pl-2.5", className)}
+frontend/src/app/components/ui/pagination.tsx:80:      <span className="hidden sm:block">Previous</span>
+frontend/src/app/components/ui/pagination.tsx:93:      className={cn("gap-1 px-2.5 sm:pr-2.5", className)}
+frontend/src/app/components/ui/pagination.tsx:96:      <span className="hidden sm:block">Next</span>
+frontend/src/app/components/ui/alert-dialog.tsx:57:          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+frontend/src/app/components/ui/alert-dialog.tsx:73:      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+frontend/src/app/components/ui/alert-dialog.tsx:87:        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+frontend/src/app/components/ui/carousel.tsx:141:      className="overflow-hidden"
+frontend/src/app/components/ui/button.tsx:25:        sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
+frontend/src/app/components/ui/button.tsx:26:        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+frontend/src/app/components/ui/select.tsx:68:          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
+frontend/src/app/components/ui/breadcrumb.tsx:16:        "text-muted-foreground flex flex-wrap items-center gap-1.5 text-sm break-words sm:gap-2.5",
+frontend/src/app/components/ui/menubar.tsx:82:          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[12rem] origin-(--radix-menubar-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-md",
+frontend/src/app/components/ui/menubar.tsx:251:        "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-menubar-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg",
+frontend/src/app/components/ui/calendar.tsx:21:        months: "flex flex-col sm:flex-row gap-2",
+frontend/src/app/components/ui/dropdown-menu.tsx:45:          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md",
+frontend/src/app/components/ui/dropdown-menu.tsx:233:        "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg",
+frontend/src/app/components/ui/sheet.tsx:63:            "data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right inset-y-0 right-0 h-full w-3/4 border-l sm:max-w-sm",
+frontend/src/app/components/ui/sheet.tsx:65:            "data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left inset-y-0 left-0 h-full w-3/4 border-r sm:max-w-sm",
+frontend/src/app/components/ui/table.tsx:11:      className="relative w-full overflow-x-auto"
+frontend/src/app/components/ui/avatar.tsx:16:        "relative flex size-10 shrink-0 overflow-hidden rounded-full",
+frontend/src/app/components/ui/context-menu.tsx:88:        "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg",
+frontend/src/app/components/ui/context-menu.tsx:105:          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md",
+frontend/src/app/components/ui/alert.tsx:7:  "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current",
+frontend/src/app/components/ui/sidebar.tsx:210:      className="group peer text-sidebar-foreground hidden md:block"
+frontend/src/app/components/ui/sidebar.tsx:232:          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+frontend/src/app/components/ui/sidebar.tsx:294:        "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
+frontend/src/app/components/ui/sidebar.tsx:313:        "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
+frontend/src/app/components/ui/sidebar.tsx:377:        "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+frontend/src/app/components/ui/sidebar.tsx:431:        "after:absolute after:-inset-2 md:after:hidden",
+frontend/src/app/components/ui/sidebar.tsx:477:  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+frontend/src/app/components/ui/sidebar.tsx:487:        sm: "h-7 text-xs",
+frontend/src/app/components/ui/sidebar.tsx:488:        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
+frontend/src/app/components/ui/sidebar.tsx:566:        "after:absolute after:-inset-2 md:after:hidden",
+frontend/src/app/components/ui/sidebar.tsx:572:          "peer-data-[active=true]/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 md:opacity-0",
+frontend/src/app/components/ui/sidebar.tsx:628:        className="h-4 max-w-(--skeleton-width) flex-1"
+frontend/src/app/components/ui/sidebar.tsx:689:        "text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+frontend/src/app/components/ui/command.tsx:24:        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
+frontend/src/app/components/ui/command.tsx:47:      <DialogContent className="overflow-hidden p-0">
+frontend/src/app/components/ui/command.tsx:86:        "max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto",
+frontend/src/app/components/ui/command.tsx:114:        "text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium",
+frontend/src/app/components/ui/toggle.tsx:20:        sm: "h-8 px-1.5 min-w-8",
+frontend/src/app/components/ui/toggle.tsx:21:        lg: "h-10 px-2.5 min-w-10",
+frontend/src/app/components/ui/progress.tsx:17:        "bg-primary/20 relative h-2 w-full overflow-hidden rounded-full",
+frontend/src/app/components/ui/drawer.tsx:62:          "data-[vaul-drawer-direction=right]:inset-y-0 data-[vaul-drawer-direction=right]:right-0 data-[vaul-drawer-direction=right]:w-3/4 data-[vaul-drawer-direction=right]:border-l data-[vaul-drawer-direction=right]:sm:max-w-sm",
+frontend/src/app/components/ui/drawer.tsx:63:          "data-[vaul-drawer-direction=left]:inset-y-0 data-[vaul-drawer-direction=left]:left-0 data-[vaul-drawer-direction=left]:w-3/4 data-[vaul-drawer-direction=left]:border-r data-[vaul-drawer-direction=left]:sm:max-w-sm",
+frontend/src/app/components/ui/input.tsx:11:        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border px-3 py-1 text-base bg-input-background transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+frontend/src/app/components/ui/badge.tsx:8:  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+frontend/src/app/components/ui/dialog.tsx:60:          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg",
+frontend/src/app/components/ui/dialog.tsx:79:      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+frontend/src/app/components/ui/dialog.tsx:90:        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+frontend/src/app/components/ui/textarea.tsx:10:        "resize-none border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-input-background px-3 py-2 text-base transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+frontend/src/app/components/ui/slider.tsx:42:          "bg-muted relative grow overflow-hidden rounded-full data-[orientation=horizontal]:h-4 data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-1.5",
+frontend/src/app/components/ui/accordion.tsx:58:      className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
+frontend/src/app/components/ui/card.tsx:23:        "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
+frontend/src/app/components/ui/navigation-menu.tsx:21:        "group/navigation-menu relative flex max-w-max flex-1 items-center justify-center",
+frontend/src/app/components/ui/navigation-menu.tsx:93:        "data-[motion^=from-]:animate-in data-[motion^=to-]:animate-out data-[motion^=from-]:fade-in data-[motion^=to-]:fade-out data-[motion=from-end]:slide-in-from-right-52 data-[motion=from-start]:slide-in-from-left-52 data-[motion=to-end]:slide-out-to-right-52 data-[motion=to-start]:slide-out-to-left-52 top-0 left-0 w-full p-2 pr-2.5 md:absolute md:w-auto",
+frontend/src/app/components/ui/navigation-menu.tsx:94:        "group-data-[viewport=false]/navigation-menu:bg-popover group-data-[viewport=false]/navigation-menu:text-popover-foreground group-data-[viewport=false]/navigation-menu:data-[state=open]:animate-in group-data-[viewport=false]/navigation-menu:data-[state=closed]:animate-out group-data-[viewport=false]/navigation-menu:data-[state=closed]:zoom-out-95 group-data-[viewport=false]/navigation-menu:data-[state=open]:zoom-in-95 group-data-[viewport=false]/navigation-menu:data-[state=open]:fade-in-0 group-data-[viewport=false]/navigation-menu:data-[state=closed]:fade-out-0 group-data-[viewport=false]/navigation-menu:top-full group-data-[viewport=false]/navigation-menu:mt-1.5 group-data-[viewport=false]/navigation-menu:overflow-hidden group-data-[viewport=false]/navigation-menu:rounded-md group-data-[viewport=false]/navigation-menu:border group-data-[viewport=false]/navigation-menu:shadow group-data-[viewport=false]/navigation-menu:duration-200 **:data-[slot=navigation-menu-link]:focus:ring-0 **:data-[slot=navigation-menu-link]:focus:outline-none",
+frontend/src/app/components/ui/navigation-menu.tsx:115:          "origin-top-center bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border shadow md:w-[var(--radix-navigation-menu-viewport-width)]",
+frontend/src/app/components/ui/navigation-menu.tsx:148:        "data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in top-full z-[1] flex h-1.5 items-end justify-center overflow-hidden",
+frontend/src/app/components/ui/use-mobile.ts:11:    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
+frontend/src/app/courses/css/lessons.ts:3760:                  max-width: 620px;
+frontend/src/app/courses/css/lessons.ts:4254:                max-width: 520px;
+frontend/src/app/courses/css/lessons.ts:4796:                overflow: hidden;
