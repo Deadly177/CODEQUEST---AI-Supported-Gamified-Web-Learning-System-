@@ -2,6 +2,7 @@ services:
   - type: web
     name: codequest-api
     runtime: node
+    plan: free
     rootDir: back end
     buildCommand: npm install
     startCommand: npm start
